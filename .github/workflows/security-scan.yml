@@ -1,0 +1,80 @@
+name: Security Scan
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  gitleaks:
+    name: Secret Detection
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  yaml-lint:
+    name: YAML Validation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install yamllint
+        run: pip install yamllint
+
+      - name: Lint YAML configs
+        run: |
+          yamllint -d "{extends: relaxed, rules: {line-length: {max: 200}}}" \
+            configs/**/*.yaml
+
+  shellcheck:
+    name: Shell Script Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run ShellCheck
+        uses: ludeeus/action-shellcheck@master
+        with:
+          scandir: './tools'
+          severity: warning
+
+  credential-patterns:
+    name: Credential Pattern Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check for credential patterns
+        run: |
+          echo "Checking for potential credentials in tracked files..."
+          FOUND=0
+
+          # Check for common credential patterns
+          for pattern in "password\s*=" "api_key\s*=" "secret\s*=" "token\s*=" "psk\s*=\s*['\"][A-Za-z0-9+/=]"; do
+            if grep -rn --include="*.py" --include="*.sh" --include="*.yaml" --include="*.yml" \
+               --include="*.json" --include="*.md" -iE "$pattern" . | \
+               grep -v "template" | grep -v "example" | grep -v "NEVER_COMMIT" | \
+               grep -v ".env.template" | grep -v "bridge.env.template" | \
+               grep -v "# " | grep -v "placeholder" | head -5; then
+              FOUND=1
+            fi
+          done
+
+          if [ "$FOUND" -eq 1 ]; then
+            echo ""
+            echo "WARNING: Potential credentials found. Review the above matches."
+            echo "If these are templates or documentation, they are safe."
+            echo "If these contain actual secrets, remove them immediately."
+          else
+            echo "No credential patterns found. OK."
+          fi
