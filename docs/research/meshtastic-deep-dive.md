@@ -1,7 +1,9 @@
 # Meshtastic Firmware & Ecosystem Deep Dive
 
 **Research Date:** 2026-02-11
+
 **Project:** LA-Mesh (Lewiston-Auburn / Bates College Community LoRa Mesh)
+
 **Researcher:** Claude Agent (LA-Mesh Sprint Research)
 
 ---
@@ -36,6 +38,7 @@
 **Key Insight:** Meshtastic does not use traditional "stable" releases. The project considers **Beta** releases to be "like stable versions" for most users. The small team iterates rapidly, so Beta is the recommended track for production deployments.
 
 Sources:
+
 - [Meshtastic Firmware Releases (GitHub)](https://github.com/meshtastic/firmware/releases)
 - [Meshtastic Downloads](https://meshtastic.org/downloads/)
 - [Release Alert Tracker](https://releasealert.dev/github/meshtastic/firmware)
@@ -43,12 +46,14 @@ Sources:
 ### Major Feature Timeline
 
 #### Version 2.5 (Foundation)
+
 - **Public Key Cryptography (PKC)** for Direct Messages (DMs)
 - **Session IDs** for Admin Messages (replay attack prevention)
 - End of legacy unencrypted DMs
 - x25519 key exchange + AES-CCM for DM encryption
 
 #### Version 2.6 (Major Feature Release)
+
 - **MUI (Meshtastic UI)**: Brand-new touchscreen interface for standalone devices
   - 12,000+ lines of custom code
   - Dashboard, node list, chat, dynamic map, traceroute, signal meter
@@ -64,6 +69,7 @@ Sources:
 - **Optimized LoRa Slot-Time**: Reduced collision rates
 
 #### Version 2.7 (Current Development)
+
 - Device telemetry broadcasts disabled by default over mesh (reduces congestion)
 - nRF52 power usage optimization
 - BLE TX power configurability for nRF52
@@ -73,6 +79,7 @@ Sources:
 - BaseUI improvements
 
 Sources:
+
 - [Meshtastic 2.6 Preview Blog](https://meshtastic.org/blog/meshtastic-2-6-preview/)
 - [NHMesh 2.6 Release Guide](https://www.nhmesh.com/blog/meshtastic-2-6-release)
 - [Iowa Mesh v2.6 Feature Summary](https://iowamesh.net/blog/2025/03/28/meshtastic-v2.6-a-feature-packed-release/)
@@ -80,6 +87,7 @@ Sources:
 ### Roadmap Direction
 
 The project is moving toward:
+
 - More efficient routing (next-hop becoming standard)
 - Reduced network congestion (telemetry off by default)
 - Better standalone device experience (MUI, InkHUD)
@@ -160,6 +168,7 @@ Channel 3 (Secondary): "Bates-EM"
 ```
 
 Sources:
+
 - [Meshtastic Encryption Overview](https://meshtastic.org/docs/overview/encryption/)
 - [PKC Blog Post](https://meshtastic.org/blog/introducing-new-public-key-cryptography-in-v2_5/)
 - [Channel Configuration](https://meshtastic.org/docs/configuration/radio/channels/)
@@ -221,6 +230,7 @@ The Unit Engineering Station G2 is the reference high-power base station:
 | Use Case | Fixed base station, vehicle mount |
 
 Sources:
+
 - [LoRa Configuration](https://meshtastic.org/docs/configuration/radio/lora/)
 - [Radio Settings Overview](https://meshtastic.org/docs/overview/radio-settings/)
 - [Why Switch from LongFast](https://meshtastic.org/blog/why-your-mesh-should-switch-from-longfast/)
@@ -278,7 +288,7 @@ Dense Gathering Areas:     CLIENT_MUTE
 
 ### Fixed Installation Best Practices
 
-**Tower/Rooftop ROUTER Configuration:**
+#### Tower/Rooftop ROUTER Configuration
 
 ```bash
 meshtastic --set device.role ROUTER
@@ -288,7 +298,7 @@ meshtastic --set power.is_power_saving false # Always on
 meshtastic --set device.rebroadcast_mode ALL
 ```
 
-**Solar-Powered Node Considerations:**
+#### Solar-Powered Node Considerations
 
 - Power consumption in relay mode: ~48 mA @ 3.3V (24/7 capable with solar)
 - Deep sleep idle: ~1.3 uA
@@ -297,7 +307,7 @@ meshtastic --set device.rebroadcast_mode ALL
 - SenseCAP Solar Node P1-Pro: 5W + 4x3350 mAh = 2+ weeks no-sun autonomy
 - Standard node (correct settings): 15-35 mA depending on load
 
-**Hop Limit Guidance:**
+#### Hop Limit Guidance
 
 - **Default 3 is strongly recommended** -- do not increase unless necessary
 - Higher hop counts create instability and congestion
@@ -305,6 +315,7 @@ meshtastic --set device.rebroadcast_mode ALL
 - With proper ROUTER placement, 3 hops covers most community networks
 
 Sources:
+
 - [Device Configuration & Roles](https://meshtastic.org/docs/configuration/radio/device/)
 - [Choosing the Right Device Role (Blog)](https://meshtastic.org/blog/choosing-the-right-device-role/)
 - [Demystifying ROUTER_LATE](https://meshtastic.org/blog/demystifying-router-late/)
@@ -327,9 +338,10 @@ Sources:
 
 ### Web Flasher (Primary Method for LA-Mesh)
 
-**URL:** https://flasher.meshtastic.org
+**URL:** <https://flasher.meshtastic.org>
 
 **Steps:**
+
 1. Connect device via USB to computer
 2. Open Chrome or Edge browser
 3. Navigate to flasher.meshtastic.org
@@ -343,18 +355,21 @@ Sources:
 ### Device-Specific Bootloader Entry
 
 #### Heltec V3
+
 1. Hold **BOOT** (or **PRG**) button
 2. Press and release **RST**
 3. Release **BOOT**
 4. (Alternative: hold BOOT while plugging in USB)
 
 #### LilyGo T-Beam
+
 1. Unplug device
 2. Press and hold **BOOT** button
 3. Plug in USB
 4. After 2-3 seconds, release **BOOT**
 
 #### LilyGo T-Deck / T-Deck Plus
+
 1. Toggle power switch **OFF**
 2. Press and hold **TRACKBALL**
 3. Toggle power switch **ON**
@@ -362,6 +377,7 @@ Sources:
 5. Screen black + backlight off = download mode
 
 #### LilyGo T-Deck Pro (E-Ink)
+
 - Same process as T-Deck Plus
 - Firmware file: `firmware-t-deck-pro-X.X.X.xxxxxxx.bin`
 
@@ -394,12 +410,14 @@ meshtastic --configure config_backup.yaml
 ### T-Deck Pro (E-Ink) Status
 
 The T-Deck Pro is supported with recent firmware (v2.7.10+ for V1.0, v2.7.13+ for V1.1). However, the UI experience on e-ink is currently limited:
+
 - Navigation is difficult (cycle-through instead of touch)
 - GPS enabled by default (high power draw)
 - Not yet ideal as a standalone radio without phone app
 - Best used with companion app for configuration
 
 Sources:
+
 - [Flashing Firmware Overview](https://meshtastic.org/docs/getting-started/flashing-firmware/)
 - [ESP32 Flashing](https://meshtastic.org/docs/getting-started/flashing-firmware/esp32/)
 - [Web Flasher](https://meshtastic.org/docs/getting-started/flashing-firmware/esp32/web-flasher/)
@@ -422,6 +440,7 @@ Sources:
 | **Python CLI** | 2.7.7 (Jan 2026) | Serial, TCP, BLE | Full configuration + scripting |
 
 ### Android App
+
 - Available on [Google Play](https://play.google.com/store/apps/details?id=com.geeksville.mesh) and [F-Droid](https://f-droid.org/en/packages/com.geeksville.mesh/)
 - Minimum Android 8.0 (Oreo)
 - Most feature-complete client
@@ -429,13 +448,16 @@ Sources:
 - Last updated February 2, 2026
 
 ### iOS/iPadOS/macOS App
+
 - Available on [App Store](https://apps.apple.com/us/app/meshtastic/id1586432531)
 - Native Apple platform application
 - Mesh map, compass, relay visibility
 - Performance improvements ongoing
 
 ### Web Client
-- **URL:** https://client.meshtastic.org
+
+**URL:** <https://client.meshtastic.org>
+
 - Works in all major browsers; Chromium recommended for full features
 - Connection options:
   - **HTTP**: Most broadly supported (`http://meshtastic.local`)
@@ -445,9 +467,12 @@ Sources:
 - Device-hosted version available at `meshtastic.local` (requires full erase + reinstall to update)
 
 ### Python CLI
-- **Install:** `pip install meshtastic`
-- **Latest:** v2.7.7 (January 2026)
-- Essential commands for LA-Mesh:
+
+**Install:** `pip install meshtastic`
+
+**Latest:** v2.7.7 (January 2026)
+
+Essential commands for LA-Mesh:
 
 ```bash
 # Device info
@@ -477,11 +502,13 @@ meshtastic --dest '!nodeid' --set lora.tx_power 30
 ```
 
 ### JavaScript Library
+
 - `@meshtastic/js` npm package
 - Powers the official Web Client
 - Enables custom integrations and tools
 
 Sources:
+
 - [Software Overview](https://meshtastic.org/docs/software/)
 - [Python CLI Guide](https://meshtastic.org/docs/software/python/cli/)
 - [Python CLI Installation](https://meshtastic.org/docs/software/python/cli/installation/)
@@ -504,7 +531,7 @@ Any Meshtastic node with internet connectivity (WiFi, Ethernet, 4G, satellite, o
 
 ### Configuration
 
-**Basic Gateway Setup:**
+#### Basic Gateway Setup
 
 ```bash
 # Connect to WiFi
@@ -559,6 +586,7 @@ For LA-Mesh, consider:
 - Can forward to both `mqtt.meshtastic.org` and custom brokers simultaneously
 
 Sources:
+
 - [MQTT Overview](https://meshtastic.org/docs/software/integrations/mqtt/)
 - [MQTT Module Configuration](https://meshtastic.org/docs/configuration/module/mqtt/)
 - [RAK WisMesh Gateway](https://meshtastic.org/docs/hardware/devices/rak-wireless/wismesh/gateway/)
@@ -599,6 +627,7 @@ Sources:
 ### LA-Mesh Recommendation
 
 **GO with Meshtastic as primary platform.** Rationale:
+
 - Much larger community and ecosystem
 - Better documentation and tooling
 - More companion apps (Android, iOS, Web, Python CLI)
@@ -608,6 +637,7 @@ Sources:
 - Active development with frequent releases
 
 **Consider MeshCore for specific infrastructure nodes** if/when:
+
 - Network scales beyond 100+ nodes and congestion becomes an issue
 - Dedicated repeater infrastructure is well-established
 - The community wants to experiment with the repeater-centric model
@@ -615,6 +645,7 @@ Sources:
 **Dual firmware is feasible** at a hardware level -- keep spare devices flashed with MeshCore for evaluation, but run the production network on Meshtastic.
 
 Sources:
+
 - [MeshCore vs Meshtastic (Austin Mesh)](https://www.austinmesh.org/learn/meshcore-vs-meshtastic/)
 - [Key Differences Explained (LoRaMeshDevices)](https://www.lorameshdevices.com/blog/meshcore/meshtastic-vs-meshcore-key-differences-explained.html)
 - [Meshtastic vs MeshCore Comparison (QuadMeUp)](https://blog.quadmeup.com/2026/01/09/meshtastic-vs-meshcore-which-one-is-better/)
@@ -648,6 +679,7 @@ Based on successful community networks (NHMesh, BayMesh, PhillyMesh, Chicagoland
 ### Node Naming Convention for LA-Mesh
 
 **Long Name Format:** `[Location]-[Type] [Identifier]`
+
 **Short Name Format:** 4 characters, ALL CAPS
 
 Examples:
@@ -741,6 +773,7 @@ The **Meshtastic Site Planner** (<https://site.meshtastic.org>) is essential for
 4. Coverage gaps in Androscoggin River valley
 
 Sources:
+
 - [Configuration Tips](https://meshtastic.org/docs/configuration/tips/)
 - [NHMesh Channel Setup](https://nhmesh.com/guides/channel-setup)
 - [NHMesh Guides](https://www.nhmesh.com/guides)
@@ -760,7 +793,7 @@ Sources:
 
 ### Built-in Range Test Module
 
-**Setup:**
+#### Setup
 
 ```bash
 # Sender node (fixed location)
@@ -773,14 +806,14 @@ meshtastic --set range_test.sender 0   # Receive only
 meshtastic --set range_test.save true  # Save CSV to ESP32 flash
 ```
 
-**Data Collected:**
+#### Data Collected
 
 - Sequential packet reception (identifies range boundary)
 - GPS coordinates (lat/lon)
 - RSSI and SNR metrics
 - Timestamps
 
-**Data Retrieval:**
+#### Data Retrieval
 
 - Access CSV via WiFi: `http://meshtastic.local/rangetest.csv`
 - Visualize with Google Earth, Google My Maps, or OpenStreetMap uMap
@@ -853,6 +886,7 @@ meshtastic --traceroute '!destination_nodeid'
    - Document gain/pattern differences for each location
 
 Sources:
+
 - [Range Test Module](https://meshtastic.org/docs/configuration/module/range-test/)
 - [Traceroute Module](https://meshtastic.org/docs/configuration/module/traceroute/)
 - [Antenna Testing](https://meshtastic.org/docs/hardware/antennas/antenna-testing/)
