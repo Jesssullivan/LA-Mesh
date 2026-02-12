@@ -1,5 +1,7 @@
 # LA-Mesh Bridge Services
 
+**Project Status: In Development** -- SMS and email bridges are functional prototypes. SMS gateway provider is TBD.
+
 Communication bridges that connect the LoRa mesh network to external services.
 
 ## Architecture
@@ -17,22 +19,27 @@ LA-Mesh Nodes ──(LoRa)──→ MeshAdv-Mini HAT ──(SPI/UART)──→ R
                                                     │Bridge  │  │Bridge  │
                                                     └────┬───┘  └───┬────┘
                                                          │          │
-                                                    Twilio API   SMTP
+                                                    SMS Gateway  SMTP
+                                                    (TBD)
 ```
 
 ## Bridges
 
-### SMS Bridge (`sms/`)
-- Relays mesh messages to SMS via Twilio
+### SMS Bridge (`sms/`) -- In Development
+
+- Relays mesh messages to/from SMS
 - Mesh users send: `SMS:+12075551234 Your message here`
-- Requires Twilio account with phone number
+- SMS gateway provider TBD -- evaluating open-source options (gammu-smsd, Android SMS gateway)
 
 ### Email Bridge (`email/`)
+
 - Relays mesh messages to email via SMTP
 - Mesh users send: `EMAIL:user@example.com Your message here`
 - Supports any SMTP provider (SendGrid, Gmail SMTP, self-hosted)
+- GPG signature verification on incoming emails
 
 ### MQTT Configuration (`mqtt/`)
+
 - MQTT broker config for bridge interconnection
 - Meshtasticd publishes JSON messages to MQTT topics
 - Bridges subscribe and relay to external services
@@ -40,6 +47,7 @@ LA-Mesh Nodes ──(LoRa)──→ MeshAdv-Mini HAT ──(SPI/UART)──→ R
 ## Deployment
 
 ### Prerequisites
+
 - Raspberry Pi 4 with MeshAdv-Mini HAT
 - Raspbian OS with meshtasticd installed
 - Mosquitto MQTT broker (`sudo apt install mosquitto`)
@@ -49,7 +57,7 @@ LA-Mesh Nodes ──(LoRa)──→ MeshAdv-Mini HAT ──(SPI/UART)──→ R
 
 ```bash
 # 1. Install dependencies
-pip install paho-mqtt twilio python-dotenv
+pip install paho-mqtt python-dotenv
 
 # 2. Configure bridges
 cp bridges/sms/bridge.env.template /opt/lamesh/bridges/sms/.env
@@ -68,6 +76,7 @@ sudo journalctl -u lamesh-sms-bridge -f
 ```
 
 ### Log Location
+
 - SMS bridge: `/var/log/lamesh/sms-bridge.log`
 - Email bridge: `/var/log/lamesh/email-bridge.log`
 - meshtasticd: `journalctl -u meshtasticd`

@@ -125,7 +125,7 @@
 			<tr><td>Device Support</td><td>100+ devices, all major vendors</td><td>65+ devices, growing</td></tr>
 			<tr><td>Client Repeating</td><td>All roles can repeat</td><td>Clients never repeat (by design)</td></tr>
 			<tr><td>Room Server</td><td>No equivalent</td><td>Dedicated always-on relay with history</td></tr>
-			<tr><td>CVE-2025-52464</td><td>Fixed in v2.6.11+</td><td>Not affected (different key model)</td></tr>
+			<tr><td>CVE-2025-52464</td><td>Fixed in v2.7.15+</td><td>Not affected (different key model)</td></tr>
 			<tr><td>Interop</td><td colspan="2">NOT compatible -- separate protocols, AMMB bridge for limited interop</td></tr>
 		</tbody>
 	</table>
@@ -141,9 +141,10 @@
                                           Mosquitto MQTT
                                          ┌─────┴─────┐
                                     [SMS Bridge]  [Email Bridge]
-                                    Python/Twilio  Python/SMTP
+                                    Python/SMS     Python/SMTP
                                          │              │
-                                    Twilio API     SMTP + GPG
+                                    SMS Gateway    SMTP + GPG
+                                    (TBD)
                                          │              │
                                    Cell Network    Internet
   `}</pre>

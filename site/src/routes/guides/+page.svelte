@@ -34,35 +34,53 @@
 		<span class="status">Available</span>
 	</a>
 
-	<div class="guide">
+	<a href="{base}/guides/node-deployment" class="guide">
 		<h2>Node Deployment</h2>
 		<p>Site survey, preparation, installation, verification, and ongoing monitoring for relay nodes.</p>
 		<span class="status">Available</span>
-	</div>
+	</a>
 
-	<div class="guide">
+	<a href="{base}/guides/bench-testing" class="guide">
 		<h2>Bench Testing Protocol</h2>
 		<p>6 structured test protocols: basic comms, indoor/outdoor range, multi-hop, antenna comparison, battery life.</p>
 		<span class="status">Available</span>
-	</div>
+	</a>
 
-	<div class="guide">
+	<a href="{base}/guides/key-management" class="guide">
 		<h2>Key Management</h2>
-		<p>PSK lifecycle, operator roles, key rotation procedures, and GPG quickstart.</p>
+		<p>PSK lifecycle, operator roles, key rotation procedures, and credential management.</p>
 		<span class="status">Available</span>
-	</div>
+	</a>
 
-	<div class="guide">
+	<a href="{base}/guides/gpg" class="guide">
+		<h2>GPG Quick Start</h2>
+		<p>Ed25519 key generation, signing, encryption, keyserver publishing, and firmware verification.</p>
+		<span class="status">Available</span>
+	</a>
+
+	<a href="{base}/guides/stealth-mode" class="guide">
+		<h2>Stealth Mode</h2>
+		<p>Minimize RF footprint with CLIENT_HIDDEN mode, disable position broadcast, reduce network visibility.</p>
+		<span class="status">Available</span>
+	</a>
+
+	<a href="{base}/guides/solar-relay" class="guide">
 		<h2>Solar Relay Deployment</h2>
 		<p>Panel sizing for 44.1N latitude, battery calculations, weatherproofing, and seasonal maintenance.</p>
 		<span class="status">Available</span>
-	</div>
+	</a>
 
-	<div class="guide">
-		<h2>Developer Guide</h2>
-		<p>Dev environment setup (Nix or manual), repo structure, branch strategy, and CI/CD pipeline.</p>
+	<a href="{base}/guides/firmware-switching" class="guide">
+		<h2>Firmware Switching</h2>
+		<p>Switch between Meshtastic and MeshCore firmware. Backup, erase, flash, and configure in ~60 seconds.</p>
 		<span class="status">Available</span>
-	</div>
+	</a>
+
+	<a href="{base}/guides/developing" class="guide">
+		<h2>Developer Guide</h2>
+		<p>Dev environment setup (Nix or manual), repo structure, just recipes, branch strategy, and CI/CD.</p>
+		<span class="status">Available</span>
+	</a>
 </div>
 
 <style>

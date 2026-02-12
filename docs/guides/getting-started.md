@@ -12,7 +12,7 @@ Welcome to the LA-Mesh community LoRa network for Southern Maine.
 
 ### Step 1: Flash Firmware
 
-All LA-Mesh devices run Meshtastic firmware v2.6.11 or later (critical for security - see CVE-2025-52464).
+All LA-Mesh devices run Meshtastic firmware v2.7.15 or later (critical for security -- see CVE-2025-52464, CVE-2025-24797). v2.7.15 enforces PKI-only DMs.
 
 Visit [flasher.meshtastic.org](https://flasher.meshtastic.org) to flash your device.
 
@@ -33,7 +33,7 @@ Send a message to the default channel to verify connectivity.
 
 ## Security
 
-- **All devices must run firmware v2.6.11+** (CVE-2025-52464 fix)
+- **All devices must run firmware v2.7.15+** (CVE-2025-52464, CVE-2025-24797 fixes)
 - **Never share channel PSK keys** outside the community
 - **Enable PKC** for encrypted direct messages
 

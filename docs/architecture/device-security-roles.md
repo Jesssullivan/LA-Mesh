@@ -97,7 +97,7 @@ key. DM keys cannot be rotated retroactively (no forward secrecy).
 
 - **Runs on Raspberry Pi**: Full Linux system with meshtasticd
 - **Network connected**: Has internet access (for SMS/email bridge, MQTT)
-- **Contains**: Channel PSK, MQTT credentials, Twilio API keys, bridge config
+- **Contains**: Channel PSK, MQTT credentials, SMS gateway API keys, bridge config
 - **Multiple attack surfaces**: Mesh radio + network + OS
 
 ### Threat Mitigations
@@ -108,7 +108,7 @@ key. DM keys cannot be rotated retroactively (no forward secrecy).
 - Use strong MQTT passwords (not defaults)
 - Run bridge services as unprivileged user
 - Monitor logs: `journalctl -u meshtasticd -u lamesh-sms-bridge`
-- If compromised: Rotate channel PSK, MQTT credentials, Twilio API keys
+- If compromised: Rotate channel PSK, MQTT credentials, SMS gateway API keys
 
 ### Additional Concerns
 

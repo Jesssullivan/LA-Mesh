@@ -62,7 +62,7 @@ meshtastic --port "$PORT" --configure "$PROFILE_FILE" || {
     echo "Troubleshooting:"
     echo "  - Is the device connected and powered on?"
     echo "  - Is the port correct? Try: ls /dev/ttyUSB* /dev/ttyACM*"
-    echo "  - Is the firmware updated to v2.6.11+?"
+    echo "  - Is the firmware updated to v2.7.15+?"
     exit 1
 }
 

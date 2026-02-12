@@ -102,7 +102,7 @@ meshtastic --configure configs/backups/latest.yaml
 
 | Check | Action |
 |-------|--------|
-| Twilio credentials | Verify in `.env` file |
+| SMS gateway credentials | Verify in `.env` file |
 | MQTT connection | Check: `systemctl status mosquitto` |
 | Bridge running | Check: `systemctl status lamesh-sms-bridge` |
 | Log errors | View: `journalctl -u lamesh-sms-bridge -f` |

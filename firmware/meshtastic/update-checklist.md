@@ -10,7 +10,7 @@ Use this checklist when updating firmware on LA-Mesh devices.
 - [ ] Check pinned version: `just firmware-versions`
 - [ ] Check for upstream updates: `just firmware-check`
 - [ ] Read release notes for breaking changes
-- [ ] Verify minimum version requirement (v2.6.11+ for CVE-2025-52464)
+- [ ] Verify minimum version requirement (v2.7.15+ for CVE-2025-52464)
 - [ ] **Back up device config**: `just configure-backup /dev/ttyUSB0`
 
 ## Download
@@ -42,7 +42,7 @@ Use this checklist when updating firmware on LA-Mesh devices.
   ```
   Or manual flash:
   ```bash
-  just flash-meshtastic firmware/.cache/firmware-station-g2-2.6.11.bin /dev/ttyUSB0
+  just flash-meshtastic firmware/.cache/firmware-station-g2-2.7.15.bin /dev/ttyUSB0
   ```
 - [ ] Wait for "Flash complete!" message
 - [ ] Do NOT disconnect during flash

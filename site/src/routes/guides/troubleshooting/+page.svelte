@@ -107,7 +107,7 @@
 	<table>
 		<thead><tr><th>Check</th><th>Action</th></tr></thead>
 		<tbody>
-			<tr><td>Twilio credentials</td><td>Verify in <code>.env</code> file</td></tr>
+			<tr><td>SMS gateway credentials</td><td>Verify in <code>.env</code> file</td></tr>
 			<tr><td>MQTT connection</td><td>Check: <code>systemctl status mosquitto</code></td></tr>
 			<tr><td>Bridge running</td><td>Check: <code>systemctl status lamesh-sms-bridge</code></td></tr>
 			<tr><td>Phone format</td><td>Must be E.164: <code>+12075551234</code></td></tr>

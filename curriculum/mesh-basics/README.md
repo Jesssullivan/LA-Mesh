@@ -138,7 +138,7 @@ meshtastic --traceroute '!<node-id>'
 
 - [ ] Charge all T-Deck devices to >80%
 - [ ] Verify all devices on LA-Mesh channel with correct PSK
-- [ ] Verify firmware is v2.6.11+ (CVE-2025-52464)
+- [ ] Verify firmware is v2.7.15+ (CVE-2025-52464, CVE-2025-24797)
 - [ ] Test message delivery between all devices
 - [ ] Prepare spectrum analyzer demo (optional)
 - [ ] Print handouts with device diagram and key controls

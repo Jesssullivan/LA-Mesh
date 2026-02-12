@@ -37,4 +37,4 @@ Mobile client devices for community members. Full keyboard enables direct encryp
 
 ## Setup Guide
 
-*Coming in Week 2*
+See [firmware flashing guide](../guides/firmware-flashing.md) and [community onboarding](../guides/community-onboarding.md).

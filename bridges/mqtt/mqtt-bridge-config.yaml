@@ -27,8 +27,8 @@ mqtt:
     mesh_outgoing: "msh/US/2/json/LongFast/!gateway"  # Outbound to mesh
 
     # Internal bridge topics
-    sms_inbound: "lamesh/bridge/sms/inbound"    # SMS received from Twilio
-    sms_outbound: "lamesh/bridge/sms/outbound"  # SMS to send via Twilio
+    sms_inbound: "lamesh/bridge/sms/inbound"    # SMS received from gateway
+    sms_outbound: "lamesh/bridge/sms/outbound"  # SMS to send via gateway
     email_inbound: "lamesh/bridge/email/inbound"  # Email received
     email_outbound: "lamesh/bridge/email/outbound"  # Email to send
 

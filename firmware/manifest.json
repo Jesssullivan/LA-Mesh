@@ -1,48 +1,36 @@
 {
   "schema_version": 1,
-  "last_updated": "2025-06-01",
+  "last_updated": "2026-02-12",
   "meshtastic": {
-    "version": "2.6.11",
-    "min_version": "2.6.11",
-    "release_url": "https://github.com/meshtastic/firmware/releases/download/v2.6.11/firmware-2.6.11.zip",
-    "release_notes": "https://github.com/meshtastic/firmware/releases/tag/v2.6.11",
-    "cve_notes": "v2.6.11+ required: fixes CVE-2025-52464 (duplicate crypto keys from vendor image cloning)",
+    "version": "2.7.15",
+    "min_version": "2.7.15",
+    "release_url": "https://github.com/meshtastic/firmware/releases/download/v2.7.15/firmware-2.7.15.zip",
+    "release_notes": "https://github.com/meshtastic/firmware/releases/tag/v2.7.15",
+    "cve_notes": "v2.7.15 required: fixes CVE-2025-52464 (duplicate crypto keys), CVE-2025-24797, CVE-2025-55293, CVE-2025-55292, CVE-2025-53627. PKI-only DMs enforced (legacy DMs disabled).",
     "devices": {
       "station-g2": {
-        "binary": "firmware-station-g2-2.6.11.bin",
-        "littlefs": "littlefs-station-g2-2.6.11.bin",
+        "binary": "firmware-station-g2-2.7.15.bin",
+        "littlefs": "littlefs-station-g2-2.7.15.bin",
         "sha256": "UPDATE_WITH_ACTUAL_HASH_AFTER_DOWNLOAD",
         "chip": "esp32s3",
         "flash_offset_full": "0x0",
-        "flash_offset_app": "0x10000",
+        "flash_offset_app": "0x260000",
         "flash_size": "detect",
         "baud": 921600,
         "description": "Station G2 base station / router",
         "profile": "station-g2-router"
       },
       "t-deck": {
-        "binary": "firmware-t-deck-2.6.11.bin",
-        "littlefs": "littlefs-t-deck-2.6.11.bin",
+        "binary": "firmware-t-deck-2.7.15.bin",
+        "littlefs": "littlefs-t-deck-2.7.15.bin",
         "sha256": "UPDATE_WITH_ACTUAL_HASH_AFTER_DOWNLOAD",
         "chip": "esp32s3",
         "flash_offset_full": "0x0",
-        "flash_offset_app": "0x10000",
+        "flash_offset_app": "0x260000",
         "flash_size": "detect",
         "baud": 921600,
         "description": "LilyGo T-Deck / T-Deck Plus client",
         "profile": "tdeck-plus-client"
-      },
-      "t-deck-pro": {
-        "binary": "firmware-t-deck-pro-2.6.11.bin",
-        "littlefs": "littlefs-t-deck-pro-2.6.11.bin",
-        "sha256": "UPDATE_WITH_ACTUAL_HASH_AFTER_DOWNLOAD",
-        "chip": "esp32s3",
-        "flash_offset_full": "0x0",
-        "flash_offset_app": "0x10000",
-        "flash_size": "detect",
-        "baud": 921600,
-        "description": "LilyGo T-Deck Pro (e-ink) client",
-        "profile": "tdeck-pro-eink-client"
       }
     }
   },

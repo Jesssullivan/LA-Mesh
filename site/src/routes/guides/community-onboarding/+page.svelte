@@ -41,14 +41,10 @@
 			<span class="step-num">1</span>
 			<div>
 				<h3>Get Your Device Configured</h3>
-				<p>Attend a community meetup where an LA-Mesh operator will:</p>
-				<ol>
-					<li>Flash the latest firmware (v2.6.11+ required)</li>
-					<li>Apply the appropriate device profile</li>
-					<li>Set the LA-Mesh channel PSK (encryption key)</li>
-					<li>Verify your device can communicate with the network</li>
-				</ol>
-				<p class="note"><strong>Why in-person?</strong> The encryption key (PSK) is only shared face-to-face for security. We never send it digitally.</p>
+				<p>Attend a community meetup where an LA-Mesh operator will provision your device:</p>
+				<pre class="code">{`just provision t-deck /dev/ttyUSB0`}</pre>
+				<p>This single command fetches the manifest-pinned firmware (v2.7.15+), verifies its SHA256 checksum, flashes it, applies the device profile, and configures LA-Mesh channels with the shared PSK.</p>
+				<p class="note"><strong>Why in-person?</strong> The encryption key (PSK) is only shared face-to-face for security. We never send it digitally. The <code>just provision</code> command reads the PSK from the operator's local environment.</p>
 			</div>
 		</div>
 
@@ -235,6 +231,24 @@
 		font-size: 0.9rem;
 		color: #888;
 		font-style: italic;
+	}
+
+	.code {
+		background: #1a1a2e;
+		color: #00d4aa;
+		padding: 1rem;
+		border-radius: 8px;
+		overflow-x: auto;
+		font-size: 0.85rem;
+		line-height: 1.5;
+		margin: 0.75rem 0;
+	}
+
+	code {
+		background: #f0f0f0;
+		padding: 0.15rem 0.35rem;
+		border-radius: 3px;
+		font-size: 0.85rem;
 	}
 
 	.etiquette li {

@@ -775,7 +775,7 @@ mesh-set-channel:
 
 # Flash Meshtastic firmware to ESP32 device
 flash firmware_file port="/dev/ttyUSB0":
-    esptool.py --chip esp32 --port {{port}} write_flash 0x10000 {{firmware_file}}
+    esptool.py --chip esp32 --port {{port}} write-flash 0x260000 {{firmware_file}}
 
 # Erase ESP32 flash (factory reset)
 flash-erase port="/dev/ttyUSB0":

@@ -1,213 +1,150 @@
 # Firmware Flashing Guide
 
-**Applies to**: All LA-Mesh Meshtastic and MeshCore devices
-**Prerequisites**: USB cable, device in bootloader mode, esptool.py (provided by Nix devShell)
+**Applies to**: All LA-Mesh Meshtastic devices
+**Prerequisites**: USB data cable, LA-Mesh repo clone, Nix devShell (or manual tool installation)
 
 ---
 
-## Before You Flash
+## Minimum Firmware Version
 
-### 1. Back Up Your Config
+**All LA-Mesh devices MUST run Meshtastic v2.7.15 or later** due to CVE-2025-52464 (duplicate crypto keys), CVE-2025-24797, CVE-2025-55293, CVE-2025-55292, and CVE-2025-53627. v2.7.15 enforces PKI-only DMs (legacy DMs disabled).
 
-Always export your current configuration before flashing:
+---
+
+## Method 1: One-Command Provisioning (Recommended)
+
+Clone the repo, enter the dev shell, and provision a device in one pipeline. This fetches the manifest-pinned firmware, verifies its SHA256 checksum, flashes it, applies the device profile, and configures LA-Mesh channels.
 
 ```bash
-meshtastic --export-config > backup-$(date +%Y%m%d).yaml
+git clone https://github.com/Jesssullivan/LA-Mesh.git
+cd LA-Mesh
+direnv allow                                    # or: nix develop
+just provision station-g2 /dev/ttyUSB0
 ```
 
-### 2. Check Minimum Firmware Version
+### What `just provision` does
 
-**All LA-Mesh devices MUST run Meshtastic v2.6.11 or later** due to CVE-2025-52464 (duplicate cryptographic keys from vendor image cloning, CVSSv4 9.5).
+| Step | Action | Detail |
+|------|--------|--------|
+| 1 | Fetch firmware | Downloads pinned version from GitHub (cached locally) |
+| 2 | Verify checksum | SHA256 checked against `firmware/manifest.json` |
+| 3 | Flash device | esptool.py `write-flash` at offset `0x260000` |
+| 4 | Apply profile | Device role config (ROUTER, CLIENT, etc.) |
+| 5 | Set channels | LA-Mesh / LA-Admin / LA-Emergency (requires PSK env vars) |
 
-### 3. Identify Your Device
-
-| Device | Chip | Flash Method |
-|--------|------|-------------|
-| Station G2 | ESP32-S3 | esptool.py (USB) |
-| T-Deck Plus | ESP32-S3 | esptool.py (USB) |
-| T-Deck Pro (e-ink) | ESP32-S3 | esptool.py (USB) |
-| RAK WisBlock | nRF52840 | adafruit-nrfutil or web flasher |
-| MeshAdv-Mini | SX1262 (via Pi) | meshtasticd package install |
+Device types: `station-g2`, `t-deck`
 
 ---
 
-## Method 1: Web Flasher (Recommended for Beginners)
+## Method 2: Step-by-Step CLI
 
-### Meshtastic Web Flasher
+For operators who want explicit control over each stage.
+
+```bash
+# 1. Fetch firmware for a specific device
+just fetch-firmware --device station-g2
+
+# 2. Confirm pinned version
+just firmware-versions
+
+# 3. Flash (SHA256 verified automatically)
+just flash-meshtastic firmware/.cache/firmware-station-g2-2.7.15.bin /dev/ttyUSB0
+
+# 4. Apply device profile
+just configure-profile station-g2-router /dev/ttyUSB0
+
+# 5. Apply LA-Mesh channels (reads PSK from .env)
+just configure-channels /dev/ttyUSB0
+```
+
+---
+
+## Method 3: Web Flasher
+
+For meetups or field use when the dev environment is unavailable.
 
 1. Open https://flasher.meshtastic.org in Chrome/Edge (WebSerial required)
-2. Connect device via USB
-3. Select your device variant
-4. Click "Flash"
-5. Wait for completion -- do NOT disconnect during flash
+2. Connect device via USB-C (use a data cable, not charge-only)
+3. Select your device type and firmware version
+4. Click "Flash" and wait for completion (~2 minutes)
 
-### MeshCore Web Flasher
-
-1. Open https://flasher.meshcore.co.uk in Chrome/Edge
-2. Connect device via USB
-3. Select firmware variant (`companion_radio`, `simple_repeater`, or `simple_room_server`)
-4. Click "Flash"
+**Note**: Web flasher does not verify against the LA-Mesh manifest. After flashing, apply the profile and channels manually via CLI.
 
 ---
 
-## Method 2: Command Line (esptool.py)
+## Checksum Verification
 
-### Enter Nix DevShell
+All justfile flash commands verify firmware integrity automatically:
 
-```bash
-# From LA-Mesh repo root
-nix develop
-# or
-direnv allow
-```
-
-This provides `esptool.py`, `meshtastic` CLI, and all required tools.
-
-### Flash Meshtastic
+- `firmware/manifest.json` pins the exact version and SHA256 hash per device
+- `just fetch-firmware` verifies the hash on download
+- `just flash-meshtastic` verifies the hash before flashing
+- `just provision` verifies the hash at step 2 -- refuses to flash on mismatch
 
 ```bash
-# Download firmware from https://meshtastic.org/downloads
-# Choose the correct variant for your device
+# After first download, populate manifest hashes
+just firmware-update-hashes
 
-# Flash (auto-detects chip type)
-just flash firmware-2.7.x-station-g2.bin
-
-# Or manually:
-./tools/flash/flash-meshtastic.sh firmware-2.7.x.bin /dev/ttyUSB0
+# Verify what's pinned
+just firmware-versions
 ```
 
-### Flash MeshCore
-
-```bash
-# Download from https://github.com/meshcore-dev/MeshCore/releases
-
-just flash firmware-meshcore-1.12.0.bin
-
-# Or manually:
-./tools/flash/flash-meshcore.sh firmware.bin /dev/ttyUSB0
-```
-
-### Bootloader Mode (if device isn't detected)
-
-For ESP32-S3 devices (Station G2, T-Deck):
-
-1. Hold the **BOOT** button
-2. Press and release **RESET** while holding BOOT
-3. Release BOOT
-4. Device should appear as `/dev/ttyUSB0` or `/dev/ttyACM0`
-
-Check available ports:
-
-```bash
-ls /dev/ttyUSB* /dev/ttyACM*
-```
+If you see **"CHECKSUM MISMATCH -- refusing to flash!"**, the binary is corrupted or does not match the manifest. Re-download with `just fetch-firmware`.
 
 ---
 
-## Method 3: MeshAdv-Mini (Raspberry Pi)
+## Version Parity
 
-The MeshAdv-Mini runs meshtasticd (Linux-native Meshtastic) on the Raspberry Pi. No esptool flashing needed -- the SX1262 radio is controlled directly by the Pi.
-
-### Install meshtasticd
+All devices provisioned from the same repo clone get identical firmware versions -- the manifest is the single source of truth.
 
 ```bash
-# On the Raspberry Pi
-# Follow meshtasticd installation for your Pi OS
-# See: https://meshtastic.org/docs/software/linux-native/
+# Check pinned versions
+just firmware-versions
+
+# Check if upstream has a newer release
+just firmware-check
 ```
 
-### Configure for MeshAdv-Mini HAT
+To update the pinned version: edit `firmware/manifest.json`, run `just fetch-firmware`, then `just firmware-update-hashes`.
+
+---
+
+## Method 4: MeshAdv-Mini (Raspberry Pi)
+
+The MeshAdv-Mini runs meshtasticd (Linux-native Meshtastic) on the Raspberry Pi. No esptool flashing needed.
 
 ```bash
-# Apply the gateway profile
-meshtastic --configure configs/profiles/meshadv-mini-gateway.yaml
-
-# Set the channel PSK (get from LA-Mesh admin)
-meshtastic --ch-set psk <base64-psk> --ch-index 0
+sudo apt install meshtasticd
+sudo nano /etc/meshtasticd/config.yaml
+sudo systemctl enable --now meshtasticd
 ```
 
 ---
 
 ## Post-Flash Configuration
 
-### 1. Apply Device Profile
+| Device | Profile | Command |
+|--------|---------|---------|
+| Station G2 (relay) | station-g2-router | `just configure-profile station-g2-router` |
+| T-Deck Plus | tdeck-plus-client | `just configure-profile tdeck-plus-client` |
+| T-Deck Pro (e-ink) | tdeck-pro-eink-client | `just configure-profile tdeck-pro-eink-client` |
+| MeshAdv-Mini | meshadv-mini-gateway | `just configure-profile meshadv-mini-gateway` |
+
+Then apply LA-Mesh channel configuration (requires PSK environment variables):
 
 ```bash
-# Station G2 router
-meshtastic --configure configs/profiles/station-g2-router.yaml
-
-# T-Deck Plus client
-meshtastic --configure configs/profiles/tdeck-plus-client.yaml
-
-# T-Deck Pro e-ink client
-meshtastic --configure configs/profiles/tdeck-pro-eink-client.yaml
-
-# MQTT gateway
-meshtastic --configure configs/profiles/mqtt-gateway.yaml
-```
-
-### 2. Set Channel PSK
-
-```bash
-# Primary channel
-meshtastic --ch-set name "LA-Mesh" --ch-index 0
-meshtastic --ch-set psk <base64-psk> --ch-index 0
-
-# Admin channel (operators only)
-meshtastic --ch-set name "LA-Admin" --ch-index 1
-meshtastic --ch-set psk <different-base64-psk> --ch-index 1
-
-# Emergency channel
-meshtastic --ch-set name "LA-Emergency" --ch-index 2
-meshtastic --ch-set psk <another-base64-psk> --ch-index 2
-```
-
-PSK values are distributed at community meetups only. Generate new ones with:
-
-```bash
-openssl rand -base64 32
-```
-
-### 3. Verify Configuration
-
-```bash
-meshtastic --info
-meshtastic --nodes
-```
-
-### 4. Set Fixed Position (Routers Only)
-
-```bash
-# For infrastructure nodes with known locations
-meshtastic --setlat 44.1003 --setlon -70.2148 --setalt 60
+just configure-channels /dev/ttyUSB0
 ```
 
 ---
 
 ## Troubleshooting
 
-### Device not detected
-
-- Try a different USB cable (some are charge-only)
-- Enter bootloader mode (BOOT + RESET sequence)
-- Check `dmesg | tail -20` for USB device messages
-- Try a different USB port
-
-### Flash fails partway through
-
-- Do NOT disconnect -- try again
-- Erase flash first: `just flash-erase`
-- Lower baud rate: edit flash script, change 921600 to 115200
-
-### Device boots but no mesh activity
-
-- Verify firmware version: `meshtastic --info`
-- Check channel PSK matches other devices
-- Verify region is set to `US`
-- Check LoRa modem preset matches network (`LONG_FAST`)
-
-### "No response from device" after flash
-
-- Wait 30 seconds for first boot
-- Reset device manually (press RESET button)
-- Re-flash if persistent
+| Error | Solution |
+|-------|----------|
+| "Failed to connect" | Enter bootloader mode (hold BOOT, press RESET, release BOOT) |
+| "CHECKSUM MISMATCH" | Re-download: `just fetch-firmware`, then `just firmware-update-hashes` |
+| "Invalid head of packet" | Erase flash first: `just flash-erase` |
+| "Timed out" | Try lower baud rate (115200 instead of 921600) |
+| Permission denied | `sudo usermod -aG dialout $USER` (re-login required) |
+| Device boots but no mesh | Verify region US, modem preset LONG_FAST, channel PSK matches |

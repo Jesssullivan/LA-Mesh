@@ -38,7 +38,7 @@
 
 | Device Class | Current Target | Min Required | CVE Status |
 |--------------|---------------|--------------|------------|
-| Meshtastic (all) | v2.7.x (latest stable) | v2.6.11 | CVE-2025-52464 patched |
+| Meshtastic (all) | v2.7.x (latest stable) | v2.7.15 | CVE-2025-52464 patched |
 | MeshCore (eval) | v1.12.0 | v1.12.0 | No known CVEs |
 | PortaPack Mayhem | Latest release | -- | N/A |
 

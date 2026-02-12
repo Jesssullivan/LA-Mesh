@@ -1,19 +1,21 @@
 #!/usr/bin/env python3
 """LA-Mesh SMS Bridge
 
-Bridges Meshtastic mesh messages to/from SMS via Twilio.
-Runs on the Raspberry Pi gateway alongside meshtasticd.
+PROJECT: Not production-ready. SMS provider integration pending.
+Currently monitors MQTT for SMS-prefixed messages. Outbound SMS delivery
+requires an SMS gateway provider (TBD -- evaluating gammu-smsd, Android
+SMS gateway, and hosted API providers).
 
 Architecture:
-  meshtasticd → MQTT → this script → Twilio API → SMS
-  SMS → Twilio webhook → this script → MQTT → meshtasticd → mesh
+  meshtasticd → MQTT → this script → SMS gateway API → SMS
+  SMS → gateway webhook → this script → MQTT → meshtasticd → mesh
 
 Usage:
-  cp .env.template .env  # Fill in Twilio credentials
+  cp .env.template .env  # Fill in SMS gateway credentials
   python3 sms_bridge.py
 
 Requires:
-  pip install paho-mqtt twilio python-dotenv
+  pip install paho-mqtt python-dotenv
 """
 
 import json
@@ -27,12 +29,6 @@ try:
     import paho.mqtt.client as mqtt
 except ImportError:
     print("ERROR: paho-mqtt not installed. Run: pip install paho-mqtt")
-    sys.exit(1)
-
-try:
-    from twilio.rest import Client as TwilioClient
-except ImportError:
-    print("ERROR: twilio not installed. Run: pip install twilio")
     sys.exit(1)
 
 try:
@@ -51,9 +47,9 @@ MQTT_PORT = int(os.getenv("MQTT_PORT", "1883"))
 MQTT_TOPIC_INCOMING = os.getenv("MQTT_TOPIC_INCOMING", "msh/US/2/json/LongFast/+")
 MQTT_TOPIC_OUTGOING = os.getenv("MQTT_TOPIC_OUTGOING", "msh/US/2/json/LongFast/!gateway")
 
-TWILIO_ACCOUNT_SID = os.getenv("TWILIO_ACCOUNT_SID", "")
-TWILIO_AUTH_TOKEN = os.getenv("TWILIO_AUTH_TOKEN", "")
-TWILIO_PHONE_NUMBER = os.getenv("TWILIO_PHONE_NUMBER", "")
+SMS_GATEWAY_API_URL = os.getenv("SMS_GATEWAY_API_URL", "")
+SMS_GATEWAY_API_KEY = os.getenv("SMS_GATEWAY_API_KEY", "")
+SMS_GATEWAY_PHONE_NUMBER = os.getenv("SMS_GATEWAY_PHONE_NUMBER", "")
 
 # Phone number allowlist (only these numbers can send TO the mesh)
 ALLOWED_NUMBERS = os.getenv("ALLOWED_NUMBERS", "").split(",")
@@ -87,9 +83,9 @@ def validate_phone_number(number: str) -> str | None:
 
 
 def send_sms(to_number: str, message: str) -> bool:
-    """Send an SMS via Twilio."""
-    if not all([TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_PHONE_NUMBER]):
-        log.error("Twilio credentials not configured")
+    """Send an SMS via the configured gateway."""
+    if not all([SMS_GATEWAY_API_URL, SMS_GATEWAY_API_KEY, SMS_GATEWAY_PHONE_NUMBER]):
+        log.error("SMS gateway not configured")
         return False
 
     normalized = validate_phone_number(to_number)
@@ -97,18 +93,9 @@ def send_sms(to_number: str, message: str) -> bool:
         log.warning("Invalid phone number: %s", to_number)
         return False
 
-    try:
-        client = TwilioClient(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
-        msg = client.messages.create(
-            body=message,
-            from_=TWILIO_PHONE_NUMBER,
-            to=normalized,
-        )
-        log.info("SMS sent to %s (SID: %s)", normalized, msg.sid)
-        return True
-    except Exception:
-        log.exception("Failed to send SMS to %s", normalized)
-        return False
+    # TODO: Implement SMS gateway API call when provider is selected
+    log.warning("SMS send not implemented -- gateway provider TBD. Would send to %s", normalized)
+    return False
 
 
 def on_mqtt_connect(client, userdata, flags, rc, properties=None):
@@ -163,14 +150,14 @@ def main():
     log.info("LA-Mesh SMS Bridge starting")
     log.info("MQTT: %s:%d", MQTT_HOST, MQTT_PORT)
     log.info(
-        "Twilio: %s",
-        "configured" if TWILIO_ACCOUNT_SID else "NOT CONFIGURED",
+        "SMS gateway: %s",
+        "configured" if SMS_GATEWAY_API_URL else "NOT CONFIGURED",
     )
 
-    if not TWILIO_ACCOUNT_SID:
+    if not SMS_GATEWAY_API_URL:
         log.warning(
-            "Twilio not configured. Running in monitor-only mode. "
-            "Set TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_PHONE_NUMBER."
+            "SMS gateway not configured. Running in monitor-only mode. "
+            "Set SMS_GATEWAY_API_URL, SMS_GATEWAY_API_KEY, SMS_GATEWAY_PHONE_NUMBER."
         )
 
     client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)

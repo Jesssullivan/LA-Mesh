@@ -158,12 +158,12 @@ A major vulnerability was discovered in Meshtastic firmware affecting versions 2
 - **Root Cause 1**: Hardware vendors created "golden images" by flashing one device, letting it generate keys, then cloning that image to entire production batches -- resulting in identical x25519 keypairs across thousands of devices
 - **Root Cause 2**: The `rweather/crypto` library failed to properly initialize randomness pools on NRF52 platforms
 - **Impact**: Attackers can decrypt Direct Messages from devices with duplicated keys
-- **Fix**: Firmware v2.6.11 implements entropy enhancements and key regeneration on region set
-- **Action Required**: ALL LA-Mesh participants must upgrade to v2.6.11+ and regenerate keys
+- **Fix**: Firmware v2.7.15 implements entropy enhancements and key regeneration on region set
+- **Action Required**: ALL LA-Mesh participants must upgrade to v2.7.15+ and regenerate keys
 - Reference: [NVD CVE-2025-52464](https://nvd.nist.gov/vuln/detail/CVE-2025-52464), [CyberPress Advisory](https://cyberpress.org/severe-meshtastic-flaw/)
 
 **LA-Mesh mandatory security protocol:**
-1. Flash v2.6.11+ firmware before deploying ANY device
+1. Flash v2.7.15+ firmware before deploying ANY device
 2. Verify key uniqueness using `meshtastic --info` on each device
 3. Document device key fingerprints in a secure community registry
 4. Consider manual key generation via OpenSSL for maximum security

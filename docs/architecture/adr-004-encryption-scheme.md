@@ -22,7 +22,7 @@ Each channel has a unique PSK.
 
 ### PKC for Direct Messages
 
-Public Key Cryptography is enabled on all devices (default in v2.6.11+). This provides end-to-end encryption for direct messages that even other channel members cannot read.
+Public Key Cryptography is enabled on all devices (default in v2.7.15+). This provides end-to-end encryption for direct messages that even other channel members cannot read.
 
 ### Key Management
 
@@ -37,12 +37,12 @@ Public Key Cryptography is enabled on all devices (default in v2.6.11+). This pr
 
 ### Firmware Requirement
 
-All devices must run Meshtastic v2.6.11+ due to CVE-2025-52464 (duplicate cryptographic keys from vendor image cloning).
+All devices must run Meshtastic v2.7.15+ due to CVE-2025-52464 (duplicate cryptographic keys from vendor image cloning).
 
 ## Consequences
 
 - PSK distribution requires in-person contact (limits remote onboarding)
 - Quarterly rotation requires touching all devices (or remote admin capability)
 - Separate PSKs per channel means operators manage 3+ keys
-- PKC provides strong DM security but requires firmware v2.6.11+
+- PKC provides strong DM security but requires firmware v2.7.15+
 - See [Security Curriculum](../../curriculum/security/README.md) for educational materials

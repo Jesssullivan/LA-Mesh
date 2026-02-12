@@ -113,7 +113,7 @@ just provision station-g2 /dev/ttyUSB0
 
 # Or manual steps:
 just fetch-firmware --device station-g2
-just flash-meshtastic firmware/.cache/firmware-station-g2-2.6.11.bin /dev/ttyUSB0
+just flash-meshtastic firmware/.cache/firmware-station-g2-2.7.15.bin /dev/ttyUSB0
 just configure-profile station-g2-router /dev/ttyUSB0
 just configure-channels /dev/ttyUSB0
 ```
@@ -138,7 +138,7 @@ meshtastic --port /dev/ttyUSB0 --info
 ```
 
 Check:
-- Firmware version is v2.6.11+
+- Firmware version is v2.7.15+
 - Region is US
 - Modem preset is LONG_FAST
 - Hop limit is 5

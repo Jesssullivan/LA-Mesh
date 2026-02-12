@@ -63,7 +63,7 @@ Before leaving for the site:
 - [ ] Device fully charged and configured
 - [ ] Profile applied and verified (meshtastic --info)
 - [ ] Channel PSK set and tested (message received by another node)
-- [ ] Firmware version v2.6.11+ confirmed
+- [ ] Firmware version v2.7.15+ confirmed
 - [ ] Antenna tested (not a dummy load)
 - [ ] Enclosure assembled with cable glands fitted
 - [ ] Solar panel tested (voltage output in sunlight)

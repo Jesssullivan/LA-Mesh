@@ -1000,7 +1000,7 @@ Week 2 Complete
 **Objective**: Build a working SMS-to-mesh bridge that allows non-mesh users to send/receive messages via SMS.
 
 **Input Requirements**:
-- SMS gateway service decision (Twilio, Vonage, or local GSM modem)
+- SMS gateway service decision (gammu-smsd, Android SMS Gateway, or hosted API)
 - Phone number allocation
 - MQTT bridge operational
 - Message format design
@@ -1267,11 +1267,11 @@ Week 3 Complete
 
 ### Gap Analysis Directives
 
-1. **SMS cost modeling**: What is the monthly cost of Twilio/Vonage for expected message volume? Is there a free tier that suffices?
+1. **SMS cost modeling**: What is the monthly cost of a hosted SMS gateway for expected message volume? Evaluate gammu-smsd (local GSM modem), Android SMS Gateway, and hosted API options.
 2. **Local GSM modem option**: Could a USB GSM modem with a local SIM card replace cloud SMS? This would be more resilient and private.
 3. **LoRa payload size limits**: Exact maximum payload for the chosen Meshtastic preset. This constrains message length for both bridges.
 4. **MQTT broker reliability**: If self-hosted, what happens when the broker goes down? Do bridges queue messages?
-5. **mesh-api project evaluation**: The mr-tbot/mesh-api project on GitHub already supports Twilio SMS and email. Should we fork/adapt it rather than building from scratch?
+5. **mesh-api project evaluation**: The mr-tbot/mesh-api project on GitHub already supports SMS and email bridges. Should we fork/adapt it rather than building from scratch?
 
 ### User Decision Points
 

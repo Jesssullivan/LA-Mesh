@@ -12,7 +12,7 @@
 | Channel PSK (×3) | Symmetric (AES-256) | Operator's encrypted storage | Quarterly |
 | Device PKC key pair | Asymmetric (X25519) | On-device only | On firmware update |
 | MQTT credentials | Username/password | .env file on Pi (gitignored) | On compromise |
-| Twilio/SMTP API keys | API token | .env file on Pi (gitignored) | On compromise |
+| SMS gateway/SMTP API keys | API token | .env file on Pi (gitignored) | On compromise |
 
 ---
 

@@ -32,7 +32,7 @@ usage() {
     echo "Usage: $0 <device> [port] [OPTIONS]"
     echo ""
     echo "Arguments:"
-    echo "  device    Device type: station-g2, t-deck, t-deck-pro, meshadv-mini"
+    echo "  device    Device type: station-g2, t-deck, meshadv-mini"
     echo "  port      Serial port (default: /dev/ttyUSB0)"
     echo ""
     echo "Options:"
@@ -207,7 +207,7 @@ esptool.py \
     --chip "$CHIP" \
     --port "$PORT" \
     --baud "$BAUD" \
-    write_flash \
+    write-flash \
     "$OFFSET" "$FIRMWARE_PATH"
 
 echo ""

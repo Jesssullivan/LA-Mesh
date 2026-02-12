@@ -71,7 +71,7 @@ test_firmware_version() {
     fi
     log_info "$FW_LINE"
 
-    # Check for minimum version (v2.6.11)
+    # Check for minimum version (v2.7.15)
     VERSION=$(echo "$FW_LINE" | grep -oP '\d+\.\d+\.\d+' | head -1 || echo "0.0.0")
     MAJOR=$(echo "$VERSION" | cut -d. -f1)
     MINOR=$(echo "$VERSION" | cut -d. -f2)
@@ -80,9 +80,9 @@ test_firmware_version() {
     if [ "$MAJOR" -gt 2 ] || \
        ([ "$MAJOR" -eq 2 ] && [ "$MINOR" -gt 6 ]) || \
        ([ "$MAJOR" -eq 2 ] && [ "$MINOR" -eq 6 ] && [ "$PATCH" -ge 11 ]); then
-        log_pass "Firmware $VERSION >= 2.6.11 (CVE-2025-52464 patched)"
+        log_pass "Firmware $VERSION >= 2.7.15 (CVE-2025-52464 patched)"
     else
-        log_fail "Firmware $VERSION < 2.6.11 -- UPDATE REQUIRED (CVE-2025-52464)"
+        log_fail "Firmware $VERSION < 2.7.15 -- UPDATE REQUIRED (CVE-2025-52464)"
     fi
 }
 

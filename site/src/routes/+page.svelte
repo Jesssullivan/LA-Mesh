@@ -13,6 +13,7 @@
 		Encrypted mesh communications for the Lewiston-Auburn area and Bates College campus.
 		Infrastructure-independent, resilient, community-owned.
 	</p>
+	<p class="workshops">Free fortnightly workshops at Bates College -- from mesh basics to TAILS and SDR.</p>
 </section>
 
 <section class="cards">
@@ -50,7 +51,7 @@
 		</div>
 		<div>
 			<h3>SMS/Email Bridge</h3>
-			<p>MeshAdv-Mini Pi HAT running meshtasticd, Mosquitto MQTT, Twilio SMS bridge, and GPG-signed email bridge. Mesh-to-internet gateway.</p>
+			<p>MeshAdv-Mini Pi HAT running meshtasticd, Mosquitto MQTT, SMS/email gateway (in development), and GPG-signed email bridge. Mesh-to-internet gateway.</p>
 		</div>
 		<div>
 			<h3>RF Education</h3>
@@ -84,7 +85,7 @@
 		</div>
 		<div class="config-item">
 			<span class="label">Min Firmware</span>
-			<span class="value">v2.6.11+ (CVE-2025-52464 fix)</span>
+			<span class="value">v2.7.15+ (CVE-2025-52464, CVE-2025-24797 fixes)</span>
 		</div>
 	</div>
 </section>
@@ -107,6 +108,13 @@
 		font-size: 1.3rem;
 		color: #666;
 		margin: 0.5rem 0 1rem;
+	}
+
+	.workshops {
+		font-size: 1rem;
+		color: #00d4aa;
+		font-weight: 600;
+		margin-top: 0.5rem;
 	}
 
 	.cards {

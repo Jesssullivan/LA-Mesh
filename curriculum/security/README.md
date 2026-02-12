@@ -95,7 +95,7 @@ meshtastic --info
 - **Discovery**: Early 2025
 - **Issue**: Some device vendors cloned firmware images without regenerating cryptographic keys
 - **Impact**: Multiple devices shared identical key pairs, undermining PKC encryption
-- **Affected**: Firmware versions before v2.6.11
+- **Affected**: Firmware versions before v2.7.15
 
 **What went wrong**:
 1. Vendor creates a firmware image on one device
@@ -105,9 +105,9 @@ meshtastic --info
 
 **Lesson**: Supply chain security matters. Even strong cryptography fails if keys aren't unique.
 
-**Fix**: Firmware v2.6.11+ forces key regeneration on first boot after update.
+**Fix**: Firmware v2.7.15+ forces key regeneration on first boot after update. Additional CVEs fixed: CVE-2025-24797, CVE-2025-55293, CVE-2025-55292, CVE-2025-53627. v2.7.15 enforces PKI-only DMs (legacy DMs disabled).
 
-**LA-Mesh policy**: No device may be deployed with firmware below v2.6.11.
+**LA-Mesh policy**: No device may be deployed with firmware below v2.7.15.
 
 **Exercise**: Check your device firmware version:
 ```bash
@@ -171,7 +171,7 @@ Identifying: Who might want to attack us? What can they do? How do we defend?
 
 **Exercise**: Enable PKC on your device and send an encrypted DM to another participant:
 ```bash
-# PKC is enabled by default on v2.6.11+
+# PKC is enabled by default on v2.7.15+ (PKI-only DMs enforced)
 # Send a DM (encrypted end-to-end)
 meshtastic --sendtext "Secret message" --dest '!<node-id>'
 ```
@@ -181,7 +181,7 @@ meshtastic --sendtext "Secret message" --dest '!<node-id>'
 ## Instructor Notes
 
 ### Materials Needed
-- Pre-configured T-Deck devices (v2.6.11+)
+- Pre-configured T-Deck devices (v2.7.15+)
 - Whiteboard for threat modeling exercise
 - Printed handout with CLI commands
 - Air-gapped laptop for PSK generation demo

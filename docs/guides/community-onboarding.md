@@ -23,7 +23,7 @@ Any Meshtastic-compatible device (~$25-80) paired with the Meshtastic app on you
 ### Step 1: Get Your Device Configured
 
 Attend a community meetup where an LA-Mesh operator will:
-1. Flash the latest firmware (v2.6.11+ required)
+1. Flash the latest firmware (v2.7.15+ required)
 2. Apply the appropriate device profile
 3. Set the LA-Mesh channel PSK (encryption key)
 4. Verify your device can communicate with the network

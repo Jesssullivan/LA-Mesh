@@ -50,7 +50,7 @@ esptool.py \
     --chip auto \
     --port "$PORT" \
     --baud 921600 \
-    write_flash \
+    write-flash \
     0x0 "$FIRMWARE"
 
 echo ""

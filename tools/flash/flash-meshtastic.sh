@@ -46,7 +46,7 @@ if [ -z "$FIRMWARE" ]; then
     echo ""
     echo "Options:"
     echo "  --full-flash    Flash at offset 0x0 (default, full image)"
-    echo "  --update-only   Flash at offset 0x10000 (app partition only)"
+    echo "  --update-only   Flash at offset 0x260000 (app partition only)"
     echo "  --sha256 HASH   Expected SHA256 hash for verification"
     echo "  --no-verify     Skip SHA256 verification"
     echo ""
@@ -60,8 +60,7 @@ if [ -z "$FIRMWARE" ]; then
     echo ""
     echo "Device variants:"
     echo "  station-g2       - Station G2 base station"
-    echo "  t-deck           - LilyGo T-Deck / T-Deck Plus"
-    echo "  t-deck-pro       - LilyGo T-Deck Pro (e-ink)"
+    echo "  t-deck           - LilyGo T-Deck / T-Deck Plus / T-Deck Pro"
     echo ""
     echo "Web flasher (recommended for beginners):"
     echo "  https://flasher.meshtastic.org"
@@ -117,8 +116,8 @@ if [ "$FULL_FLASH" = "true" ]; then
     FLASH_OFFSET="0x0"
     echo "Flash mode: FULL (offset 0x0)"
 else
-    FLASH_OFFSET="0x10000"
-    echo "Flash mode: UPDATE ONLY (offset 0x10000, app partition)"
+    FLASH_OFFSET="0x260000"
+    echo "Flash mode: UPDATE ONLY (offset 0x260000, app partition)"
 fi
 
 echo ""
@@ -158,7 +157,7 @@ esptool.py \
     --chip "$CHIP" \
     --port "$PORT" \
     --baud 921600 \
-    write_flash \
+    write-flash \
     "$FLASH_OFFSET" "$FIRMWARE"
 
 echo ""

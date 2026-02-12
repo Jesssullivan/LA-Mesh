@@ -1,7 +1,7 @@
 # Level 4: Software-Defined Radio and LoRa Analysis
 
 **Audience**: Technically curious participants, students, amateur radio operators
-**Time**: 3 hours (lab format)
+**Time**: 6 hours (two 3-hour sessions)
 **Prerequisites**: Mesh Basics (Level 1-2), Security (Level 3)
 
 ---
@@ -15,6 +15,8 @@ By the end of this module, participants will be able to:
 3. Identify LoRa transmissions visually on a waterfall display
 4. Understand FCC Part 15 rules for 915 MHz ISM
 5. Set up GNU Radio with gr-lora_sdr for LoRa signal analysis (advanced)
+6. Understand TEMPEST and electromagnetic emanation security
+7. Build a LoRa protocol analysis flowgraph with gr-lora_sdr
 
 ---
 
@@ -209,6 +211,70 @@ rtl_power -f 900M:930M:100k -g 40 -i 10 -e 10s scan.csv
 # Visualize with heatmap.py (rtl-sdr tools)
 python3 heatmap.py scan.csv scan.png
 ```
+
+### Part 7: TEMPEST and Emanation Security (45 min)
+
+**What is TEMPEST?**
+
+Electronic devices emit electromagnetic emanations -- unintentional radio signals from displays, cables, and processors. These emanations can be received and reconstructed to recover the original data.
+
+**History**:
+- NSA TEMPEST program (declassified): classified standards for shielding government equipment
+- Van Eck phreaking (1985): Wim van Eck demonstrated reconstructing CRT display content from emanations
+- Modern research continues with LCD/HDMI emanation recovery
+
+**Modern tools**:
+
+| Tool | Type | Notes |
+|------|------|-------|
+| TempestSDR (Java) | HDMI emanation capture | Works with HackRF, RTL-SDR |
+| gr-tempest (GNURadio OOT) | GNURadio-based TEMPEST receiver | Requires GNURadio 3.10+ |
+| deep-tempest | CNN-enhanced HDMI recovery | Correa-Londono et al., LADC 2024 |
+
+**Classroom demo**: gr-tempest simulation flowgraph (no target hardware needed -- uses pre-recorded captures).
+
+**Live demo (optional)**: TempestSDR capturing HDMI emanations at short range with HackRF. Requires a separate display as the target.
+
+**Countermeasures**:
+- Shielded cables (ferrite cores, shielded HDMI)
+- Display filters and screen privacy filters
+- TEMPEST-rated equipment (government/military grade)
+- Physical distance (signal strength drops with distance squared)
+- Noise generation (intentional RF noise to mask emanations)
+
+**Legal considerations**: Receiving emanations is receive-only (legal under FCC rules), but ECPA considerations apply to intercepting the content of communications. Educational demonstration with your own equipment is legal.
+
+### Part 8: LoRa Protocol Analysis with GNURadio (45 min)
+
+**Tools for LoRa protocol analysis**:
+
+| Tool | Source | Notes |
+|------|--------|-------|
+| gr-lora_sdr v0.5.8 | EPFL (Tapparel) | Full LoRa TX/RX, best documented |
+| Meshtastic_SDR | Community | Receives all US Meshtastic presets simultaneously |
+
+**Build a receive flowgraph**:
+
+```
+RTL-SDR Source → Channel Filter → gr-lora Demodulator → Message Debug
+(915.0 MHz)      (BW: 250 kHz)    (SF11, CR4/5)         (hex output)
+```
+
+**Exercise: Packet capture and analysis**:
+
+1. Configure gr-lora_sdr receive flowgraph
+2. Trigger a known Meshtastic transmission
+3. Capture the packet in the flowgraph
+4. Examine the demodulated output:
+   - Preamble: 8 upchirps (visible in time-frequency plot)
+   - Sync word: 2 symbols identifying Meshtastic protocol
+   - Header: packet length, coding rate
+   - Payload: encrypted bytes (AES-256-CTR)
+   - CRC: error detection
+
+5. Correlate captured packets with known transmissions from the Meshtastic node list
+
+**Why encrypted payloads look random**: AES-256 in CTR mode produces output indistinguishable from random noise. This is the encryption working correctly. No patterns, no structure, no information leakage.
 
 ---
 

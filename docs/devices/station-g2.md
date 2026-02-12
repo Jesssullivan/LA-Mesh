@@ -26,7 +26,7 @@ Higher gain antennas require reducing TX power.
 
 ## Setup Guide
 
-*Coming in Week 2*
+See [firmware flashing guide](../guides/firmware-flashing.md) and [node deployment guide](../guides/node-deployment.md).
 
 ## Deployment Notes
 

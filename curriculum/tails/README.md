@@ -1,7 +1,7 @@
 # Level 5: TAILS OS and Secure Communications
 
 **Audience**: Advanced participants interested in maximum operational security
-**Time**: 3 hours (lab format)
+**Time**: 3 hours (lab format, free -- fortnightly at Bates College)
 **Prerequisites**: Mesh Basics (Level 1-2), Security (Level 3)
 
 ---
@@ -14,7 +14,10 @@ By the end of this module, participants will be able to:
 2. Boot TAILS from a USB drive
 3. Understand the relationship between mesh networks and internet anonymity tools
 4. Combine air-gapped mesh communication with TAILS for layered security
-5. Make informed decisions about operational security trade-offs
+5. Configure persistent encrypted storage in TAILS
+6. Use Kleopatra for GPG key management in TAILS
+7. Install meshtastic-cli via pip in TAILS
+8. Make informed decisions about operational security trade-offs
 
 ---
 
@@ -111,9 +114,9 @@ USB Drive → Boot TAILS → All traffic → Tor Network → Internet
 
 **Steps**:
 
-1. **Download TAILS** (done beforehand):
-   - https://tails.net/install/
-   - Verify the download signature
+1. **Download TAILS 7.4.2** (done beforehand):
+   - Download: [tails.net/install](https://tails.net/install/)
+   - Verify the download signature (see [GPG guide](../../docs/guides/gpg-quickstart.md))
 
 2. **Create bootable USB**:
    ```bash
@@ -134,10 +137,27 @@ USB Drive → Boot TAILS → All traffic → Tor Network → Internet
    - Optional: additional settings (admin password, persistent storage)
    - Click "Start TAILS"
 
-5. **Verify Tor connection**:
-   - Tor Browser opens automatically
+5. **Configure persistent encrypted storage** (optional):
+   - Applications > Persistent Storage
+   - Set a strong passphrase
+   - Enable: Personal Data, GnuPG, Network Connections, Additional Software
+
+6. **Verify Tor connection** (TAILS 7.x):
+   - Tor connection assistant opens automatically
+   - Select "Connect to Tor automatically"
    - Visit https://check.torproject.org to confirm
    - Note: initial connection takes 30-60 seconds
+
+7. **GPG key management with Kleopatra**:
+   - Applications > Utilities > Kleopatra
+   - Import existing keys or generate new Ed25519 keys
+   - See [GPG guide](../../docs/guides/gpg-quickstart.md) for key generation
+
+8. **Install meshtastic-cli**:
+   ```bash
+   pip install --user meshtastic
+   meshtastic --port /dev/ttyUSB0 --info
+   ```
 
 **Exercise**: Browse to a website through Tor. Note how your IP appears to be from a different country.
 

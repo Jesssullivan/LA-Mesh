@@ -205,16 +205,16 @@ See [la-mesh-default.yaml](../../configs/channels/la-mesh-default.yaml) for conf
                                     └──────┬───────┘        └──────┬───────┘
                                            │                        │
                                     ┌──────┴───────┐        ┌──────┴───────┐
-                                    │  MQTT Broker  │        │  Twilio /    │
-                                    │  (Mosquitto)  │        │  SendGrid    │
+                                    │  MQTT Broker  │        │  SMS Gateway │
+                                    │  (Mosquitto)  │        │  (TBD)       │
                                     └──────────────┘        └──────────────┘
 ```
 
 **Bridge Components** (on Raspberry Pi):
 1. **meshtasticd**: Linux-native Meshtastic daemon, connects to MeshAdv-Mini via SPI/UART
 2. **MQTT client**: Publishes mesh messages to MQTT broker, subscribes for inbound
-3. **SMS bridge**: Watches MQTT for messages tagged with phone numbers, forwards via Twilio API
-4. **Email bridge**: Watches MQTT for messages tagged with email addresses, forwards via SMTP/SendGrid
+3. **SMS bridge**: Watches MQTT for messages tagged with phone numbers, forwards via SMS gateway API (provider TBD)
+4. **Email bridge**: Watches MQTT for messages tagged with email addresses, forwards via SMTP
 
 ---
 

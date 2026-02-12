@@ -177,9 +177,9 @@ Message → Flood to discover path → Direct route via repeaters only
 
 - **CVSSv4**: 9.5
 - **Issue**: Duplicate cryptographic keys from vendor image cloning
-- **Affected**: Firmware < v2.6.11
-- **Fix**: Update to v2.6.11+ (forces key regeneration)
-- **LA-Mesh policy**: ALL devices MUST run v2.6.11 or later
+- **Affected**: Firmware < v2.7.15
+- **Fix**: Update to v2.7.15+ (forces key regeneration)
+- **LA-Mesh policy**: ALL devices MUST run v2.7.15 or later
 
 ### MeshCore Security Notes
 

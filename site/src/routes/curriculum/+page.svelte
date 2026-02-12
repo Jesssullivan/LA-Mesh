@@ -7,10 +7,10 @@
 </svelte:head>
 
 <h1>Curriculum</h1>
-<p>Progressive education in mesh networking, RF engineering, and secure communications. Each level builds on the previous.</p>
+<p>Progressive education in mesh networking, RF engineering, and secure communications. Each level builds on the previous. All workshops are free. We meet fortnightly at Bates College.</p>
 
 <div class="levels">
-	<div class="level">
+	<a href="{base}/curriculum/mesh-basics" class="level">
 		<div class="level-header">
 			<span class="badge">Level 1-2</span>
 			<h2>Mesh Basics</h2>
@@ -25,13 +25,12 @@
 		</ul>
 		<div class="meta">
 			<span>2-hour workshop</span>
-			<span>~$25/person equipment</span>
 			<span>No prerequisites</span>
 		</div>
 		<span class="status">Available</span>
-	</div>
+	</a>
 
-	<div class="level">
+	<a href="{base}/curriculum/security" class="level">
 		<div class="level-header">
 			<span class="badge">Level 3</span>
 			<h2>Encryption and Security</h2>
@@ -49,14 +48,14 @@
 			<span>Requires Level 1-2</span>
 		</div>
 		<span class="status">Available</span>
-	</div>
+	</a>
 
-	<div class="level">
+	<a href="{base}/curriculum/sdr" class="level">
 		<div class="level-header">
 			<span class="badge">Level 4</span>
 			<h2>SDR and RF Engineering</h2>
 		</div>
-		<p>6-part lab using HackRF H4M for hands-on RF analysis and LoRa protocol dissection.</p>
+		<p>8-part lab using HackRF H4M for hands-on RF analysis, LoRa protocol dissection, and TEMPEST demonstration.</p>
 		<ul>
 			<li>SDR fundamentals: sampling, Nyquist, quadrature, dynamic range</li>
 			<li>FCC Part 15.247: legal limits (30 dBm conducted, 36 dBm EIRP at 915 MHz)</li>
@@ -64,16 +63,18 @@
 			<li>LoRa signal anatomy: chirp structure, spreading factors, bandwidth, coding rate</li>
 			<li>GNU Radio + gr-lora_sdr: building a LoRa receiver flowgraph</li>
 			<li>RF troubleshooting: link budget calculations, antenna patterns, path loss</li>
+			<li>TEMPEST and emanation security: electromagnetic side-channel analysis</li>
+			<li>LoRa protocol analysis with gr-lora_sdr and Meshtastic_SDR</li>
 		</ul>
 		<div class="meta">
-			<span>6-hour split workshop</span>
+			<span>6 hours (two 3-hour sessions)</span>
 			<span>HackRF H4M provided</span>
 			<span>Requires Level 3</span>
 		</div>
 		<span class="status">Available</span>
-	</div>
+	</a>
 
-	<div class="level">
+	<a href="{base}/curriculum/tails" class="level">
 		<div class="level-header">
 			<span class="badge">Level 5</span>
 			<h2>TAILS and Secure Communications</h2>
@@ -88,12 +89,12 @@
 			<li>Honest assessment: what TAILS can and cannot protect against</li>
 		</ul>
 		<div class="meta">
-			<span>4-hour lab</span>
+			<span>3-hour lab</span>
 			<span>USB drives provided</span>
 			<span>Requires Level 3</span>
 		</div>
 		<span class="status">Available</span>
-	</div>
+	</a>
 </div>
 
 <style>
@@ -104,10 +105,19 @@
 	}
 
 	.level {
+		display: block;
 		padding: 1.5rem;
 		border: 1px solid #ddd;
 		border-radius: 8px;
 		background: white;
+		text-decoration: none;
+		color: inherit;
+		transition: border-color 0.2s, box-shadow 0.2s;
+	}
+
+	a.level:hover {
+		border-color: #00d4aa;
+		box-shadow: 0 2px 8px rgba(0, 212, 170, 0.15);
 	}
 
 	.level-header {

@@ -28,7 +28,7 @@ usage() {
     echo "Options:"
     echo "  --device DEVICE    Device to fetch firmware for (default: all)"
     echo "                     Devices: station-g2, t-deck, t-deck-pro"
-    echo "  --version VERSION  Override manifest version (e.g., 2.6.11)"
+    echo "  --version VERSION  Override manifest version (e.g., 2.7.15)"
     echo "  --force            Re-download even if cached"
     echo "  --list             List available devices and exit"
     echo "  -h, --help         Show this help"

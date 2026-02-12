@@ -39,7 +39,7 @@ Plaintext → AES-256-CTR(PSK, nonce) → Ciphertext → LoRa TX
 
 ### Layer 3: Direct Message PKC (X25519 + AES-256-CCM)
 
-For private direct messages, Meshtastic v2.6.11+ uses Public Key Cryptography:
+For private direct messages, Meshtastic v2.7.15+ uses Public Key Cryptography:
 
 ```
 Sender's X25519 private key + Recipient's X25519 public key
@@ -52,9 +52,9 @@ Sender's X25519 private key + Recipient's X25519 public key
 - Asymmetric: each device has a unique key pair
 - Forward secrecy per session
 - Even other devices on the same channel cannot read DMs
-- Key pairs generated on-device (v2.6.11+ ensures unique keys)
+- Key pairs generated on-device (v2.7.15+ ensures unique keys)
 
-**Critical**: CVE-2025-52464 (firmware < v2.6.11) caused vendor-cloned devices to share identical key pairs, completely defeating PKC. Update to v2.6.11+ forces key regeneration.
+**Critical**: CVE-2025-52464 (firmware < v2.7.15) caused vendor-cloned devices to share identical key pairs, completely defeating PKC. Update to v2.7.15+ forces key regeneration.
 
 ---
 

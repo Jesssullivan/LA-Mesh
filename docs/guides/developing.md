@@ -162,7 +162,7 @@ PRs target `main`. CI must pass before merge.
 
 - `.env` files (use `.env.template` for structure)
 - PSK values (channel encryption keys)
-- API keys (Twilio, SMTP, MQTT credentials)
+- API keys (SMS gateway, SMTP, MQTT credentials)
 - Private keys (SSH, GPG, TLS)
 - `.claude/`, `CLAUDE.md`, `.mcp.json` (dev tooling, git-excluded)
 
