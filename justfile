@@ -149,11 +149,20 @@ configure-reset port="/dev/ttyUSB0":
 # Firmware
 # =============================================================================
 
-# Flash Meshtastic firmware
-flash-meshtastic firmware_file port="/dev/ttyUSB0":
-    ./tools/flash/flash-meshtastic.sh {{firmware_file}} {{port}}
+# Download and verify firmware for a device (or all devices)
+fetch-firmware device="all" version="" *FLAGS="":
+    ./tools/flash/fetch-firmware.sh --device {{device}} {{FLAGS}} \
+        $([ -n "{{version}}" ] && echo "--version {{version}}" || true)
 
-# Flash MeshCore firmware
+# One-command device provisioning: fetch + flash + configure + channels
+provision device port="/dev/ttyUSB0" *FLAGS="":
+    ./tools/flash/provision-device.sh {{device}} {{port}} {{FLAGS}}
+
+# Flash Meshtastic firmware (manual)
+flash-meshtastic firmware_file port="/dev/ttyUSB0" *FLAGS="":
+    ./tools/flash/flash-meshtastic.sh {{firmware_file}} {{port}} {{FLAGS}}
+
+# Flash MeshCore firmware (manual)
 flash-meshcore firmware_file port="/dev/ttyUSB0":
     ./tools/flash/flash-meshcore.sh {{firmware_file}} {{port}}
 
@@ -164,6 +173,64 @@ flash-erase port="/dev/ttyUSB0":
 # Check connected ESP32 device
 flash-info port="/dev/ttyUSB0":
     esptool.py --chip auto --port {{port}} chip_id
+
+# Show pinned firmware versions from manifest
+firmware-versions:
+    @echo "LA-Mesh Firmware Versions"
+    @echo "========================="
+    @jq -r '"Meshtastic: v" + .meshtastic.version + " (min: v" + .meshtastic.min_version + ")"' firmware/manifest.json
+    @jq -r '"MeshCore:   " + .meshcore.version' firmware/manifest.json
+    @jq -r '"HackRF:     " + .hackrf.mayhem_version' firmware/manifest.json
+    @echo ""
+    @echo "Devices:"
+    @jq -r '.meshtastic.devices | to_entries[] | "  " + .key + ": " + .value.binary' firmware/manifest.json
+
+# Check for upstream firmware updates
+firmware-check:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    CURRENT=$(jq -r '.meshtastic.version' firmware/manifest.json)
+    echo "Current pinned version: v$CURRENT"
+    echo "Checking GitHub for latest release..."
+    LATEST=$(gh api repos/meshtastic/firmware/releases/latest --jq '.tag_name' 2>/dev/null | sed 's/^v//')
+    if [ -z "$LATEST" ]; then
+        echo "Could not check latest version (gh CLI not authenticated?)"
+        exit 1
+    fi
+    echo "Latest upstream release: v$LATEST"
+    if [ "$CURRENT" = "$LATEST" ]; then
+        echo "Up to date!"
+    else
+        echo ""
+        echo "UPDATE AVAILABLE: v$CURRENT -> v$LATEST"
+        echo "  Release notes: https://github.com/meshtastic/firmware/releases/tag/v$LATEST"
+        echo "  Update manifest: just fetch-firmware --version $LATEST"
+    fi
+
+# Update SHA256 hashes in manifest after downloading firmware
+firmware-update-hashes:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    CACHE_DIR="${FIRMWARE_CACHE_DIR:-firmware/.cache}"
+    MANIFEST="firmware/manifest.json"
+    for device in $(jq -r '.meshtastic.devices | keys[]' "$MANIFEST"); do
+        BINARY=$(jq -r ".meshtastic.devices[\"$device\"].binary" "$MANIFEST")
+        FILE="$CACHE_DIR/$BINARY"
+        if [ -f "$FILE" ]; then
+            HASH=$(sha256sum "$FILE" | cut -d' ' -f1)
+            jq ".meshtastic.devices[\"$device\"].sha256 = \"$HASH\"" "$MANIFEST" > "$MANIFEST.tmp"
+            mv "$MANIFEST.tmp" "$MANIFEST"
+            echo "$device: $HASH"
+        else
+            echo "$device: not cached (run 'just fetch-firmware' first)"
+        fi
+    done
+    echo ""
+    echo "Manifest updated: $MANIFEST"
+
+# Switch firmware between Meshtastic and MeshCore (interactive)
+switch-firmware port="/dev/ttyUSB0":
+    ./tools/flash/switch-firmware.sh {{port}}
 
 # =============================================================================
 # SDR / RF Analysis
@@ -177,6 +244,10 @@ sdr-capture duration="10" output="captures/lora-capture":
 # Show HackRF device info
 sdr-info:
     hackrf_info
+
+# Prepare HackRF H4M SD card with Mayhem firmware
+hackrf-prepare-sd sd_device firmware_archive="":
+    ./tools/flash/prepare-hackrf-sd.sh {{sd_device}} {{firmware_archive}}
 
 # =============================================================================
 # Nix Commands

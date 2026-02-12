@@ -19,14 +19,17 @@ jobs:
         with:
           node-version: 22
           cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
 
-      - run: pnpm install --frozen-lockfile
+      - run: pnpm install
 
       - name: Type check
-        run: cd site && pnpm check
+        run: pnpm --filter la-mesh-site check
 
       - name: Build
-        run: cd site && DOCS_BASE_PATH=/LA-Mesh pnpm build
+        run: pnpm --filter la-mesh-site build
+        env:
+          DOCS_BASE_PATH: /LA-Mesh
 
   lint-markdown:
     name: Lint Markdown

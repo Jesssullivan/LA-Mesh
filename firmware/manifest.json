@@ -1,0 +1,77 @@
+{
+  "schema_version": 1,
+  "last_updated": "2025-06-01",
+  "meshtastic": {
+    "version": "2.6.11",
+    "min_version": "2.6.11",
+    "release_url": "https://github.com/meshtastic/firmware/releases/download/v2.6.11/firmware-2.6.11.zip",
+    "release_notes": "https://github.com/meshtastic/firmware/releases/tag/v2.6.11",
+    "cve_notes": "v2.6.11+ required: fixes CVE-2025-52464 (duplicate crypto keys from vendor image cloning)",
+    "devices": {
+      "station-g2": {
+        "binary": "firmware-station-g2-2.6.11.bin",
+        "littlefs": "littlefs-station-g2-2.6.11.bin",
+        "sha256": "UPDATE_WITH_ACTUAL_HASH_AFTER_DOWNLOAD",
+        "chip": "esp32s3",
+        "flash_offset_full": "0x0",
+        "flash_offset_app": "0x10000",
+        "flash_size": "detect",
+        "baud": 921600,
+        "description": "Station G2 base station / router",
+        "profile": "station-g2-router"
+      },
+      "t-deck": {
+        "binary": "firmware-t-deck-2.6.11.bin",
+        "littlefs": "littlefs-t-deck-2.6.11.bin",
+        "sha256": "UPDATE_WITH_ACTUAL_HASH_AFTER_DOWNLOAD",
+        "chip": "esp32s3",
+        "flash_offset_full": "0x0",
+        "flash_offset_app": "0x10000",
+        "flash_size": "detect",
+        "baud": 921600,
+        "description": "LilyGo T-Deck / T-Deck Plus client",
+        "profile": "tdeck-plus-client"
+      },
+      "t-deck-pro": {
+        "binary": "firmware-t-deck-pro-2.6.11.bin",
+        "littlefs": "littlefs-t-deck-pro-2.6.11.bin",
+        "sha256": "UPDATE_WITH_ACTUAL_HASH_AFTER_DOWNLOAD",
+        "chip": "esp32s3",
+        "flash_offset_full": "0x0",
+        "flash_offset_app": "0x10000",
+        "flash_size": "detect",
+        "baud": 921600,
+        "description": "LilyGo T-Deck Pro (e-ink) client",
+        "profile": "tdeck-pro-eink-client"
+      }
+    }
+  },
+  "meshcore": {
+    "version": "latest",
+    "note": "MeshCore firmware is best flashed via web flasher for evaluation purposes",
+    "web_flasher": "https://flasher.meshcore.co.uk",
+    "config_tool": "https://config.meshcore.co.uk",
+    "source": "https://github.com/rocketgithub/meshcore-firmware",
+    "devices": {
+      "station-g2": {
+        "note": "Use web flasher -- select 'Station G2' from device list"
+      },
+      "t-deck": {
+        "note": "Use web flasher -- select 'T-Deck' from device list"
+      }
+    }
+  },
+  "hackrf": {
+    "mayhem_version": "latest",
+    "update_method": "sd_card",
+    "release_url": "https://github.com/portapack-mayhem/mayhem-firmware/releases",
+    "note": "HackRF H4M uses PortaPack Mayhem firmware via SD card"
+  },
+  "meshtasticd": {
+    "note": "Linux-native Meshtastic for Raspberry Pi (MeshAdv-Mini HAT). Install via apt, no firmware binary needed.",
+    "install": "sudo apt install meshtasticd",
+    "config": "/etc/meshtasticd/config.yaml",
+    "service": "meshtasticd",
+    "profile": "meshadv-mini-gateway"
+  }
+}

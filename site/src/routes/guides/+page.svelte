@@ -1,71 +1,95 @@
+<script>
+	import { base } from '$app/paths';
+</script>
+
 <svelte:head>
 	<title>Guides - LA-Mesh</title>
 </svelte:head>
 
 <h1>Guides</h1>
+<p>Step-by-step instructions for joining and operating on the LA-Mesh network.</p>
 
 <div class="guide-list">
+	<a href="{base}/guides/community-onboarding" class="guide">
+		<h2>Community Onboarding</h2>
+		<p>Welcome to LA-Mesh. Get your device, learn the basics, and join the mesh.</p>
+		<span class="status">Start Here</span>
+	</a>
+
+	<a href="{base}/guides/firmware-flashing" class="guide">
+		<h2>Firmware Flashing</h2>
+		<p>Flash Meshtastic or MeshCore firmware via web flasher, CLI, or meshtasticd.</p>
+		<span class="status">Available</span>
+	</a>
+
+	<a href="{base}/guides/device-profiles" class="guide">
+		<h2>Device Profiles</h2>
+		<p>Choose and apply the right configuration profile for your device role.</p>
+		<span class="status">Available</span>
+	</a>
+
+	<a href="{base}/guides/troubleshooting" class="guide">
+		<h2>Troubleshooting</h2>
+		<p>Common issues and solutions for devices, network, firmware, and bridges.</p>
+		<span class="status">Available</span>
+	</a>
+
 	<div class="guide">
-		<h2>Getting Started</h2>
-		<p>Flash firmware, configure your device, and join the LA-Mesh network.</p>
+		<h2>Node Deployment</h2>
+		<p>Site survey, preparation, installation, verification, and ongoing monitoring for relay nodes.</p>
 		<span class="status">Available</span>
 	</div>
 
 	<div class="guide">
-		<h2>Device Setup: Station G2</h2>
-		<p>Configure a Station G2 as a high-power relay/router for rooftop deployment.</p>
-		<span class="status coming">Coming Week 2</span>
+		<h2>Bench Testing Protocol</h2>
+		<p>6 structured test protocols: basic comms, indoor/outdoor range, multi-hop, antenna comparison, battery life.</p>
+		<span class="status">Available</span>
 	</div>
 
 	<div class="guide">
-		<h2>Device Setup: T-Deck</h2>
-		<p>Set up your T-Deck as a portable encrypted messenger.</p>
-		<span class="status coming">Coming Week 2</span>
-	</div>
-
-	<div class="guide">
-		<h2>SMS Bridge Setup</h2>
-		<p>Deploy an SMS-to-mesh gateway using MeshAdv-Mini and a Raspberry Pi.</p>
-		<span class="status coming">Coming Week 4</span>
-	</div>
-
-	<div class="guide">
-		<h2>Encryption and Security</h2>
-		<p>Channel encryption, PKC direct messages, GPG key management, and OPSEC basics.</p>
-		<span class="status coming">Coming Week 5</span>
-	</div>
-
-	<div class="guide">
-		<h2>TAILS Integration</h2>
-		<p>Using TAILS OS with Meshtastic for maximum operational security.</p>
-		<span class="status coming">Coming Week 5</span>
+		<h2>Key Management</h2>
+		<p>PSK lifecycle, operator roles, key rotation procedures, and GPG quickstart.</p>
+		<span class="status">Available</span>
 	</div>
 
 	<div class="guide">
 		<h2>Solar Relay Deployment</h2>
-		<p>Build and deploy a solar-powered relay node for year-round operation.</p>
-		<span class="status coming">Coming Week 3</span>
+		<p>Panel sizing for 44.1N latitude, battery calculations, weatherproofing, and seasonal maintenance.</p>
+		<span class="status">Available</span>
 	</div>
 
 	<div class="guide">
-		<h2>Troubleshooting</h2>
-		<p>Common issues and solutions for mesh network problems.</p>
-		<span class="status coming">Coming Week 7</span>
+		<h2>Developer Guide</h2>
+		<p>Dev environment setup (Nix or manual), repo structure, branch strategy, and CI/CD pipeline.</p>
+		<span class="status">Available</span>
 	</div>
 </div>
 
 <style>
+	p {
+		color: #555;
+		margin-bottom: 2rem;
+	}
+
 	.guide-list {
 		display: grid;
 		gap: 1rem;
-		margin-top: 2rem;
 	}
 
 	.guide {
+		display: block;
 		padding: 1.25rem;
 		border: 1px solid #ddd;
 		border-radius: 8px;
 		background: white;
+		text-decoration: none;
+		color: inherit;
+		transition: border-color 0.2s, box-shadow 0.2s;
+	}
+
+	a.guide:hover {
+		border-color: #00d4aa;
+		box-shadow: 0 2px 8px rgba(0, 212, 170, 0.15);
 	}
 
 	.guide h2 {
@@ -85,9 +109,5 @@
 		font-size: 0.8rem;
 		background: #00d4aa;
 		color: white;
-	}
-
-	.status.coming {
-		background: #888;
 	}
 </style>

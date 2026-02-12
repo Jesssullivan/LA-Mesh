@@ -16,24 +16,24 @@
 </section>
 
 <section class="cards">
-	<a href="{base}/guides" class="card">
-		<h2>Get Started</h2>
-		<p>Join the mesh network with your device</p>
+	<a href="{base}/guides/community-onboarding" class="card">
+		<h2>Join the Mesh</h2>
+		<p>Get a device, learn the basics, start communicating</p>
 	</a>
 
 	<a href="{base}/devices" class="card">
 		<h2>Devices</h2>
-		<p>Supported hardware and setup guides</p>
+		<p>Station G2, T-Deck Plus/Pro, MeshAdv-Mini, HackRF</p>
 	</a>
 
 	<a href="{base}/curriculum" class="card">
 		<h2>Learn</h2>
-		<p>RF engineering, SDR, and secure communications</p>
+		<p>5-level curriculum from mesh basics to TAILS and SDR</p>
 	</a>
 
 	<a href="{base}/architecture" class="card">
 		<h2>Architecture</h2>
-		<p>Network design and technical decisions</p>
+		<p>Network topology, ADRs, protocol comparison, bridge design</p>
 	</a>
 </section>
 
@@ -42,19 +42,49 @@
 	<div class="feature-grid">
 		<div>
 			<h3>Encrypted Mesh</h3>
-			<p>AES-256 encrypted communications over LoRa radio. No internet, no cell towers, no central authority.</p>
+			<p>AES-256-CTR channel encryption + X25519 PKC for direct messages. No internet, no cell towers, no central authority. PSKs shared face-to-face only.</p>
 		</div>
 		<div>
 			<h3>Relay Infrastructure</h3>
-			<p>High-power Station G2 nodes on rooftops and towers providing wide area coverage across L-A.</p>
+			<p>Station G2 nodes (30 dBm, 36 dBm EIRP) on rooftops and towers. Hub-and-spoke topology with mesh fallback. Solar-powered for year-round operation.</p>
 		</div>
 		<div>
 			<h3>SMS/Email Bridge</h3>
-			<p>GPG-signed message bridges connecting the mesh to SMS and encrypted email.</p>
+			<p>MeshAdv-Mini Pi HAT running meshtasticd, Mosquitto MQTT, Twilio SMS bridge, and GPG-signed email bridge. Mesh-to-internet gateway.</p>
 		</div>
 		<div>
 			<h3>RF Education</h3>
-			<p>HackRF SDR labs, LoRa protocol analysis, TEMPEST demonstrations, and secure communications curriculum.</p>
+			<p>5-level progressive curriculum: mesh basics, security, SDR with HackRF H4M, TAILS integration. FCC Part 15 compliance, link budget calculations, protocol analysis.</p>
+		</div>
+	</div>
+</section>
+
+<section class="network-status">
+	<h2>Network Configuration</h2>
+	<div class="config-grid">
+		<div class="config-item">
+			<span class="label">Region</span>
+			<span class="value">US (915 MHz ISM)</span>
+		</div>
+		<div class="config-item">
+			<span class="label">Modem Preset</span>
+			<span class="value">LONG_FAST</span>
+		</div>
+		<div class="config-item">
+			<span class="label">Hop Limit</span>
+			<span class="value">5</span>
+		</div>
+		<div class="config-item">
+			<span class="label">Channels</span>
+			<span class="value">LA-Mesh / LA-Admin / LA-Emergency</span>
+		</div>
+		<div class="config-item">
+			<span class="label">Encryption</span>
+			<span class="value">AES-256-CTR (channel) + PKC (DMs)</span>
+		</div>
+		<div class="config-item">
+			<span class="label">Min Firmware</span>
+			<span class="value">v2.6.11+ (CVE-2025-52464 fix)</span>
 		</div>
 	</div>
 </section>
@@ -119,6 +149,7 @@
 		display: grid;
 		grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
 		gap: 2rem;
+		margin-bottom: 3rem;
 	}
 
 	.feature-grid h3 {
@@ -129,5 +160,37 @@
 	.feature-grid p {
 		color: #555;
 		line-height: 1.6;
+	}
+
+	.network-status h2 {
+		text-align: center;
+		margin-bottom: 1.5rem;
+	}
+
+	.config-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+		gap: 0.75rem;
+	}
+
+	.config-item {
+		display: flex;
+		justify-content: space-between;
+		padding: 0.75rem 1rem;
+		background: #f9f9f9;
+		border-radius: 6px;
+		border-left: 3px solid #00d4aa;
+	}
+
+	.label {
+		font-weight: 600;
+		color: #555;
+		font-size: 0.9rem;
+	}
+
+	.value {
+		color: #1a1a2e;
+		font-family: monospace;
+		font-size: 0.9rem;
 	}
 </style>

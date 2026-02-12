@@ -39,6 +39,13 @@
           tabulate
         ]);
 
+        bridgePython = pkgs.python3.withPackages (ps: with ps; [
+          paho-mqtt
+          requests
+          pyyaml
+          python-dotenv
+        ]);
+
         devTools = with pkgs; [
           # Meshtastic / LoRa
           meshtasticPython
@@ -63,6 +70,14 @@
           nixpkgs-fmt
           statix
           deadnix
+
+          # Bridge / Gateway
+          bridgePython
+          mosquitto
+
+          # Serial Debugging
+          minicom
+          picocom
 
           # Development Utilities
           jq
