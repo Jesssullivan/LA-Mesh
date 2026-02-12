@@ -1,0 +1,41 @@
+# LA-Mesh Default Channel Configuration
+# WARNING: Do NOT commit actual PSK values. This is a template.
+#
+# To generate a secure 32-byte PSK:
+#   openssl rand -base64 32
+#
+# To apply channel config:
+#   meshtastic --ch-set name "LA-Mesh" --ch-index 0
+#   meshtastic --ch-set psk <base64-psk> --ch-index 0
+
+channels:
+  - index: 0
+    name: "LA-Mesh"
+    role: PRIMARY
+    # psk: <NEVER_COMMIT_THIS>
+    # Generate with: openssl rand -base64 32
+    uplink_enabled: false
+    downlink_enabled: false
+
+  - index: 1
+    name: "LA-Admin"
+    role: SECONDARY
+    # psk: <DIFFERENT_PSK_NEVER_COMMIT>
+    # Admin channel for network operators
+    uplink_enabled: false
+    downlink_enabled: false
+
+  - index: 2
+    name: "LA-Emergency"
+    role: SECONDARY
+    # psk: <ANOTHER_PSK_NEVER_COMMIT>
+    # Emergency broadcast channel
+    uplink_enabled: false
+    downlink_enabled: false
+
+# SECURITY NOTES:
+# - Default PSK (AQ==) is publicly known and NOT SECURE
+# - All LA-Mesh devices MUST use custom 32-byte PSK
+# - PSK values are distributed at community meetups only
+# - Rotate PSK quarterly or on suspected compromise
+# - Enable PKC (Public Key Cryptography) for direct messages

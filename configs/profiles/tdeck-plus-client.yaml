@@ -1,0 +1,38 @@
+# LA-Mesh: T-Deck Plus - Mobile Client Profile
+# Apply: meshtastic --configure configs/profiles/tdeck-plus-client.yaml
+# Role: Community member portable encrypted messenger
+
+owner: "LA-Mesh"
+owner_short: "LAM"
+
+lora:
+  region: US
+  modem_preset: LONG_FAST
+  hop_limit: 5
+  tx_enabled: true
+  tx_power: 22            # Default power for handheld
+
+device:
+  role: CLIENT            # Standard client, rebroadcasts normally
+  rebroadcast_mode: ALL
+  serial_enabled: true
+  debug_log_enabled: false
+
+position:
+  fixed_position: false
+  gps_enabled: true
+  gps_update_interval: 120  # 2 minutes
+  position_broadcast_secs: 900  # 15 minutes
+
+power:
+  ls_secs: 300            # Light sleep after 5 min inactivity
+  mesh_secs: 0
+  is_power_saving: true
+
+display:
+  screen_on_secs: 60      # Screen off after 1 min
+  auto_screen_carousel_secs: 0
+
+bluetooth:
+  enabled: true
+  fixed_pin: 123456

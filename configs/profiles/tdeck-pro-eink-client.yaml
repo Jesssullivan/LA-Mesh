@@ -1,0 +1,37 @@
+# LA-Mesh: T-Deck Pro (E-Ink) - Low-Power Client Profile
+# Apply: meshtastic --configure configs/profiles/tdeck-pro-eink-client.yaml
+# Role: Battery-optimized portable client
+
+owner: "LA-Mesh"
+owner_short: "LAM"
+
+lora:
+  region: US
+  modem_preset: LONG_FAST
+  hop_limit: 5
+  tx_enabled: true
+  tx_power: 22
+
+device:
+  role: CLIENT
+  rebroadcast_mode: ALL
+  serial_enabled: true
+
+position:
+  fixed_position: false
+  gps_enabled: true
+  gps_update_interval: 300  # 5 minutes (save battery)
+  position_broadcast_secs: 1800  # 30 minutes
+
+power:
+  ls_secs: 120            # Light sleep after 2 min
+  mesh_secs: 0
+  is_power_saving: true   # Aggressive power saving for e-ink
+
+display:
+  screen_on_secs: 30      # E-ink retains display when off
+  auto_screen_carousel_secs: 0
+
+bluetooth:
+  enabled: true
+  fixed_pin: 123456

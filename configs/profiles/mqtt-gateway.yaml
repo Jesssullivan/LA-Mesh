@@ -1,0 +1,45 @@
+# LA-Mesh: MQTT Gateway Profile
+# Apply: meshtastic --configure configs/profiles/mqtt-gateway.yaml
+# Role: Bridge between mesh network and MQTT/internet
+
+owner: "LA-Mesh"
+owner_short: "LAM"
+
+lora:
+  region: US
+  modem_preset: LONG_FAST
+  hop_limit: 5
+  tx_enabled: true
+  tx_power: 22
+
+device:
+  role: CLIENT            # Standard client with MQTT uplink
+  rebroadcast_mode: LOCAL_ONLY  # Don't rebroadcast internet-sourced messages
+  serial_enabled: true
+
+position:
+  fixed_position: true
+  gps_enabled: false
+  position_broadcast_secs: 43200  # 12 hours
+
+power:
+  ls_secs: 0
+  is_power_saving: false
+
+bluetooth:
+  enabled: false
+
+network:
+  wifi_enabled: true
+  # wifi_ssid: ""        # Set per deployment
+  # wifi_psk: ""         # Set per deployment
+
+mqtt:
+  enabled: true
+  # address: ""          # Set to your MQTT broker
+  # username: ""
+  # password: ""
+  encryption_enabled: true
+  json_enabled: true      # Enable JSON output for bridge consumption
+  tls_enabled: true
+  map_reporting_enabled: true

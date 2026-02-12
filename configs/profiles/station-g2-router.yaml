@@ -1,0 +1,46 @@
+# LA-Mesh: Station G2 - Fixed Router/Relay Profile
+# Apply: meshtastic --configure configs/profiles/station-g2-router.yaml
+# Role: Rooftop/tower relay node providing backbone coverage
+
+owner: "LA-Mesh"
+owner_short: "LAM"
+
+lora:
+  region: US
+  modem_preset: LONG_FAST  # 153 dB link budget, 1.07 kbps
+  hop_limit: 5
+  tx_enabled: true
+  tx_power: 30            # Max conducted power (dBm) - adjust for antenna gain
+  # FCC EIRP budget: 30 dBm TX - 1 dB cable + antenna gain <= 36 dBm EIRP
+  # With 6 dBi antenna: 30 - 1 + 6 = 35 dBm EIRP (OK)
+  # With 9 dBi antenna: reduce tx_power to 28 dBm
+
+device:
+  role: ROUTER            # Always rebroadcasts with highest priority
+  rebroadcast_mode: ALL
+  node_info_broadcast_secs: 10800  # 3 hours
+  serial_enabled: true
+  debug_log_enabled: false
+
+position:
+  fixed_position: true
+  # Set lat/lon per deployment site
+  # latitude: 44.1003    # Example: Bates College
+  # longitude: -70.2148
+  gps_enabled: false      # Fixed nodes don't need GPS
+  position_broadcast_secs: 43200   # 12 hours
+
+power:
+  ls_secs: 0              # Never sleep - always listening
+  mesh_secs: 0
+  wait_bluetooth_secs: 0  # Disable BT timeout
+  is_power_saving: false
+
+display:
+  screen_on_secs: 0       # Display off (headless)
+
+bluetooth:
+  enabled: false          # Disable BT on router nodes
+
+network:
+  wifi_enabled: false     # Disable WiFi unless MQTT needed

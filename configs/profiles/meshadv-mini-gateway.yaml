@@ -1,0 +1,34 @@
+# LA-Mesh: MeshAdv-Mini (Pi HAT) - Gateway/Bridge Profile
+# Apply: meshtastic --configure configs/profiles/meshadv-mini-gateway.yaml
+# Role: SMS/Email bridge gateway running meshtasticd on Raspberry Pi
+
+owner: "LA-Mesh"
+owner_short: "LAM"
+
+lora:
+  region: US
+  modem_preset: LONG_FAST
+  hop_limit: 5
+  tx_enabled: true
+  tx_power: 22
+
+device:
+  role: ROUTER_CLIENT     # Routes messages but also acts as endpoint
+  rebroadcast_mode: ALL
+  serial_enabled: true
+  debug_log_enabled: true  # Enable logging for bridge debugging
+
+position:
+  fixed_position: true
+  gps_enabled: true       # MeshAdv-Mini has GPS
+  position_broadcast_secs: 3600  # 1 hour
+
+power:
+  ls_secs: 0              # Never sleep - gateway must be always-on
+  is_power_saving: false
+
+bluetooth:
+  enabled: false          # Pi connects via serial/SPI, not BT
+
+network:
+  wifi_enabled: false     # Pi handles networking, not the radio
