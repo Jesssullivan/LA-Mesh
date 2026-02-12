@@ -94,7 +94,7 @@ The project is moving toward:
 
 Meshtastic uses a **two-layer encryption model**:
 
-```
+```text
 Layer 1: Channel Encryption (PSK) - Group messages
   - AES256-CTR encryption on SubPacket payload
   - Packet header remains UNENCRYPTED (enables relay)
@@ -137,7 +137,7 @@ Layer 2: Direct Message Encryption (PKC) - Point-to-point
 
 ### LA-Mesh Channel Plan Recommendation
 
-```
+```text
 Channel 0 (Primary): "LA-Mesh"
   - PSK: Custom 32-byte key (AES256)
   - Purpose: Main community channel
@@ -251,7 +251,7 @@ Sources:
 
 ### LA-Mesh Role Assignments
 
-```
+```text
 Bates College Tower(s):    ROUTER or REPEATER
   - Strategic high point, clear line of sight
   - Solar-powered with battery backup
@@ -279,6 +279,7 @@ Dense Gathering Areas:     CLIENT_MUTE
 ### Fixed Installation Best Practices
 
 **Tower/Rooftop ROUTER Configuration:**
+
 ```bash
 meshtastic --set device.role ROUTER
 meshtastic --set lora.tx_power 30           # Maximum legal power
@@ -288,6 +289,7 @@ meshtastic --set device.rebroadcast_mode ALL
 ```
 
 **Solar-Powered Node Considerations:**
+
 - Power consumption in relay mode: ~48 mA @ 3.3V (24/7 capable with solar)
 - Deep sleep idle: ~1.3 uA
 - Minimum viable: 5W solar panel + 3350 mAh 18650 battery (2-3 days autonomy)
@@ -296,6 +298,7 @@ meshtastic --set device.rebroadcast_mode ALL
 - Standard node (correct settings): 15-35 mA depending on load
 
 **Hop Limit Guidance:**
+
 - **Default 3 is strongly recommended** -- do not increase unless necessary
 - Higher hop counts create instability and congestion
 - If more hops needed, apply only to edge nodes, not central ones
@@ -495,13 +498,14 @@ Sources:
 
 Any Meshtastic node with internet connectivity (WiFi, Ethernet, 4G, satellite, or via companion app) can serve as an **MQTT gateway**, bridging the local mesh to/from the internet.
 
-```
+```text
 [Remote Mesh Nodes] <--LoRa--> [Gateway Node] <--WiFi/Eth--> [MQTT Broker] <--Internet--> [Other Gateways/Clients]
 ```
 
 ### Configuration
 
 **Basic Gateway Setup:**
+
 ```bash
 # Connect to WiFi
 meshtastic --set network.wifi_ssid "MyNetwork"
@@ -521,7 +525,7 @@ meshtastic --ch-set downlink_enabled true --ch-index 0
 
 ### Topic Structure
 
-```
+```text
 Protobuf: msh/US/2/e/CHANNELNAME/USERID
 JSON:     msh/US/2/json/CHANNELNAME/USERID
 Downlink: msh/US/2/json/mqtt/
@@ -530,6 +534,7 @@ Downlink: msh/US/2/json/mqtt/
 ### Public Broker Restrictions
 
 The Meshtastic public broker (`mqtt.meshtastic.org`) enforces:
+
 1. **Zero-hop policy** -- only directly connected nodes receive data
 2. **Traffic filtering** -- limited to specific port numbers (NodeInfo, TextMessage, Position, Telemetry)
 3. **Location precision** -- limited to 10-16 bit precision for privacy
@@ -542,13 +547,10 @@ For LA-Mesh, consider:
    - Full control over data retention and access
    - No public broker restrictions
    - Can bridge to public broker selectively
-
 2. **Gateway placement**: One MQTT gateway node at each major installation
    - Bates College (campus WiFi)
    - Downtown L-A node with backhaul
-
 3. **Encryption**: Enable `mqtt.encryption_enabled true` to keep channel PSK encryption intact over MQTT transit
-
 4. **RAK WisMesh Gateway**: Purpose-built Ethernet MQTT gateway hardware option
 
 ### Third-Party Tools
@@ -629,7 +631,7 @@ Sources:
 
 Based on successful community networks (NHMesh, BayMesh, PhillyMesh, Chicagoland Mesh):
 
-```
+```text
                     [MQTT Gateway]
                          |
                     [MQTT Broker]
@@ -649,7 +651,8 @@ Based on successful community networks (NHMesh, BayMesh, PhillyMesh, Chicagoland
 **Short Name Format:** 4 characters, ALL CAPS
 
 Examples:
-```
+
+```text
 Long Name               Short Name    Role
 ---------               ----------    ----
 Bates-Tower-Main        BTWM          ROUTER
@@ -661,6 +664,7 @@ Bates-EM-Admin          BEMA          CLIENT (admin)
 ```
 
 **Conventions:**
+
 - Infrastructure nodes: Location-based naming
 - Personal nodes: Owner initials or name
 - Short names: All caps for visibility
@@ -670,8 +674,9 @@ Bates-EM-Admin          BEMA          CLIENT (admin)
 
 Following the NHMesh model adapted for LA-Mesh:
 
-**Option A: LA-Mesh as Primary (Recommended for core members)**
-```
+#### Option A: LA-Mesh as Primary (Recommended for core members)
+
+```text
 Channel 0: "LA-Mesh" (custom PSK, AES256)
   - All broadcasts stay within LA-Mesh
   - Enhanced privacy
@@ -679,8 +684,9 @@ Channel 1: "LongFast" (default PSK AQ==)
   - Public interoperability
 ```
 
-**Option B: Default Primary (Easier onboarding)**
-```
+#### Option B: Default Primary (Easier onboarding)
+
+```text
 Channel 0: "LongFast" (default PSK AQ==)
   - Compatible with any Meshtastic device
 Channel 1: "LA-Mesh" (custom PSK, AES256)
@@ -696,8 +702,8 @@ Channel 1: "LA-Mesh" (custom PSK, AES256)
    - Can remotely configure routers/repeaters
    - Manage PSK rotation
    - Monitor network health via MQTT
-
 2. **Remote Administration Setup (v2.5+)**
+
    ```bash
    # On admin device: get public key
    meshtastic --get security.public_key
@@ -718,7 +724,7 @@ Channel 1: "LA-Mesh" (custom PSK, AES256)
 
 ### Site Planning
 
-The **Meshtastic Site Planner** (https://site.meshtastic.org) is essential for LA-Mesh deployment:
+The **Meshtastic Site Planner** (<https://site.meshtastic.org>) is essential for LA-Mesh deployment:
 
 - Uses ITM/Longley-Rice propagation model
 - NASA SRTM terrain data
@@ -728,6 +734,7 @@ The **Meshtastic Site Planner** (https://site.meshtastic.org) is essential for L
 - Free and open source
 
 **LA-Mesh should model:**
+
 1. Bates College tower coverage (primary)
 2. Downtown L-A rooftop coverage (secondary)
 3. Overlap verification between tower and rooftop nodes
@@ -754,6 +761,7 @@ Sources:
 ### Built-in Range Test Module
 
 **Setup:**
+
 ```bash
 # Sender node (fixed location)
 meshtastic --set range_test.enabled true
@@ -766,18 +774,21 @@ meshtastic --set range_test.save true  # Save CSV to ESP32 flash
 ```
 
 **Data Collected:**
+
 - Sequential packet reception (identifies range boundary)
 - GPS coordinates (lat/lon)
 - RSSI and SNR metrics
 - Timestamps
 
 **Data Retrieval:**
+
 - Access CSV via WiFi: `http://meshtastic.local/rangetest.csv`
 - Visualize with Google Earth, Google My Maps, or OpenStreetMap uMap
 
 **Auto-disable:** Module turns off after 8 hours to prevent excessive airtime.
 
 **Recommended sender intervals by preset:**
+
 - LongFast: 60 seconds
 - MediumSlow: 30 seconds
 - ShortFast: 15 seconds
@@ -792,6 +803,7 @@ meshtastic --traceroute '!destination_nodeid'
 ```
 
 **Returns (v2.5+):**
+
 - Complete route to destination
 - Return route back to origin
 - SNR for each link in both directions
@@ -802,6 +814,7 @@ meshtastic --traceroute '!destination_nodeid'
 ### Antenna Testing (MeshTenna)
 
 [MeshTenna](https://github.com/OE3JGW/MeshTenna) is a Windows/Android tool for comparing antennas:
+
 - Measures RSSI and SNR between test node and fixed destination
 - Helps identify optimal antenna choice and placement
 - Compare stock vs. aftermarket antennas
@@ -830,12 +843,10 @@ meshtastic --traceroute '!destination_nodeid'
    - Station G2 sender at Bates tower, fixed position
    - Drive/walk test with receiver through L-A area
    - Map coverage boundary with GPS overlay
-
 2. **Phase 2: Urban Relay Testing**
    - Traceroute between endpoints through downtown nodes
    - Identify dead spots and relay effectiveness
    - Test with MUI signal meter tool
-
 3. **Phase 3: Antenna Comparison**
    - Compare stock antennas vs. external directional/omni
    - Use MeshTenna for systematic comparison
@@ -878,6 +889,7 @@ Sources:
 ### Sprint Gaps / Action Items
 
 #### Week 1-2: Foundation
+
 - [ ] Procure initial hardware (2x Station G2, 4x Heltec V3, 2x T-Deck Plus)
 - [ ] Flash all devices to firmware 2.7.15 (latest beta)
 - [ ] Generate 32-byte PSK for LA-Mesh primary channel
@@ -885,6 +897,7 @@ Sources:
 - [ ] Create configuration templates (YAML exports) for each role
 
 #### Week 3-4: Infrastructure
+
 - [ ] Run Meshtastic Site Planner for Bates College tower coverage
 - [ ] Run Site Planner for downtown L-A candidate sites
 - [ ] Install Station G2 at primary Bates tower location (ROUTER role)
@@ -892,6 +905,7 @@ Sources:
 - [ ] Configure remote admin PKC keys on all infrastructure nodes
 
 #### Week 5-6: Testing & Expansion
+
 - [ ] Conduct range test from Bates tower (drive test through L-A)
 - [ ] Run traceroute tests between all infrastructure nodes
 - [ ] Map coverage boundary with GPS overlay
@@ -899,6 +913,7 @@ Sources:
 - [ ] Deploy CLIENT_BASE nodes at 2-3 member homes
 
 #### Week 7-8: Operations & Community
+
 - [ ] Set up self-hosted MQTT broker (Mosquitto)
 - [ ] Configure MQTT gateway at Bates (campus WiFi backhaul)
 - [ ] Create onboarding documentation (channel QR codes, setup guide)
