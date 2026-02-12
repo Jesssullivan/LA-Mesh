@@ -50,10 +50,17 @@
     }
   },
   "hackrf": {
-    "mayhem_version": "latest",
+    "mayhem_version": "2.3.2",
     "update_method": "sd_card",
     "release_url": "https://github.com/portapack-mayhem/mayhem-firmware/releases",
-    "note": "HackRF H4M uses PortaPack Mayhem firmware via SD card"
+    "web_flasher": "https://hackrf.app",
+    "files": {
+      "firmware": {
+        "binary": "mayhem_v2.3.2_OCI.ppfw.tar",
+        "sha256": "UPDATE_WITH_ACTUAL_HASH_AFTER_DOWNLOAD"
+      }
+    },
+    "note": "Pin version and verify SHA256 before preparing SD cards."
   },
   "meshtasticd": {
     "note": "Linux-native Meshtastic for Raspberry Pi (MeshAdv-Mini HAT). Install via apt, no firmware binary needed.",

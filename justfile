@@ -180,7 +180,7 @@ firmware-versions:
     @echo "========================="
     @jq -r '"Meshtastic: v" + .meshtastic.version + " (min: v" + .meshtastic.min_version + ")"' firmware/manifest.json
     @jq -r '"MeshCore:   " + .meshcore.version' firmware/manifest.json
-    @jq -r '"HackRF:     " + .hackrf.mayhem_version' firmware/manifest.json
+    @jq -r '"HackRF:     Mayhem v" + .hackrf.mayhem_version' firmware/manifest.json
     @echo ""
     @echo "Devices:"
     @jq -r '.meshtastic.devices | to_entries[] | "  " + .key + ": " + .value.binary' firmware/manifest.json
@@ -231,6 +231,61 @@ firmware-update-hashes:
 # Switch firmware between Meshtastic and MeshCore (interactive)
 switch-firmware port="/dev/ttyUSB0":
     ./tools/flash/switch-firmware.sh {{port}}
+
+# =============================================================================
+# HackRF / Mayhem Firmware
+# =============================================================================
+
+# Fetch Mayhem firmware for HackRF H4M
+hackrf-fetch-firmware version="":
+    #!/usr/bin/env bash
+    set -euo pipefail
+    MANIFEST="firmware/manifest.json"
+    CACHE_DIR="${FIRMWARE_CACHE_DIR:-firmware/.cache}"
+    mkdir -p "$CACHE_DIR"
+    VER="${1:-$(jq -r '.hackrf.mayhem_version' "$MANIFEST")}"
+    BINARY=$(jq -r '.hackrf.files.firmware.binary' "$MANIFEST")
+    URL="https://github.com/portapack-mayhem/mayhem-firmware/releases/download/v${VER}/${BINARY}"
+    DEST="$CACHE_DIR/$BINARY"
+    if [ -f "$DEST" ]; then
+        echo "Already cached: $DEST"
+    else
+        echo "Downloading Mayhem v${VER}..."
+        curl -fSL -o "$DEST" "$URL"
+        echo "Downloaded: $DEST"
+    fi
+    # Verify SHA256 if pinned
+    EXPECTED=$(jq -r '.hackrf.files.firmware.sha256 // empty' "$MANIFEST")
+    if [ -n "$EXPECTED" ] && [ "$EXPECTED" != "UPDATE_WITH_ACTUAL_HASH_AFTER_DOWNLOAD" ]; then
+        ACTUAL=$(sha256sum "$DEST" | cut -d' ' -f1)
+        if [ "$ACTUAL" != "$EXPECTED" ]; then
+            echo "CHECKSUM MISMATCH -- refusing to use!"
+            echo "  Expected: $EXPECTED"
+            echo "  Actual:   $ACTUAL"
+            rm -f "$DEST"
+            exit 1
+        fi
+        echo "Checksum OK: $ACTUAL"
+    else
+        echo "No hash pinned -- run 'just hackrf-update-hash' to pin."
+    fi
+
+# Update HackRF firmware hash in manifest
+hackrf-update-hash:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    MANIFEST="firmware/manifest.json"
+    CACHE_DIR="${FIRMWARE_CACHE_DIR:-firmware/.cache}"
+    BINARY=$(jq -r '.hackrf.files.firmware.binary' "$MANIFEST")
+    FILE="$CACHE_DIR/$BINARY"
+    if [ ! -f "$FILE" ]; then
+        echo "Firmware not cached. Run 'just hackrf-fetch-firmware' first."
+        exit 1
+    fi
+    HASH=$(sha256sum "$FILE" | cut -d' ' -f1)
+    jq ".hackrf.files.firmware.sha256 = \"$HASH\"" "$MANIFEST" > "$MANIFEST.tmp"
+    mv "$MANIFEST.tmp" "$MANIFEST"
+    echo "HackRF Mayhem hash updated: $HASH"
 
 # =============================================================================
 # SDR / RF Analysis

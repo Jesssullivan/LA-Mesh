@@ -122,7 +122,7 @@
 	<pre class="code">{`# Apply with auto-backup
 just configure-profile station-g2-router /dev/ttyUSB0
 
-# Apply channels (reads PSK from environment)
+# Apply channels (reads PSK from operator keystore)
 just configure-channels /dev/ttyUSB0
 
 # Verify configuration

@@ -7,12 +7,12 @@
 </svelte:head>
 
 <h1>Curriculum</h1>
-<p>Progressive education in mesh networking, RF engineering, and secure communications. Each level builds on the previous. All workshops are free. We meet fortnightly at Bates College.</p>
+<p>Hands-on workshops in mesh networking, RF engineering, and secure communications. Pick any topic that interests you. All workshops are free. We meet fortnightly at Bates College.</p>
 
 <div class="levels">
 	<a href="{base}/curriculum/mesh-basics" class="level">
 		<div class="level-header">
-			<span class="badge">Level 1-2</span>
+			<span class="badge">Fundamentals</span>
 			<h2>Mesh Basics</h2>
 		</div>
 		<p>6-part workshop covering mesh networking fundamentals and hands-on device setup.</p>
@@ -25,14 +25,13 @@
 		</ul>
 		<div class="meta">
 			<span>2-hour workshop</span>
-			<span>No prerequisites</span>
 		</div>
 		<span class="status">Available</span>
 	</a>
 
 	<a href="{base}/curriculum/security" class="level">
 		<div class="level-header">
-			<span class="badge">Level 3</span>
+			<span class="badge">Security</span>
 			<h2>Encryption and Security</h2>
 		</div>
 		<p>5-part workshop on the full encryption stack, threat modeling, and operational security.</p>
@@ -45,17 +44,16 @@
 		</ul>
 		<div class="meta">
 			<span>4-hour workshop</span>
-			<span>Requires Level 1-2</span>
 		</div>
 		<span class="status">Available</span>
 	</a>
 
 	<a href="{base}/curriculum/sdr" class="level">
 		<div class="level-header">
-			<span class="badge">Level 4</span>
+			<span class="badge">SDR / RF</span>
 			<h2>SDR and RF Engineering</h2>
 		</div>
-		<p>8-part lab using HackRF H4M for hands-on RF analysis, LoRa protocol dissection, and TEMPEST demonstration.</p>
+		<p>7-part lab using HackRF H4M for hands-on RF analysis and LoRa protocol dissection.</p>
 		<ul>
 			<li>SDR fundamentals: sampling, Nyquist, quadrature, dynamic range</li>
 			<li>FCC Part 15.247: legal limits (30 dBm conducted, 36 dBm EIRP at 915 MHz)</li>
@@ -63,20 +61,38 @@
 			<li>LoRa signal anatomy: chirp structure, spreading factors, bandwidth, coding rate</li>
 			<li>GNU Radio + gr-lora_sdr: building a LoRa receiver flowgraph</li>
 			<li>RF troubleshooting: link budget calculations, antenna patterns, path loss</li>
-			<li>TEMPEST and emanation security: electromagnetic side-channel analysis</li>
 			<li>LoRa protocol analysis with gr-lora_sdr and Meshtastic_SDR</li>
 		</ul>
 		<div class="meta">
 			<span>6 hours (two 3-hour sessions)</span>
 			<span>HackRF H4M provided</span>
-			<span>Requires Level 3</span>
+		</div>
+		<span class="status">Available</span>
+	</a>
+
+	<a href="{base}/curriculum/tempest" class="level">
+		<div class="level-header">
+			<span class="badge">EMSEC</span>
+			<h2>TEMPEST and Emanation Security</h2>
+		</div>
+		<p>3-hour lab on electromagnetic emanation analysis using HackRF H4M and PortaPack Mayhem.</p>
+		<ul>
+			<li>Emanation theory: Van Eck phreaking, video signal reconstruction</li>
+			<li>Lab: spectrum survey with PortaPack Looking Glass</li>
+			<li>Lab: VGA reconstruction with TempestSDR + HackRF</li>
+			<li>Lab: HDMI capture with deep-tempest CNN enhancement</li>
+			<li>Keyboard emanations, countermeasures, mesh implications</li>
+		</ul>
+		<div class="meta">
+			<span>3-hour lab</span>
+			<span>HackRF H4M provided</span>
 		</div>
 		<span class="status">Available</span>
 	</a>
 
 	<a href="{base}/curriculum/tails" class="level">
 		<div class="level-header">
-			<span class="badge">Level 5</span>
+			<span class="badge">Privacy</span>
 			<h2>TAILS and Secure Communications</h2>
 		</div>
 		<p>6-part lab on maximum operational security using TAILS OS with mesh networking.</p>
@@ -91,7 +107,6 @@
 		<div class="meta">
 			<span>3-hour lab</span>
 			<span>USB drives provided</span>
-			<span>Requires Level 3</span>
 		</div>
 		<span class="status">Available</span>
 	</a>

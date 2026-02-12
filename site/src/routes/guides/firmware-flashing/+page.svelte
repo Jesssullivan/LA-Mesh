@@ -34,7 +34,7 @@ just provision station-g2 /dev/ttyUSB0`}</pre>
 			<tr><td>2</td><td>Verify checksum</td><td>SHA256 checked against <code>firmware/manifest.json</code></td></tr>
 			<tr><td>3</td><td>Flash device</td><td>esptool.py <code>write-flash</code> at offset <code>0x260000</code></td></tr>
 			<tr><td>4</td><td>Apply profile</td><td>Device role config (ROUTER, CLIENT, etc.)</td></tr>
-			<tr><td>5</td><td>Set channels</td><td>LA-Mesh / LA-Admin / LA-Emergency (requires PSK env vars)</td></tr>
+			<tr><td>5</td><td>Set channels</td><td>LA-Mesh / LA-Admin / LA-Emergency (requires PSK from operator's encrypted keystore)</td></tr>
 		</tbody>
 	</table>
 	<p>Device types: <code>station-g2</code>, <code>t-deck</code></p>
@@ -55,7 +55,7 @@ just flash-meshtastic firmware/.cache/firmware-station-g2-2.7.15.bin /dev/ttyUSB
 # 4. Apply device profile
 just configure-profile station-g2-router /dev/ttyUSB0
 
-# 5. Apply LA-Mesh channels (reads PSK from .env)
+# 5. Apply LA-Mesh channels (reads PSK from operator keystore)
 just configure-channels /dev/ttyUSB0`}</pre>
 </section>
 
@@ -126,7 +126,7 @@ just firmware-check`}</pre>
 			</tr>
 		</tbody>
 	</table>
-	<p>Then apply LA-Mesh channel configuration (requires PSK environment variables):</p>
+	<p>Then apply LA-Mesh channel configuration (requires PSK from operator's encrypted keystore):</p>
 	<pre class="code">{`just configure-channels /dev/ttyUSB0`}</pre>
 </section>
 

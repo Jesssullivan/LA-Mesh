@@ -10,10 +10,9 @@
 	<a href="{base}/curriculum">Curriculum</a> / SDR and RF Engineering
 </nav>
 
-<h1>Level 4: Software-Defined Radio and LoRa Analysis</h1>
+<h1>Software-Defined Radio and LoRa Analysis</h1>
 <div class="meta">
 	<span>6 hours (two 3-hour sessions)</span>
-	<span>Requires Level 3</span>
 	<span>HackRF H4M provided</span>
 	<span>Free -- fortnightly at Bates College</span>
 </div>
@@ -26,7 +25,6 @@
 		<li>Identify LoRa transmissions on a waterfall display</li>
 		<li>Understand FCC Part 15 rules for 915 MHz</li>
 		<li>Set up GNU Radio with gr-lora_sdr for LoRa analysis</li>
-		<li>Understand TEMPEST and emanation security concepts</li>
 		<li>Build a LoRa protocol analysis flowgraph</li>
 	</ol>
 </section>
@@ -62,20 +60,7 @@
 
 <section>
 	<h2>Session 2: Advanced Topics (3 hours)</h2>
-	<h3>Part 7: TEMPEST and Emanation Security (45 min)</h3>
-	<p><strong>TEMPEST</strong>: electromagnetic emanations from displays and cables leak data. Originally an NSA program (declassified).</p>
-	<table>
-		<thead><tr><th>Tool</th><th>Purpose</th></tr></thead>
-		<tbody>
-			<tr><td>TempestSDR (Java)</td><td>HDMI emanation capture with HackRF</td></tr>
-			<tr><td>gr-tempest (GNURadio OOT)</td><td>GNURadio-based TEMPEST receiver</td></tr>
-			<tr><td>deep-tempest</td><td>CNN-enhanced HDMI recovery (Correa-Londono et al., LADC 2024)</td></tr>
-		</tbody>
-	</table>
-	<p><strong>Countermeasures</strong>: shielded cables, display filters, TEMPEST-rated equipment, physical distance.</p>
-	<p><strong>Legal</strong>: receiving emanations is receive-only (legal), but ECPA considerations apply.</p>
-
-	<h3>Part 8: LoRa Protocol Analysis with GNURadio (45 min)</h3>
+	<h3>Part 7: LoRa Protocol Analysis with GNURadio (45 min)</h3>
 	<table>
 		<thead><tr><th>Tool</th><th>Source</th><th>Notes</th></tr></thead>
 		<tbody>
@@ -84,6 +69,9 @@
 		</tbody>
 	</table>
 	<p><strong>Exercise</strong>: Build a receive flowgraph, capture packets from a known Meshtastic transmission, and observe why encrypted payloads look random (AES-256 working correctly).</p>
+
+	<h3>TEMPEST and Emanation Security</h3>
+	<p>Electromagnetic side-channel analysis is covered in a dedicated workshop: <a href="{base}/curriculum/tempest">TEMPEST and Emanation Security</a>.</p>
 </section>
 
 <style>

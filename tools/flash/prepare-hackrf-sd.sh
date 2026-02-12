@@ -107,6 +107,29 @@ if [ -n "$FIRMWARE_ARCHIVE" ]; then
         exit 1
     fi
 
+    # SHA256 verification against manifest
+    MANIFEST="${BASH_SOURCE[0]%/*}/../../firmware/manifest.json"
+    if [ -f "$MANIFEST" ] && command -v jq &>/dev/null; then
+        EXPECTED_HASH=$(jq -r '.hackrf.files.firmware.sha256 // empty' "$MANIFEST")
+        if [ -n "$EXPECTED_HASH" ] && [ "$EXPECTED_HASH" != "UPDATE_WITH_ACTUAL_HASH_AFTER_DOWNLOAD" ]; then
+            echo "Verifying SHA256 checksum..."
+            ACTUAL_HASH=$(sha256sum "$FIRMWARE_ARCHIVE" | cut -d' ' -f1)
+            if [ "$ACTUAL_HASH" != "$EXPECTED_HASH" ]; then
+                echo "CHECKSUM MISMATCH -- refusing to flash!"
+                echo "  Expected: $EXPECTED_HASH"
+                echo "  Actual:   $ACTUAL_HASH"
+                echo ""
+                echo "Re-download firmware or run: just hackrf-update-hash"
+                sudo umount "$MOUNT_POINT"
+                exit 1
+            fi
+            echo "Checksum OK: $ACTUAL_HASH"
+        else
+            echo "WARNING: No SHA256 hash pinned in manifest -- skipping verification."
+            echo "  Run 'just hackrf-update-hash' after downloading firmware."
+        fi
+    fi
+
     echo "Extracting firmware..."
     sudo tar -xf "$FIRMWARE_ARCHIVE" -C "$MOUNT_POINT"
     echo "Firmware copied."

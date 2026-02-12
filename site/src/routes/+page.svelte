@@ -13,7 +13,7 @@
 		Encrypted mesh communications for the Lewiston-Auburn area and Bates College campus.
 		Infrastructure-independent, resilient, community-owned.
 	</p>
-	<p class="workshops">Free fortnightly workshops at Bates College -- from mesh basics to TAILS and SDR.</p>
+	<p class="workshops">Free fortnightly workshops at Bates College -- from mesh basics to TEMPEST and TAILS.</p>
 </section>
 
 <section class="cards">
@@ -29,7 +29,7 @@
 
 	<a href="{base}/curriculum" class="card">
 		<h2>Learn</h2>
-		<p>5-level curriculum from mesh basics to TAILS and SDR</p>
+		<p>Workshops: mesh basics, encryption, SDR, TEMPEST, TAILS</p>
 	</a>
 
 	<a href="{base}/architecture" class="card">
@@ -55,7 +55,7 @@
 		</div>
 		<div>
 			<h3>RF Education</h3>
-			<p>5-level progressive curriculum: mesh basics, security, SDR with HackRF H4M, TAILS integration. FCC Part 15 compliance, link budget calculations, protocol analysis.</p>
+			<p>Hands-on workshops: mesh basics, security, SDR with HackRF H4M, TEMPEST, TAILS integration. FCC Part 15 compliance, link budget calculations, protocol analysis.</p>
 		</div>
 	</div>
 </section>

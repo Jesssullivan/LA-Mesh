@@ -30,7 +30,7 @@ just provision station-g2 /dev/ttyUSB0
 | 2 | Verify checksum | SHA256 checked against `firmware/manifest.json` |
 | 3 | Flash device | esptool.py `write-flash` at offset `0x260000` |
 | 4 | Apply profile | Device role config (ROUTER, CLIENT, etc.) |
-| 5 | Set channels | LA-Mesh / LA-Admin / LA-Emergency (requires PSK env vars) |
+| 5 | Set channels | LA-Mesh / LA-Admin / LA-Emergency (requires PSK from operator's encrypted keystore) |
 
 Device types: `station-g2`, `t-deck`
 
@@ -53,7 +53,7 @@ just flash-meshtastic firmware/.cache/firmware-station-g2-2.7.15.bin /dev/ttyUSB
 # 4. Apply device profile
 just configure-profile station-g2-router /dev/ttyUSB0
 
-# 5. Apply LA-Mesh channels (reads PSK from .env)
+# 5. Apply LA-Mesh channels (reads PSK from operator keystore)
 just configure-channels /dev/ttyUSB0
 ```
 
@@ -130,7 +130,7 @@ sudo systemctl enable --now meshtasticd
 | T-Deck Pro (e-ink) | tdeck-pro-eink-client | `just configure-profile tdeck-pro-eink-client` |
 | MeshAdv-Mini | meshadv-mini-gateway | `just configure-profile meshadv-mini-gateway` |
 
-Then apply LA-Mesh channel configuration (requires PSK environment variables):
+Then apply LA-Mesh channel configuration (requires PSK from operator's encrypted keystore):
 
 ```bash
 just configure-channels /dev/ttyUSB0

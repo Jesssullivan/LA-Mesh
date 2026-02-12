@@ -143,6 +143,13 @@
 </section>
 
 <section>
+	<h2>Recommended Resources</h2>
+	<ul>
+		<li><a href="https://gajim.org/">Gajim</a> -- open-source XMPP client with OMEMO encryption for operator coordination</li>
+	</ul>
+</section>
+
+<section>
 	<h2>Want to Help?</h2>
 	<ul>
 		<li><strong>Host a node</strong>: If you have a high location (rooftop, hilltop), we may be able to place a relay node</li>

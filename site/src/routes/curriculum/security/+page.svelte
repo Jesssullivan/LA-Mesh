@@ -10,10 +10,9 @@
 	<a href="{base}/curriculum">Curriculum</a> / Security
 </nav>
 
-<h1>Level 3: Mesh Network Security</h1>
+<h1>Mesh Network Security</h1>
 <div class="meta">
 	<span>2-hour workshop</span>
-	<span>Requires Level 1-2</span>
 	<span>Free -- fortnightly at Bates College</span>
 </div>
 
@@ -86,6 +85,14 @@ meshtastic --ch-set psk "<your-base64-psk>" --ch-index 0`}</pre>
 		<li>Disable GPS position sharing if OpSec requires it</li>
 		<li>Monitor node list for unknown devices</li>
 		<li>Keep firmware updated</li>
+	</ul>
+</section>
+
+<section>
+	<h2>References</h2>
+	<ul>
+		<li><a href="https://xmpp.org/extensions/xep-0384.html">OMEMO Encryption (XEP-0384)</a> -- Signal Protocol for XMPP</li>
+		<li><a href="https://keepassxc.org/docs/">KeePassXC Documentation</a> -- offline encrypted credential management</li>
 	</ul>
 </section>
 

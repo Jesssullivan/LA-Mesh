@@ -87,12 +87,23 @@ just info           # verify all tools are available`}</pre>
 <section>
 	<h2>Security: Never Commit</h2>
 	<ul>
-		<li><code>.env</code> files (use <code>.env.template</code> for structure)</li>
+		<li>Secrets (never committed -- use encrypted storage)</li>
 		<li>PSK values (channel encryption keys)</li>
 		<li>API keys (SMS gateway, SMTP, MQTT credentials)</li>
 		<li>Private keys (SSH, GPG, TLS)</li>
 	</ul>
 	<p>Enable the pre-commit hook: <code>git config core.hooksPath .githooks</code></p>
+</section>
+
+<section>
+	<h2>Recommended Operating Systems</h2>
+	<table>
+		<thead><tr><th>OS</th><th>Use Case</th></tr></thead>
+		<tbody>
+			<tr><td><a href="https://linuxmint.com">Linux Mint</a></td><td>Desktop OS for mesh operators -- stable, beginner-friendly, full hardware support</td></tr>
+			<tr><td><a href="https://rockylinux.org">Rocky Linux</a></td><td>Server OS for gateway and bridge nodes -- enterprise-grade, long-term support</td></tr>
+		</tbody>
+	</table>
 </section>
 
 <style>

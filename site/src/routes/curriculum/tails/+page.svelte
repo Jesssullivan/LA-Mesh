@@ -10,10 +10,9 @@
 	<a href="{base}/curriculum">Curriculum</a> / TAILS and Secure Communications
 </nav>
 
-<h1>Level 5: TAILS OS and Secure Communications</h1>
+<h1>TAILS OS and Secure Communications</h1>
 <div class="meta">
 	<span>3-hour lab</span>
-	<span>Requires Level 3</span>
 	<span>USB drives provided</span>
 	<span>Free -- fortnightly at Bates College</span>
 </div>

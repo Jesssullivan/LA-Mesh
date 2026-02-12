@@ -20,8 +20,8 @@
 		<tbody>
 			<tr><td>Channel PSK (x3)</td><td>Symmetric (AES-256)</td><td>Operator encrypted storage</td><td>Quarterly</td></tr>
 			<tr><td>Device PKC key pair</td><td>Asymmetric (X25519)</td><td>On-device only</td><td>On firmware update</td></tr>
-			<tr><td>MQTT credentials</td><td>Username/password</td><td>.env file on Pi (gitignored)</td><td>On compromise</td></tr>
-			<tr><td>SMTP credentials</td><td>API token</td><td>.env file on Pi (gitignored)</td><td>On compromise</td></tr>
+			<tr><td>MQTT credentials</td><td>Username/password</td><td>Encrypted keystore (KeePassXC)</td><td>On compromise</td></tr>
+			<tr><td>SMTP credentials</td><td>API token</td><td>Encrypted keystore (KeePassXC)</td><td>On compromise</td></tr>
 		</tbody>
 	</table>
 </section>
@@ -63,6 +63,17 @@ meshtastic --info`}</pre>
 			<tr><td>Device theft</td><td>Rotate all channels, attempt remote wipe via admin channel</td></tr>
 			<tr><td>Firmware vulnerability</td><td>Update all devices, rotate PKC keys if needed</td></tr>
 			<tr><td>Operator departure</td><td>Rotate admin channel PSK</td></tr>
+		</tbody>
+	</table>
+</section>
+
+<section>
+	<h2>Recommended Tools</h2>
+	<table>
+		<thead><tr><th>Tool</th><th>Purpose</th></tr></thead>
+		<tbody>
+			<tr><td><a href="https://keepassxc.org">KeePassXC</a></td><td>Offline AES-256 encrypted credential storage for PSKs, MQTT/SMTP credentials, and API tokens</td></tr>
+			<tr><td><a href="https://conversations.im/omemo/">OMEMO</a></td><td>Signal Protocol over federated XMPP -- end-to-end encrypted messaging for operator coordination</td></tr>
 		</tbody>
 	</table>
 </section>

@@ -10,10 +10,9 @@
 	<a href="{base}/curriculum">Curriculum</a> / Mesh Basics
 </nav>
 
-<h1>Level 1-2: Mesh Networking Basics</h1>
+<h1>Mesh Networking Basics</h1>
 <div class="meta">
 	<span>2-3 hour workshop</span>
-	<span>No prerequisites</span>
 	<span>Free -- fortnightly at Bates College</span>
 </div>
 
