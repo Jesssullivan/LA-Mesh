@@ -29,7 +29,7 @@ These protocols cannot interoperate. A device running one cannot communicate wit
 | API | Mature Python API | Python + JS libraries |
 | T-Deck dual-boot | Supported via M5Stack Launcher | Supported via M5Stack Launcher |
 
-### Key reasons:
+### Key reasons
 1. **MQTT bridge** is critical for SMS/email gateway - Meshtastic has it built-in
 2. **Encryption** is stronger (AES-256-CTR vs AES-128-ECB)
 3. **Community resources** are more abundant for troubleshooting

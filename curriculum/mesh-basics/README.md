@@ -45,6 +45,7 @@ By the end of this module, participants will be able to:
 - Range: 1-20+ km depending on terrain and antenna
 
 **Key specs (simplified)**:
+
 | What | Value | Plain English |
 |------|-------|--------------|
 | Frequency | 915 MHz | UHF radio band, passes through some obstacles |

@@ -59,6 +59,7 @@ openssl rand -base64 32
 ```
 
 **PSK Strength Comparison**:
+
 | PSK | Bits | Security |
 |-----|------|----------|
 | `AQ==` (default) | 8 | **NONE** -- publicly known |
