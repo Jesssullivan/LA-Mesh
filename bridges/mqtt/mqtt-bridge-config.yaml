@@ -1,0 +1,56 @@
+# LA-Mesh MQTT Bridge Configuration Template
+# Deploy on the Raspberry Pi running meshtasticd with MeshAdv-Mini HAT
+#
+# This file configures the MQTT client that connects meshtasticd
+# to external services (SMS, email, monitoring).
+#
+# IMPORTANT: Copy to mqtt-bridge-config.local.yaml and fill in secrets.
+# Never commit the .local.yaml file.
+
+mqtt:
+  broker:
+    host: "localhost"           # Use local Mosquitto by default
+    port: 1883                  # 1883 for plain, 8883 for TLS
+    tls: false                  # Enable TLS for remote brokers
+    # ca_cert: /etc/ssl/certs/ca-certificates.crt
+    # username: ""              # MQTT auth
+    # password: ""              # MQTT auth
+
+  topics:
+    # Meshtastic publishes mesh messages to these topics
+    mesh_incoming: "msh/US/2/json/LongFast/+"   # Incoming mesh messages (JSON)
+    mesh_nodeinfo: "msh/US/2/json/LongFast/!+"  # Node info updates
+    mesh_position: "msh/US/2/json/LongFast/+/pos"  # Position updates
+    mesh_telemetry: "msh/US/2/json/LongFast/+/tel"  # Device telemetry
+
+    # Bridge publishes outbound messages to these topics
+    mesh_outgoing: "msh/US/2/json/LongFast/!gateway"  # Outbound to mesh
+
+    # Internal bridge topics
+    sms_inbound: "lamesh/bridge/sms/inbound"    # SMS received from Twilio
+    sms_outbound: "lamesh/bridge/sms/outbound"  # SMS to send via Twilio
+    email_inbound: "lamesh/bridge/email/inbound"  # Email received
+    email_outbound: "lamesh/bridge/email/outbound"  # Email to send
+
+  # Message format from meshtastic JSON MQTT
+  # {
+  #   "channel": 0,
+  #   "from": 1234567890,
+  #   "id": 12345678,
+  #   "payload": { "text": "Hello mesh!" },
+  #   "sender": "!aabbccdd",
+  #   "timestamp": 1707667200,
+  #   "to": 4294967295,
+  #   "type": "text"
+  # }
+
+logging:
+  level: INFO                   # DEBUG, INFO, WARNING, ERROR
+  file: /var/log/lamesh/mqtt-bridge.log
+  max_size_mb: 10
+  backup_count: 5
+
+monitoring:
+  health_check_interval_secs: 60
+  node_timeout_secs: 3600       # Mark node offline after 1 hour silence
+  metrics_topic: "lamesh/metrics"

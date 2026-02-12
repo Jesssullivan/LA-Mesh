@@ -1,0 +1,30 @@
+[Unit]
+Description=LA-Mesh SMS Bridge
+Documentation=https://github.com/Jesssullivan/LA-Mesh
+After=network.target mosquitto.service meshtasticd.service
+Wants=mosquitto.service
+
+[Service]
+Type=simple
+User=lamesh
+Group=lamesh
+WorkingDirectory=/opt/lamesh/bridges/sms
+EnvironmentFile=/opt/lamesh/bridges/sms/.env
+ExecStart=/usr/bin/python3 /opt/lamesh/bridges/sms/sms_bridge.py
+Restart=always
+RestartSec=10
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=lamesh-sms
+
+# Security hardening
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/log/lamesh
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

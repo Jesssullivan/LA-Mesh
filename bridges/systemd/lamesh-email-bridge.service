@@ -1,0 +1,30 @@
+[Unit]
+Description=LA-Mesh Email Bridge
+Documentation=https://github.com/Jesssullivan/LA-Mesh
+After=network.target mosquitto.service meshtasticd.service
+Wants=mosquitto.service
+
+[Service]
+Type=simple
+User=lamesh
+Group=lamesh
+WorkingDirectory=/opt/lamesh/bridges/email
+EnvironmentFile=/opt/lamesh/bridges/email/.env
+ExecStart=/usr/bin/python3 /opt/lamesh/bridges/email/email_bridge.py
+Restart=always
+RestartSec=10
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=lamesh-email
+
+# Security hardening
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/log/lamesh
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
