@@ -1,7 +1,13 @@
 config:
   default: true
   MD013: false        # Line length - disabled for docs
+  MD022: false        # Blanks around headings - too noisy for research docs
+  MD031: false        # Blanks around fences - too noisy for research docs
+  MD032: false        # Blanks around lists - too noisy for research docs
   MD033: false        # Inline HTML - needed for Svelte components
+  MD034: false        # Bare URLs - common in research docs with inline citations
+  MD036: false        # Emphasis as heading - used intentionally in some docs
+  MD040: false        # Fenced code language - not all blocks need language
   MD041: false        # First line h1 - frontmatter handles this
   MD024:
     siblings_only: true  # Allow duplicate headings in different sections
