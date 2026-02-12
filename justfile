@@ -126,16 +126,40 @@ mesh-apply-profile profile:
     meshtastic --configure configs/profiles/{{profile}}.yaml
 
 # =============================================================================
+# Device Configuration
+# =============================================================================
+
+# Apply a device configuration profile (with auto-backup)
+configure-profile profile port="/dev/ttyUSB0":
+    ./tools/configure/apply-profile.sh {{profile}} {{port}}
+
+# Apply LA-Mesh channel configuration (reads PSK from env vars)
+configure-channels port="/dev/ttyUSB0":
+    ./tools/configure/apply-channels.sh {{port}}
+
+# Backup device config to configs/backups/
+configure-backup port="/dev/ttyUSB0":
+    ./tools/configure/backup-config.sh {{port}}
+
+# Factory reset a device (interactive confirmation)
+configure-reset port="/dev/ttyUSB0":
+    ./tools/configure/factory-reset.sh {{port}}
+
+# =============================================================================
 # Firmware
 # =============================================================================
 
-# Flash Meshtastic firmware to ESP32 device
-flash firmware_file port="/dev/ttyUSB0":
-    esptool.py --chip esp32 --port {{port}} write_flash 0x10000 {{firmware_file}}
+# Flash Meshtastic firmware
+flash-meshtastic firmware_file port="/dev/ttyUSB0":
+    ./tools/flash/flash-meshtastic.sh {{firmware_file}} {{port}}
 
-# Erase ESP32 flash (factory reset)
+# Flash MeshCore firmware
+flash-meshcore firmware_file port="/dev/ttyUSB0":
+    ./tools/flash/flash-meshcore.sh {{firmware_file}} {{port}}
+
+# Erase ESP32 flash (chip-level factory reset)
 flash-erase port="/dev/ttyUSB0":
-    esptool.py --chip esp32 --port {{port}} erase_flash
+    esptool.py --chip auto --port {{port}} erase_flash
 
 # Check connected ESP32 device
 flash-info port="/dev/ttyUSB0":
@@ -222,6 +246,38 @@ changelog:
 # Preview changelog
 changelog-preview:
     git cliff --unreleased
+
+# =============================================================================
+# Monitoring
+# =============================================================================
+
+# Live MQTT message listener (colored output)
+monitor broker="localhost":
+    python3 tools/monitor/mqtt-listener.py --broker {{broker}}
+
+# Log MQTT messages to CSV files
+monitor-csv broker="localhost" output="logs":
+    python3 tools/monitor/mqtt-to-csv.py --broker {{broker}} --output-dir {{output}}
+
+# Live node status dashboard
+monitor-nodes broker="localhost":
+    python3 tools/monitor/node-status.py --broker {{broker}}
+
+# =============================================================================
+# Testing
+# =============================================================================
+
+# Run automated range test
+test-range count="10" interval="30" port="/dev/ttyUSB0":
+    ./tools/test/range-test.sh --count {{count}} --interval {{interval}} --port {{port}}
+
+# Run integration test suite
+test-integration port="/dev/ttyUSB0":
+    ./tools/test/integration-tests.sh --port {{port}}
+
+# Run a specific integration test
+test-one test port="/dev/ttyUSB0":
+    ./tools/test/integration-tests.sh --port {{port}} --test {{test}}
 
 # =============================================================================
 # Cleanup
