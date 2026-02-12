@@ -14,7 +14,7 @@
 <div class="meta">
 	<span>3-hour lab</span>
 	<span>HackRF H4M provided</span>
-	<span>Free -- fortnightly at Bates College</span>
+	<span>Free -- fortnightly in the L-A area</span>
 </div>
 
 <section class="warning">

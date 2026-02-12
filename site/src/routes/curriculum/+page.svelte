@@ -7,7 +7,7 @@
 </svelte:head>
 
 <h1>Curriculum</h1>
-<p>Hands-on workshops in mesh networking, RF engineering, and secure communications. Pick any topic that interests you. All workshops are free. We meet fortnightly at Bates College.</p>
+<p>Hands-on workshops in mesh networking, RF engineering, and secure communications. Pick any topic that interests you. All workshops are free. We meet fortnightly in the L-A area.</p>
 
 <div class="levels">
 	<a href="{base}/curriculum/mesh-basics" class="level">

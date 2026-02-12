@@ -129,7 +129,7 @@
 	<div class="meetup-info">
 		<div class="config-item">
 			<span class="label">Location</span>
-			<span class="value">TBD (Bates College campus area)</span>
+			<span class="value">TBD (Lewiston-Auburn area)</span>
 		</div>
 		<div class="config-item">
 			<span class="label">Frequency</span>

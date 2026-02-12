@@ -13,7 +13,7 @@
 <h1>Mesh Network Security</h1>
 <div class="meta">
 	<span>2-hour workshop</span>
-	<span>Free -- fortnightly at Bates College</span>
+	<span>Free -- fortnightly in the L-A area</span>
 </div>
 
 <section>

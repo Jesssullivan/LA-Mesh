@@ -1,5 +1,32 @@
 <script>
 	import { base } from '$app/paths';
+	import { onMount } from 'svelte';
+
+	let topologyEl;
+	let bridgeEl;
+
+	onMount(async () => {
+		const { default: mermaid } = await import('https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs');
+		mermaid.initialize({
+			startOnLoad: false,
+			theme: 'base',
+			themeVariables: {
+				primaryColor: '#1a1a2e',
+				primaryTextColor: '#00d4aa',
+				lineColor: '#00d4aa',
+				secondaryColor: '#f5f5f5',
+				tertiaryColor: '#fff'
+			}
+		});
+		if (topologyEl) {
+			const { svg } = await mermaid.render('topology-diagram', topologyEl.dataset.graph);
+			topologyEl.innerHTML = svg;
+		}
+		if (bridgeEl) {
+			const { svg } = await mermaid.render('bridge-diagram', bridgeEl.dataset.graph);
+			bridgeEl.innerHTML = svg;
+		}
+	});
 </script>
 
 <svelte:head>
@@ -13,31 +40,27 @@
 	<h2>Network Topology</h2>
 	<p>Hub-and-spoke with mesh redundancy. High-power Station G2 routers on elevated sites provide backbone coverage, T-Deck clients form the user-facing mesh, and MeshAdv-Mini Pi HAT handles bridge/gateway duties.</p>
 
-	<pre class="diagram">{`
-                         ┌─────────────────────────┐
-                         │   INTERNET / MQTT        │
-                         └────────────┬────────────┘
-                                      │
-                         ┌────────────┴────────────┐
-                         │   MeshAdv-Mini Gateway   │
-                         │   meshtasticd + bridges  │
-                         │   ROUTER_CLIENT          │
-                         └────────────┬────────────┘
-                                      │ LoRa 915 MHz
-                    ┌─────────────────┼─────────────────┐
-                    │                                     │
-           ┌────────┴────────┐               ┌───────────┴────────┐
-           │  Station G2 #1  │               │  Station G2 #2     │
-           │  ROUTER 30 dBm  │               │  ROUTER 30 dBm     │
-           │  Bates Tower    │               │  Downtown Relay    │
-           └────────┬────────┘               └───────────┬────────┘
-                    │                                     │
-        ┌───────────┼───────────┐         ┌──────────────┼──────────┐
-        │           │           │         │              │          │
-   [T-Deck]    [T-Deck]   [T-Deck]  [T-Deck]       [T-Deck]
-    Plus #1     Plus #2    Pro #1    Pro #2          Plus #3
-    CLIENT      CLIENT     CLIENT    CLIENT          CLIENT
-  `}</pre>
+	<div class="mermaid-container" bind:this={topologyEl}
+		data-graph={`graph TD
+		INET["INTERNET / MQTT"]
+		GW["MeshAdv-Mini Gateway\nmeshtasticd + bridges\nROUTER_CLIENT"]
+		R1["Station G2 #1\nROUTER 30 dBm\nCampus Relay"]
+		R2["Station G2 #2\nROUTER 30 dBm\nDowntown Relay"]
+		C1["T-Deck Plus #1\nCLIENT"]
+		C2["T-Deck Plus #2\nCLIENT"]
+		C3["T-Deck Pro #1\nCLIENT"]
+		C4["T-Deck Pro #2\nCLIENT"]
+		C5["T-Deck Plus #3\nCLIENT"]
+		INET --- GW
+		GW -- LoRa 915 MHz --- R1
+		GW -- LoRa 915 MHz --- R2
+		R1 --- C1
+		R1 --- C2
+		R1 --- C3
+		R2 --- C4
+		R2 --- C5`}>
+		<pre class="diagram">Loading diagram...</pre>
+	</div>
 
 	<div class="specs">
 		<div class="spec">
@@ -50,7 +73,7 @@
 		</div>
 		<div class="spec">
 			<h4>Hop Limit</h4>
-			<p>Set to 5 (optimized for LA-Mesh coverage area). Higher than default 3 to ensure full campus + downtown reach.</p>
+			<p>Set to 5 (optimized for LA-Mesh coverage area). Higher than default 3 to ensure full L-A area reach.</p>
 		</div>
 	</div>
 </section>
@@ -133,21 +156,29 @@
 
 <section>
 	<h2>Bridge Architecture</h2>
-	<pre class="diagram">{`
-  [Mesh Devices]  ←── LoRa 915 MHz ──→  [MeshAdv-Mini Gateway]
-                                               │
-                                          meshtasticd
-                                               │
-                                          Mosquitto MQTT
-                                         ┌─────┴─────┐
-                                    [SMS Bridge]  [Email Bridge]
-                                    Python/SMS     Python/SMTP
-                                         │              │
-                                    SMS Gateway    SMTP + GPG
-                                    (TBD)
-                                         │              │
-                                   Cell Network    Internet
-  `}</pre>
+	<div class="mermaid-container" bind:this={bridgeEl}
+		data-graph={`graph TD
+		MESH["Mesh Devices"]
+		GW["MeshAdv-Mini Gateway"]
+		MSTD["meshtasticd"]
+		MQTT["Mosquitto MQTT"]
+		SMS["SMS Bridge\nPython"]
+		EMAIL["Email Bridge\nPython / SMTP + GPG"]
+		SMSGW["SMS Gateway\n(TBD)"]
+		SMTPGW["SMTP Server"]
+		CELL["Cell Network"]
+		NET["Internet"]
+		MESH -- LoRa 915 MHz --- GW
+		GW --- MSTD
+		MSTD --- MQTT
+		MQTT --- SMS
+		MQTT --- EMAIL
+		SMS --- SMSGW
+		EMAIL --- SMTPGW
+		SMSGW --- CELL
+		SMTPGW --- NET`}>
+		<pre class="diagram">Loading diagram...</pre>
+	</div>
 </section>
 
 <style>
@@ -163,6 +194,16 @@
 		overflow-x: auto;
 		font-size: 0.8rem;
 		line-height: 1.4;
+	}
+
+	.mermaid-container {
+		overflow-x: auto;
+		margin: 1.5rem 0;
+	}
+
+	.mermaid-container :global(svg) {
+		max-width: 100%;
+		height: auto;
 	}
 
 	.specs {

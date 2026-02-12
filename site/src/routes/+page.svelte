@@ -10,10 +10,10 @@
 	<h1>LA-Mesh</h1>
 	<p class="tagline">Community LoRa mesh network for Southern Maine</p>
 	<p>
-		Encrypted mesh communications for the Lewiston-Auburn area and Bates College campus.
+		Encrypted mesh communications for the Lewiston-Auburn area.
 		Infrastructure-independent, resilient, community-owned.
 	</p>
-	<p class="workshops">Free fortnightly workshops at Bates College -- from mesh basics to TEMPEST and TAILS.</p>
+	<p class="workshops">Free fortnightly workshops in the L-A area -- from mesh basics to TEMPEST and TAILS.</p>
 </section>
 
 <section class="cards">

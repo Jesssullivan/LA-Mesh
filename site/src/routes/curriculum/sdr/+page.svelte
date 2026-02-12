@@ -14,7 +14,7 @@
 <div class="meta">
 	<span>6 hours (two 3-hour sessions)</span>
 	<span>HackRF H4M provided</span>
-	<span>Free -- fortnightly at Bates College</span>
+	<span>Free -- fortnightly in the L-A area</span>
 </div>
 
 <section>

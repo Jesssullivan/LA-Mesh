@@ -31,7 +31,7 @@ just info           # verify all tools are available`}</pre>
 ├── configs/           # Device profiles and channel templates
 ├── bridges/           # SMS, email, MQTT bridge code
 ├── tools/             # Scripts: flash, test, configure, monitor
-├── curriculum/        # Educational modules (5 levels)
+├── curriculum/        # Educational workshop modules
 ├── hardware/          # Inventory, BOM, deployment guides
 ├── firmware/          # Manifest, checksums, version pinning
 └── captures/          # SDR capture storage (gitignored)`}</pre>

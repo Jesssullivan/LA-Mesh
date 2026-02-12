@@ -14,7 +14,7 @@
 <div class="meta">
 	<span>3-hour lab</span>
 	<span>USB drives provided</span>
-	<span>Free -- fortnightly at Bates College</span>
+	<span>Free -- fortnightly in the L-A area</span>
 </div>
 
 <section>
