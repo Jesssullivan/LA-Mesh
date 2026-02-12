@@ -1,0 +1,62 @@
+name: Firmware Version Check
+
+on:
+  schedule:
+    - cron: '0 6 * * 1'  # Every Monday at 6 AM UTC
+  workflow_dispatch:
+
+jobs:
+  check-meshtastic:
+    name: Check Meshtastic Firmware
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check latest Meshtastic release
+        id: meshtastic
+        run: |
+          LATEST=$(curl -s https://api.github.com/repos/meshtastic/firmware/releases/latest | jq -r '.tag_name')
+          echo "latest=$LATEST" >> $GITHUB_OUTPUT
+          echo "Latest Meshtastic firmware: $LATEST"
+
+      - name: Check latest MeshCore release
+        id: meshcore
+        run: |
+          LATEST=$(curl -s https://api.github.com/repos/meshcore-dev/MeshCore/releases/latest | jq -r '.tag_name')
+          echo "latest=$LATEST" >> $GITHUB_OUTPUT
+          echo "Latest MeshCore firmware: $LATEST"
+
+      - name: Create issue if update available
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const meshtastic = '${{ steps.meshtastic.outputs.latest }}';
+            const meshcore = '${{ steps.meshcore.outputs.latest }}';
+
+            const title = `Firmware update check: Meshtastic ${meshtastic}, MeshCore ${meshcore}`;
+            const body = `## Weekly Firmware Check\n\n` +
+              `- **Meshtastic**: ${meshtastic}\n` +
+              `- **MeshCore**: ${meshcore}\n\n` +
+              `Review release notes and determine if fleet update is needed.\n\n` +
+              `- [ ] Review Meshtastic changelog\n` +
+              `- [ ] Review MeshCore changelog\n` +
+              `- [ ] Test on dev device before fleet update\n` +
+              `- [ ] Update firmware version in configs/`;
+
+            // Check if issue already exists this week
+            const issues = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              labels: 'firmware-check',
+              state: 'open'
+            });
+
+            if (issues.data.length === 0) {
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: title,
+                body: body,
+                labels: ['firmware-check', 'maintenance']
+              });
+            }

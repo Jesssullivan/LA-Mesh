@@ -1,0 +1,32 @@
+# LA-Mesh Bazel Configuration
+
+# Build settings
+build --jobs=auto
+build --verbose_failures
+
+# Enable Bzlmod
+common --enable_bzlmod
+
+# Disk cache
+build --disk_cache=~/.cache/bazel/la-mesh
+
+# Nix integration
+build --sandbox_add_mount_pair=/nix
+
+# Async remote cache
+build --experimental_remote_cache_async
+build --experimental_guard_against_concurrent_changes
+
+# Test settings
+test --test_output=errors
+test --test_verbose_timeout_warnings
+
+# CI configuration
+build:ci --jobs=4
+build:ci --disk_cache=
+build:ci --color=yes
+build:ci --curses=no
+test:ci --test_output=all
+
+# User overrides
+try-import %workspace%/user.bazelrc

@@ -1,0 +1,43 @@
+name: Device Issue
+description: Report an issue with a specific mesh device
+title: "[Device] "
+labels: ["device", "bug"]
+body:
+  - type: dropdown
+    id: device-type
+    attributes:
+      label: Device Type
+      options:
+        - Station G2
+        - T-Deck Pro (Full)
+        - T-Deck Pro (E-Ink)
+        - MeshAdv-Mini
+        - HackRF H4M PortaPack
+        - MQTT Gateway
+        - Other
+    validations:
+      required: true
+  - type: input
+    id: firmware
+    attributes:
+      label: Firmware Version
+      placeholder: "e.g., Meshtastic 2.7.15 or MeshCore 1.12.0"
+    validations:
+      required: true
+  - type: input
+    id: device-id
+    attributes:
+      label: Device ID / Node Name
+      placeholder: "e.g., LA-Mesh-Relay-01"
+  - type: textarea
+    id: description
+    attributes:
+      label: Issue Description
+      description: What happened? What did you expect?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to Reproduce
+      description: How can we reproduce the issue?

@@ -1,0 +1,48 @@
+load("@rules_pkg//pkg:tar.bzl", "pkg_tar")
+
+package(default_visibility = ["//visibility:public"])
+
+exports_files([
+    "MODULE.bazel",
+    "flake.nix",
+    "flake.lock",
+])
+
+# All documentation content
+filegroup(
+    name = "docs_content",
+    srcs = glob(["docs/**/*.md"]),
+)
+
+# All device configuration profiles
+filegroup(
+    name = "device_configs",
+    srcs = glob(["configs/**/*.yaml", "configs/**/*.json"]),
+)
+
+# All curriculum content
+filegroup(
+    name = "curriculum",
+    srcs = glob(["curriculum/**"]),
+)
+
+# Nix configuration
+filegroup(
+    name = "nix_files",
+    srcs = [
+        "flake.lock",
+        "flake.nix",
+    ],
+)
+
+# Deployment bundle
+pkg_tar(
+    name = "deployment_bundle",
+    srcs = [
+        ":docs_content",
+        ":device_configs",
+        ":nix_files",
+    ],
+    extension = "tar.gz",
+    strip_prefix = ".",
+)

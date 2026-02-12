@@ -1,0 +1,22 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    ":semanticCommits",
+    "group:recommended"
+  ],
+  "labels": ["dependencies"],
+  "packageRules": [
+    {
+      "groupName": "GitHub Actions",
+      "matchManagers": ["github-actions"],
+      "automerge": true,
+      "automergeType": "pr"
+    },
+    {
+      "groupName": "Nix flake inputs",
+      "matchManagers": ["nix"],
+      "schedule": ["before 6am on monday"]
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+name: Network Issue
+description: Report a mesh network connectivity or performance issue
+title: "[Network] "
+labels: ["network", "bug"]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: Issue Description
+      description: Describe the network issue (connectivity loss, high latency, etc.)
+    validations:
+      required: true
+  - type: input
+    id: location
+    attributes:
+      label: Location
+      placeholder: "e.g., Bates College campus, Downtown Lewiston"
+  - type: textarea
+    id: nodes
+    attributes:
+      label: Affected Nodes
+      description: Which nodes are involved?
+  - type: textarea
+    id: signal
+    attributes:
+      label: Signal Information
+      description: RSSI, SNR, hop count if available
