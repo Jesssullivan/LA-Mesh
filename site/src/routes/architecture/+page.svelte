@@ -4,8 +4,6 @@
 
 	/** @type {HTMLDivElement} */
 	let topologyEl;
-	/** @type {HTMLDivElement} */
-	let bridgeEl;
 
 	onMount(async () => {
 		// @ts-ignore — CDN import has no type declarations
@@ -31,10 +29,6 @@
 		if (topologyEl) {
 			const { svg } = await mermaid.render('topology-diagram', topologyEl.dataset.graph);
 			topologyEl.innerHTML = svg;
-		}
-		if (bridgeEl) {
-			const { svg } = await mermaid.render('bridge-diagram', bridgeEl.dataset.graph);
-			bridgeEl.innerHTML = svg;
 		}
 	});
 </script>
@@ -111,100 +105,6 @@
 		</table>
 	</div>
 	<p class="text-sm text-surface-500 italic mt-2">PSKs are never transmitted digitally. Shared face-to-face at community meetups and rotated quarterly.</p>
-</section>
-
-<section class="mb-12">
-	<h2 class="text-2xl font-bold text-surface-50 mb-4">Decision Records</h2>
-	<div class="grid gap-4 mt-4">
-		<div class="p-4 border border-surface-700 rounded-lg bg-surface-800">
-			<span class="font-mono text-sm text-surface-500">ADR-001</span>
-			<h3 class="text-surface-50 font-semibold mt-1 mb-2">Primary Firmware: Meshtastic</h3>
-			<p class="text-surface-400 text-sm m-0 mb-2">Meshtastic chosen for ecosystem maturity, MQTT bridge support, AES-256-CTR + X25519 PKC encryption. MeshCore evaluated on single device.</p>
-			<span class="px-2 py-0.5 rounded text-xs font-medium bg-green-500/20 text-green-400">Accepted</span>
-		</div>
-
-		<div class="p-4 border border-surface-700 rounded-lg bg-surface-800">
-			<span class="font-mono text-sm text-surface-500">ADR-002</span>
-			<h3 class="text-surface-50 font-semibold mt-1 mb-2">MeshCore Evaluation Scope</h3>
-			<p class="text-surface-400 text-sm m-0 mb-2">Single Station G2 running MeshCore for evaluation against 5 criteria: stability, routing efficiency, room server, companion app UX, AMMB bridge.</p>
-			<span class="px-2 py-0.5 rounded text-xs font-medium bg-green-500/20 text-green-400">Accepted</span>
-		</div>
-
-		<div class="p-4 border border-surface-700 rounded-lg bg-surface-800">
-			<span class="font-mono text-sm text-surface-500">ADR-003</span>
-			<h3 class="text-surface-50 font-semibold mt-1 mb-2">Flood Mesh with High-Power Backbone</h3>
-			<p class="text-surface-400 text-sm m-0 mb-2">All nodes relay via managed flood routing. Station G2 routers on elevated sites extend coverage. Hop limit 5 for full L-A area reach. Every node participates in message forwarding.</p>
-			<span class="px-2 py-0.5 rounded text-xs font-medium bg-green-500/20 text-green-400">Accepted</span>
-		</div>
-
-		<div class="p-4 border border-surface-700 rounded-lg bg-surface-800">
-			<span class="font-mono text-sm text-surface-500">ADR-004</span>
-			<h3 class="text-surface-50 font-semibold mt-1 mb-2">3-Channel Encryption Scheme</h3>
-			<p class="text-surface-400 text-sm m-0 mb-2">Primary, admin, and emergency channels with unique PSKs. PKC enabled for DMs. Quarterly rotation. CVE-2025-52464 firmware requirement.</p>
-			<span class="px-2 py-0.5 rounded text-xs font-medium bg-green-500/20 text-green-400">Accepted</span>
-		</div>
-
-		<div class="p-4 border border-surface-700 rounded-lg bg-surface-800">
-			<span class="font-mono text-sm text-surface-500">ADR-005</span>
-			<h3 class="text-surface-50 font-semibold mt-1 mb-2">Self-Hosted MQTT Broker</h3>
-			<p class="text-surface-400 text-sm m-0 mb-2">Mosquitto on Raspberry Pi (FireElmo-SDR gateway). Full control, no external dependency, free, enables local-first bridge architecture.</p>
-			<span class="px-2 py-0.5 rounded text-xs font-medium bg-green-500/20 text-green-400">Accepted</span>
-		</div>
-	</div>
-</section>
-
-<section class="mb-12">
-	<h2 class="text-2xl font-bold text-surface-50 mb-4">Protocol Comparison</h2>
-	<div class="overflow-x-auto">
-		<table class="w-full border-collapse mt-4">
-			<thead>
-				<tr>
-					<th class="bg-surface-800 text-surface-300 p-3 text-left text-xs uppercase tracking-wider">Aspect</th>
-					<th class="bg-surface-800 text-surface-300 p-3 text-left text-xs uppercase tracking-wider">Meshtastic</th>
-					<th class="bg-surface-800 text-surface-300 p-3 text-left text-xs uppercase tracking-wider">MeshCore</th>
-				</tr>
-			</thead>
-			<tbody>
-				<tr class="border-b border-surface-700"><td class="p-3 text-surface-200 font-semibold">Encryption</td><td class="p-3 text-surface-200">AES-256-CTR + X25519 PKC</td><td class="p-3 text-surface-200">AES-128-ECB (ChaChaPoly AEAD coming)</td></tr>
-				<tr class="border-b border-surface-700"><td class="p-3 text-surface-200 font-semibold">Routing</td><td class="p-3 text-surface-200">Managed flood + next-hop DMs</td><td class="p-3 text-surface-200">Hybrid flood-then-direct</td></tr>
-				<tr class="border-b border-surface-700"><td class="p-3 text-surface-200 font-semibold">Max Hops</td><td class="p-3 text-surface-200">7 (configurable)</td><td class="p-3 text-surface-200">64</td></tr>
-				<tr class="border-b border-surface-700"><td class="p-3 text-surface-200 font-semibold">MQTT Bridge</td><td class="p-3 text-surface-200">Built-in (native)</td><td class="p-3 text-surface-200">Third-party only</td></tr>
-				<tr class="border-b border-surface-700"><td class="p-3 text-surface-200 font-semibold">PKC (DMs)</td><td class="p-3 text-surface-200">X25519 + AES-256-CCM</td><td class="p-3 text-surface-200">Ed25519 + ECDH + AES-128</td></tr>
-				<tr class="border-b border-surface-700"><td class="p-3 text-surface-200 font-semibold">Device Support</td><td class="p-3 text-surface-200">100+ devices, all major vendors</td><td class="p-3 text-surface-200">65+ devices, growing</td></tr>
-				<tr class="border-b border-surface-700"><td class="p-3 text-surface-200 font-semibold">Client Repeating</td><td class="p-3 text-surface-200">All roles can repeat</td><td class="p-3 text-surface-200">Clients never repeat (by design)</td></tr>
-				<tr class="border-b border-surface-700"><td class="p-3 text-surface-200 font-semibold">Room Server</td><td class="p-3 text-surface-200">No equivalent</td><td class="p-3 text-surface-200">Dedicated always-on relay with history</td></tr>
-				<tr class="border-b border-surface-700"><td class="p-3 text-surface-200 font-semibold">CVE-2025-52464</td><td class="p-3 text-surface-200">Fixed in v2.7.15+</td><td class="p-3 text-surface-200">Not affected (different key model)</td></tr>
-				<tr><td class="p-3 text-surface-200 font-semibold">Interop</td><td class="p-3 text-surface-200" colspan="2">NOT compatible -- separate protocols, AMMB bridge for limited interop</td></tr>
-			</tbody>
-		</table>
-	</div>
-</section>
-
-<section class="mb-12">
-	<h2 class="text-2xl font-bold text-surface-50 mb-4">Bridge Architecture</h2>
-	<div class="overflow-x-auto my-6" bind:this={bridgeEl}
-		data-graph={`graph TD
-		MESH["Mesh Devices"]
-		GW["FireElmo-SDR Gateway"]
-		MSTD["meshtasticd"]
-		MQTT["Mosquitto MQTT"]
-		SMS["SMS Bridge\nPython"]
-		EMAIL["Email Bridge\nPython / SMTP + GPG"]
-		SMSGW["SMS Gateway\n(TBD)"]
-		SMTPGW["SMTP Server"]
-		CELL["Cell Network"]
-		NET["Internet"]
-		MESH -- LoRa 915 MHz --- GW
-		GW --- MSTD
-		MSTD --- MQTT
-		MQTT --- SMS
-		MQTT --- EMAIL
-		SMS --- SMSGW
-		EMAIL --- SMTPGW
-		SMSGW --- CELL
-		SMTPGW --- NET`}>
-		<pre class="bg-surface-800 text-primary-400 p-6 rounded-lg overflow-x-auto text-sm leading-relaxed">Loading diagram...</pre>
-	</div>
 </section>
 
 <style>

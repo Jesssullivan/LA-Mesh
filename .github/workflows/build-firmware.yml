@@ -261,9 +261,9 @@ jobs:
           )" \
             release-artifacts/firmware-*-lamesh.bin \
             release-artifacts/firmware-*-lamesh.zip \
-            release-artifacts/bleota*.bin \
-            release-artifacts/littlefs-*.bin \
-            release-artifacts/SHA256SUMS.txt
+            release-artifacts/SHA256SUMS.txt \
+            $(ls release-artifacts/bleota*.bin 2>/dev/null) \
+            $(ls release-artifacts/littlefs-*.bin 2>/dev/null)
 
           echo "Release created: ${TAG}"
 

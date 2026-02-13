@@ -46,12 +46,12 @@
 			<StatusBadge status="working" />
 		</div>
 		<span class="inline-block px-2 py-0.5 rounded text-xs font-medium bg-primary-500/20 text-primary-400 mb-3">Low-Power Client</span>
-		<p class="text-surface-300 mb-4">3.1" e-paper touchscreen, sunlight-readable, excellent battery life. Available in Audio and 4G LTE variants.</p>
+		<p class="text-surface-300 mb-4">3.1" e-paper touchscreen, sunlight-readable, excellent battery life. Available in Audio and 4G LTE variants. Active development on a sidecar QoL app: TOTP push brokering for Duo, mp3 playback, and Rx-only mode. One of Jess's pet projects toward eventually relinquishing daily smartphone use.</p>
 		<dl class="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-sm">
 			<dt class="font-semibold text-surface-400">Price</dt><dd class="text-surface-200 m-0">$92-111</dd>
 			<dt class="font-semibold text-surface-400">TX Power</dt><dd class="text-surface-200 m-0">22 dBm</dd>
 			<dt class="font-semibold text-surface-400">Firmware</dt><dd class="text-surface-200 m-0">Meshtastic BaseUI</dd>
-			<dt class="font-semibold text-surface-400">Role</dt><dd class="text-surface-200 m-0">Battery-optimized portable</dd>
+			<dt class="font-semibold text-surface-400">Role</dt><dd class="text-surface-200 m-0">Battery-optimized portable + sidecar app development</dd>
 		</dl>
 	</div>
 
@@ -60,8 +60,8 @@
 			<h2 class="text-xl font-bold text-surface-50 m-0">FireElmo-SDR</h2>
 			<StatusBadge status="experimental" />
 		</div>
-		<span class="inline-block px-2 py-0.5 rounded text-xs font-medium bg-primary-500/20 text-primary-400 mb-3">Pi HAT Gateway</span>
-		<p class="text-surface-300 mb-4">Raspberry Pi HAT with SX1262 LoRa, GPS, and I2C. Runs meshtasticd (Linux-native Meshtastic) for bridge/gateway duty.</p>
+		<span class="inline-block px-2 py-0.5 rounded text-xs font-medium bg-primary-500/20 text-primary-400 mb-3">Custom PCB + Software</span>
+		<p class="text-surface-300 mb-4">Custom PCB and software project — a Raspberry Pi HAT with SX1262 LoRa, GPS, and I2C. Runs meshtasticd (Linux-native Meshtastic) for bridge/gateway duty. One of Jess's pet projects toward eventually relinquishing daily smartphone use.</p>
 		<dl class="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-sm">
 			<dt class="font-semibold text-surface-400">Price</dt><dd class="text-surface-200 m-0">~$40 + Pi</dd>
 			<dt class="font-semibold text-surface-400">TX Power</dt><dd class="text-surface-200 m-0">22 dBm</dd>
