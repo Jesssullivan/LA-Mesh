@@ -196,8 +196,6 @@ configure-g2 owner="LA-Mesh RTR-01" short="R01" port="":
     PORT="{{port}}"
     if [ -z "$PORT" ]; then PORT=$(just detect-port); fi
 
-    WAIT=15  # seconds to wait after reboot-triggering commands
-
     echo "Station G2 Post-Flash Configuration"
     echo "===================================="
     echo "Port:  $PORT"
@@ -218,50 +216,67 @@ configure-g2 owner="LA-Mesh RTR-01" short="R01" port="":
         exit 1
     fi
 
+    # Wait for device to be ready (ESP32-S3 native USB drops on every reboot)
+    wait_ready() {
+        local attempt=0
+        while ! meshtastic --port "$PORT" --info &>/dev/null; do
+            attempt=$((attempt + 1))
+            if [ "$attempt" -ge 6 ]; then
+                echo "  ERROR: Device not responding after 60s."
+                echo "  Try: unplug and replug USB, then re-run."
+                exit 1
+            fi
+            echo "  Waiting for device... (attempt $attempt/6)"
+            sleep 10
+        done
+    }
+
     # --- Step 1: LoRa radio settings ---
     echo "[1/6] Configuring LoRa radio..."
+    wait_ready
     meshtastic --port "$PORT" \
         --set lora.region US \
         --set lora.modem_preset LONG_FAST \
         --set lora.hop_limit 5 \
         --set lora.tx_power 30 \
         --set lora.sx126x_rx_boosted_gain true
-    echo "  Waiting ${WAIT}s for reboot..."
-    sleep "$WAIT"
+    sleep 20
 
     # --- Step 2: Device settings (NOT role -- that's last) ---
     echo "[2/6] Configuring device settings..."
+    wait_ready
     meshtastic --port "$PORT" \
         --set device.serial_enabled true \
         --set device.rebroadcast_mode ALL \
         --set device.node_info_broadcast_secs 10800
-    echo "  Waiting ${WAIT}s for reboot..."
-    sleep "$WAIT"
+    sleep 20
 
     # --- Step 3: Display, bluetooth, security ---
     echo "[3/6] Configuring display, bluetooth, security..."
+    wait_ready
     meshtastic --port "$PORT" \
         --set display.screen_on_secs 31536000 \
         --set bluetooth.enabled true \
         --set security.serial_enabled true \
         --set security.admin_channel_enabled true
-    echo "  Waiting ${WAIT}s for reboot..."
-    sleep "$WAIT"
+    sleep 20
 
     # --- Step 4: Channels ---
     echo "[4/6] Configuring channels..."
+    wait_ready
     ./tools/configure/apply-channels.sh "$PORT"
 
     # --- Step 5: Owner name ---
     echo "[5/6] Setting owner name..."
+    wait_ready
     meshtastic --port "$PORT" \
         --set-owner "{{owner}}" \
         --set-owner-short "{{short}}"
-    sleep 5
+    sleep 10
 
     # --- Step 6: Verify ---
     echo "[6/6] Verifying configuration..."
-    echo ""
+    wait_ready
     meshtastic --port "$PORT" --info 2>&1 | grep -E "(Owner|firmwareVersion|hwModel|role|Channels:|Index)" || true
     echo ""
     echo "============================================"
