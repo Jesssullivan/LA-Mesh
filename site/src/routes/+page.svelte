@@ -37,7 +37,7 @@
 			<h2 class="text-lg font-bold text-surface-50 m-0">Devices</h2>
 			<StatusBadge status="working" />
 		</div>
-		<p class="text-surface-400 text-sm m-0">Station G2, T-Deck Plus/Pro, MeshAdv-Mini, HackRF</p>
+		<p class="text-surface-400 text-sm m-0">Station G2, T-Deck Plus/Pro, FireElmo-SDR, HackRF</p>
 	</a>
 
 	<a href="{base}/architecture" class="p-6 border border-surface-700 rounded-lg bg-surface-800 no-underline text-inherit hover:border-primary-500 transition-colors">
@@ -131,20 +131,10 @@ just mesh-set-role</code></pre>
 					<td class="p-3 text-surface-200 text-sm">Set ROUTER role (do last -- kills USB)</td>
 					<td class="p-3"><StatusBadge status="working" /></td>
 				</tr>
-				<tr class="border-b border-surface-700">
-					<td class="p-3 font-mono text-primary-400 text-sm">just flash-tdeck</td>
-					<td class="p-3 text-surface-200 text-sm">Flash T-Deck Plus client</td>
-					<td class="p-3"><StatusBadge status="planned" /></td>
-				</tr>
-				<tr class="border-b border-surface-700">
+				<tr>
 					<td class="p-3 font-mono text-primary-400 text-sm">just build-firmware</td>
 					<td class="p-3 text-surface-200 text-sm">Build custom firmware from source</td>
 					<td class="p-3"><StatusBadge status="working" /></td>
-				</tr>
-				<tr>
-					<td class="p-3 font-mono text-primary-400 text-sm">just bridge-setup</td>
-					<td class="p-3 text-surface-200 text-sm">Configure SMS/Email bridge on Pi</td>
-					<td class="p-3"><StatusBadge status="planned" /></td>
 				</tr>
 			</tbody>
 		</table>

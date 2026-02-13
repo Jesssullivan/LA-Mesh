@@ -120,9 +120,9 @@ just firmware-check`}</pre>
 				<td class="p-3 text-surface-200 border-b border-surface-700"><code class="font-mono text-primary-400 bg-surface-800 px-1.5 py-0.5 rounded text-sm">just configure-profile tdeck-pro-eink-client</code></td>
 			</tr>
 			<tr>
-				<td class="p-3 text-surface-200 border-b border-surface-700">MeshAdv-Mini</td>
-				<td class="p-3 text-surface-200 border-b border-surface-700">meshadv-mini-gateway</td>
-				<td class="p-3 text-surface-200 border-b border-surface-700"><code class="font-mono text-primary-400 bg-surface-800 px-1.5 py-0.5 rounded text-sm">just configure-profile meshadv-mini-gateway</code></td>
+				<td class="p-3 text-surface-200 border-b border-surface-700">FireElmo-SDR</td>
+				<td class="p-3 text-surface-200 border-b border-surface-700">fireelmo-sdr-gateway</td>
+				<td class="p-3 text-surface-200 border-b border-surface-700"><code class="font-mono text-primary-400 bg-surface-800 px-1.5 py-0.5 rounded text-sm">just configure-profile fireelmo-sdr-gateway</code></td>
 			</tr>
 		</tbody>
 	</table>

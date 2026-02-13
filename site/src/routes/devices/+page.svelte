@@ -57,11 +57,11 @@
 
 	<div class="p-6 border border-surface-700 rounded-lg bg-surface-800">
 		<div class="flex items-center gap-3 mb-1">
-			<h2 class="text-xl font-bold text-surface-50 m-0">MeshAdv-Mini</h2>
+			<h2 class="text-xl font-bold text-surface-50 m-0">FireElmo-SDR</h2>
 			<StatusBadge status="experimental" />
 		</div>
 		<span class="inline-block px-2 py-0.5 rounded text-xs font-medium bg-primary-500/20 text-primary-400 mb-3">Pi HAT Gateway</span>
-		<p class="text-surface-300 mb-4">Custom PCB Raspberry Pi HAT with SX1262 LoRa, GPS, and I2C. Runs meshtasticd (Linux-native Meshtastic) for bridge/gateway duty.</p>
+		<p class="text-surface-300 mb-4">Raspberry Pi HAT with SX1262 LoRa, GPS, and I2C. Runs meshtasticd (Linux-native Meshtastic) for bridge/gateway duty.</p>
 		<dl class="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-sm">
 			<dt class="font-semibold text-surface-400">Price</dt><dd class="text-surface-200 m-0">~$40 + Pi</dd>
 			<dt class="font-semibold text-surface-400">TX Power</dt><dd class="text-surface-200 m-0">22 dBm</dd>

@@ -1,18 +1,16 @@
 <script>
-	/** @type {{ status: 'working' | 'planned' | 'experimental' }} */
+	/** @type {{ status: 'working' | 'experimental' }} */
 	let { status } = $props();
 
 	/** @type {Record<string, string>} */
 	const styles = {
 		working: 'bg-green-500/20 text-green-400',
-		planned: 'bg-yellow-500/20 text-yellow-400',
 		experimental: 'bg-orange-500/20 text-orange-400'
 	};
 
 	/** @type {Record<string, string>} */
 	const labels = {
 		working: 'Working',
-		planned: 'Planned',
 		experimental: 'Experimental'
 	};
 </script>
