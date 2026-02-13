@@ -2,21 +2,29 @@
 
 Work in progress LoRa mesh network and encrypted communication bridge infrastructure for Southern Maine.
 
-## Quick Start
+Community-driven encrypted mesh communications covering the Lewiston-Auburn area, supporting Meshtastic, MeshCore, and LoRa radio education.
 
-```bash
-# Enter development environment
-nix develop   # or: direnv allow
+## What is LA-Mesh?
 
-# List all commands
-just
+LA-Mesh deploys a resilient, encrypted mesh network using LoRa radio technology. Our goals:
 
-# Start documentation site
-just dev
+- **Encrypted communications** for community members via Meshtastic mesh devices; We specify 3 encrypted backbone PSKs for our area. 
+- **Infrastructure relay nodes** We aspire to distribute, establish and help maintain high quality router nodes on rooftops and towers for wide coverage!  
+- **Education** We aspire to meet fortnightly in the LA area
+- **Bridges, eventually** Jess wants to connect SMS, email, and internet to the mesh network
 
-# Show environment info
-just info
-```
+
+
+## Supported Devices
+
+| Device | Role | Description |
+|--------|------|-------------|
+| **Station G2** | Base station / relay | High-power (up to 4.46W), rooftop/tower deployment (want one?  have a roof, pole or sunny spot?  We'll giev you one) |
+| **T-Deck Pro** | Mobile client | Full keyboard, GPS, portable encrypted comms; turn key (want one and in the LA area?  We'll give you one) |
+| **T-Deck Pro (E-Ink)** | Low-power client | Battery-optimized, sunlight-readable |
+| **MeshAdv-Mini** | Pi HAT gateway | SMS/email bridge, runs meshtasticd on Linux (WIP; origianlly the "FireElmo-SDR" project of Jess's |
+| **HackRF H4M** | SDR spectrum analysis for teaching |  Jess has curricula for basic TEMPEST attacks, packet capture, interference and range testing. |
+
 
 ## Device Provisioning
 
@@ -33,8 +41,9 @@ just configure-g2 "LA-Mesh RTR-01" "R01"
 just mesh-set-role ROUTER
 ```
 
-Step 2 reads PSK values from `.env` (auto-sourced by justfile). Generate
-fresh keys with `just generate-psks` and store them in KeePassXC.
+Step 2 reads PSK values from `.env` if you are into that life. (auto-sourced by justfile). Generate
+fresh keys with `just generate-psks` and store them in KeePassXC.  We reccomend using a proper secret
+managment system, not `.env`.
 
 Port is auto-detected (`/dev/ttyACM0` > `ttyUSB0`). Pass explicitly if
 needed: `just flash-g2 /dev/ttyACM1`.
@@ -43,19 +52,6 @@ See [Node Deployment Guide](docs/guides/node-deployment.md) for full
 details including Station G2 hardware notes, bootloader procedure, and
 the 16MB flash partition layout.
 
-<!-- BEGIN_FIRMWARE_SECTION -->
-## Custom Firmware Downloads
-
-LA-Mesh branded Meshtastic firmware with custom boot splash (Maine silhouette + "LA-Mesh" text).
-
-| Device | Binary | SHA256 |
-|--------|--------|--------|
-| station-g2 | _built by CI_ | - |
-| t-deck | _built by CI_ | - |
-| t-deck-pro | _built by CI_ | - |
-
-Run `just fetch-firmware --source custom` to download, then `sha256sum -c SHA256SUMS.txt` to verify.
-<!-- END_FIRMWARE_SECTION -->
 
 ## Development
 
@@ -74,6 +70,3 @@ just setup
 just build
 ```
 
-## License
-
-[MIT](LICENSE)
