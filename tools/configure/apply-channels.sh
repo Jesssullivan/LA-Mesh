@@ -8,11 +8,16 @@
 #   LAMESH_PSK_EMERGENCY - Emergency channel PSK (base64)
 #
 # SECURITY: PSK values should NEVER be hardcoded or committed.
-# Set them in your shell session or .env file (gitignored).
+# Set them in your shell session from your encrypted keystore.
+#
+# IMPORTANT: Secondary channels (1, 2) use --ch-add on fresh devices
+# because --ch-set on a non-existent channel silently fails.
+# Channel names max 11 characters (Meshtastic firmware limit).
 
 set -euo pipefail
 
 PORT="${1:-/dev/ttyUSB0}"
+REBOOT_WAIT="${LAMESH_REBOOT_WAIT:-20}"
 
 echo "LA-Mesh Channel Configuration"
 echo "=============================="
@@ -28,35 +33,59 @@ if [ -z "${LAMESH_PSK_PRIMARY:-}" ]; then
     echo "  export LAMESH_PSK_ADMIN=\$(openssl rand -base64 32)"
     echo "  export LAMESH_PSK_EMERGENCY=\$(openssl rand -base64 32)"
     echo ""
-    echo "Or source from your .env file:"
-    echo "  source .env"
+    echo "Or export from your keystore (e.g. KeePassXC CLI)."
+    echo "Or generate fresh PSKs with: just generate-psks"
     exit 1
 fi
 
-echo "Configuring Channel 0: LA-Mesh (Primary)..."
-meshtastic --port "$PORT" --ch-set name "LA-Mesh" --ch-index 0
-meshtastic --port "$PORT" --ch-set psk "$LAMESH_PSK_PRIMARY" --ch-index 0
-meshtastic --port "$PORT" --ch-set uplink_enabled false --ch-index 0
-meshtastic --port "$PORT" --ch-set downlink_enabled false --ch-index 0
+# Helper: wait for device after reboot-triggering commands
+wait_for_device() {
+    echo "  Waiting ${REBOOT_WAIT}s for device to stabilize..."
+    sleep "$REBOOT_WAIT"
+    local retries=0
+    while ! meshtastic --port "$PORT" --info &>/dev/null; do
+        retries=$((retries + 1))
+        if [ "$retries" -ge 6 ]; then
+            echo "  WARNING: Device not responding. It may need manual reconnection."
+            return 1
+        fi
+        echo "  Waiting for device... (attempt $retries/6)"
+        sleep 10
+    done
+}
 
+# --- Channel 0: LA-Mesh (Primary) ---
+echo "[1/3] Configuring Channel 0: LA-Mesh (Primary)..."
+meshtastic --port "$PORT" \
+    --ch-index 0 \
+    --ch-set name "LA-Mesh" \
+    --ch-set psk "base64:${LAMESH_PSK_PRIMARY}"
+wait_for_device
+
+# --- Channel 1: LA-Admin (Secondary -- must --ch-add on fresh device) ---
 if [ -n "${LAMESH_PSK_ADMIN:-}" ]; then
-    echo "Configuring Channel 1: LA-Admin..."
-    meshtastic --port "$PORT" --ch-set name "LA-Admin" --ch-index 1
-    meshtastic --port "$PORT" --ch-set psk "$LAMESH_PSK_ADMIN" --ch-index 1
-    meshtastic --port "$PORT" --ch-set uplink_enabled false --ch-index 1
-    meshtastic --port "$PORT" --ch-set downlink_enabled false --ch-index 1
+    echo "[2/3] Adding Channel 1: LA-Admin..."
+    meshtastic --port "$PORT" --ch-add "LA-Admin"
+    sleep 5
+    meshtastic --port "$PORT" \
+        --ch-index 1 \
+        --ch-set psk "base64:${LAMESH_PSK_ADMIN}"
+    wait_for_device
 else
-    echo "LAMESH_PSK_ADMIN not set, skipping admin channel"
+    echo "[2/3] LAMESH_PSK_ADMIN not set, skipping admin channel"
 fi
 
+# --- Channel 2: LA-Emergcy (11 char limit -- "LA-Emergency" is 12) ---
 if [ -n "${LAMESH_PSK_EMERGENCY:-}" ]; then
-    echo "Configuring Channel 2: LA-Emergency..."
-    meshtastic --port "$PORT" --ch-set name "LA-Emergency" --ch-index 2
-    meshtastic --port "$PORT" --ch-set psk "$LAMESH_PSK_EMERGENCY" --ch-index 2
-    meshtastic --port "$PORT" --ch-set uplink_enabled false --ch-index 2
-    meshtastic --port "$PORT" --ch-set downlink_enabled false --ch-index 2
+    echo "[3/3] Adding Channel 2: LA-Emergcy..."
+    meshtastic --port "$PORT" --ch-add "LA-Emergcy"
+    sleep 5
+    meshtastic --port "$PORT" \
+        --ch-index 2 \
+        --ch-set psk "base64:${LAMESH_PSK_EMERGENCY}"
+    wait_for_device
 else
-    echo "LAMESH_PSK_EMERGENCY not set, skipping emergency channel"
+    echo "[3/3] LAMESH_PSK_EMERGENCY not set, skipping emergency channel"
 fi
 
 echo ""

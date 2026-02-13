@@ -58,7 +58,7 @@ export LAMESH_PSK_EMERGENCY="<base64-psk>"
 meshtastic --port /dev/ttyUSB0 --setlat 44.1003 --setlon -70.2148 --setalt 60
 
 # Set node name
-meshtastic --port /dev/ttyUSB0 --set-owner "RTR-01-Bates"
+meshtastic --port /dev/ttyUSB0 --set-owner "LA-Mesh RTR-01"
 meshtastic --port /dev/ttyUSB0 --set-owner-short "R01"
 
 # Verify
@@ -164,3 +164,106 @@ If a node goes offline:
 3. Attempt remote admin reset: `meshtastic --dest '!<node-id>' --reboot`
 4. If unresponsive, schedule site visit
 5. Bring replacement device and full installation toolkit
+
+---
+
+## Node Naming Convention
+
+Each device on the LA-Mesh network uses a consistent owner name so nodes are
+easily identifiable in node lists, message headers, and on-screen displays.
+
+| Role | Owner Name Pattern | Short Name | Example |
+|------|-------------------|------------|---------|
+| Router (fixed relay) | `LA-Mesh RTR-NN` | `RNN` | `LA-Mesh RTR-01` / `R01` |
+| Client (T-Deck) | `LA-Mesh USR-NN` | `UNN` | `LA-Mesh USR-01` / `U01` |
+| Gateway (MeshAdv) | `LA-Mesh GW-NN` | `GNN` | `LA-Mesh GW-01` / `G01` |
+
+Set the owner name after provisioning:
+
+```bash
+meshtastic --port /dev/ttyACM0 --set-owner "LA-Mesh RTR-01" --set-owner-short "R01"
+```
+
+The base profile sets `owner: "LA-Mesh"` and `owner_short: "LAM"` as defaults.
+Individual node identity is applied per the table above after flashing.
+
+### Boot Logo Note
+
+Custom boot logos in Meshtastic v2.7.x are compiled into the firmware binary
+(`icon.xbm` referenced from `Screen.cpp`). Changing the logo requires building
+custom firmware, which is out of scope for standard deployments. The
+`--set-owner` name is the primary visible branding mechanism -- it appears on
+all node lists, message headers, and the device's own screen after boot.
+
+---
+
+## Station G2 Hardware Notes
+
+The B&Q Consulting Station G2 is an ESP32-S3 board with 16MB flash, native USB,
+and a SX1262 LoRa radio with PA/LNA. It has several quirks that affect
+provisioning and management.
+
+### USB Interface
+
+The Station G2 uses **native ESP32-S3 USB CDC** (appears as `/dev/ttyACM0`),
+not a CH340/CP2102 UART bridge. This means:
+
+- **No DTR/RTS auto-reset** -- esptool cannot automatically enter bootloader
+  mode. You must manually hold the BOOT button.
+- **USB disconnects on reboot** -- the port disappears when the device reboots
+  (e.g., after region or role changes) and re-enumerates after ~10-15 seconds.
+- **esptool `--before no_reset`** -- required after the first `erase_flash`
+  to prevent esptool from trying (and failing) to toggle DTR/RTS.
+
+### Entering Bootloader Mode
+
+1. **Unplug** the USB cable
+2. **Hold** the button labeled "loop" (closest to the USB-C port)
+3. **Plug in** the USB cable while holding the button
+4. **Continue holding** for 2 seconds after plugging in, then release
+5. The device should enumerate as `303a:1001` on USB (check with `lsusb`)
+
+### Flash Procedure (16MB)
+
+The Station G2 uses a 16MB flash layout with three partitions that must all be
+written for a clean install:
+
+| Partition | Offset | File | Size |
+|-----------|--------|------|------|
+| Bootloader + App | `0x0` | `firmware-station-g2-*.bin` | ~2.1 MB |
+| BLE OTA | `0x650000` | `bleota-s3.bin` | ~495 KB |
+| LittleFS | `0xc90000` | `littlefs-station-g2-*.bin` | ~3.4 MB |
+
+**Important**: Always erase flash before a full install. Without erasing, the
+old bootloader/partition table persists and the device boots the old firmware.
+
+```bash
+# Full install sequence (device must be in bootloader mode)
+esptool --chip esp32s3 --port /dev/ttyACM0 --baud 921600 erase_flash
+esptool --chip esp32s3 --port /dev/ttyACM0 --baud 921600 --before no_reset \
+    write_flash 0x0 firmware-station-g2-*.bin
+esptool --chip esp32s3 --port /dev/ttyACM0 --baud 921600 --before no_reset \
+    write_flash 0x650000 bleota-s3.bin
+esptool --chip esp32s3 --port /dev/ttyACM0 --baud 921600 --before no_reset \
+    write_flash 0xc90000 littlefs-station-g2-*.bin
+```
+
+### ROUTER Mode and USB Serial
+
+**Known issue** (GitHub [#4206](https://github.com/meshtastic/firmware/issues/4206)):
+when set to ROUTER role, the ESP32-S3 enters light sleep and the native USB CDC
+serial does not always recover. The port appears in `/dev/` but returns no data.
+
+**Workaround for initial provisioning**: apply all configuration settings
+*before* changing the device role to ROUTER. Set the role as the very last step.
+Once in ROUTER mode, manage the device via:
+
+- **Admin channel** from another mesh node
+- **Web flasher** at `https://flasher.meshtastic.org` (WebSerial)
+- **Factory reset** by re-entering bootloader mode and erasing flash
+
+### Alternative to ROUTER Role
+
+If you need USB serial access for ongoing management, use `ROUTER_CLIENT` role
+instead. It provides the same relay functionality but keeps the display and
+serial active (at the cost of slightly higher power consumption).

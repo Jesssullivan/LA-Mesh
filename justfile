@@ -98,81 +98,491 @@ ci: check build
 # Meshtastic Device Management
 # =============================================================================
 
-# Show connected Meshtastic device info
-mesh-info:
-    meshtastic --info
-
-# List nodes in the mesh
-mesh-nodes:
-    meshtastic --nodes
-
-# Send a test message
-mesh-send message:
-    meshtastic --sendtext "{{message}}"
-
-# Export device config to YAML
-mesh-export-config device="":
+# Detect the first available serial port (ttyACM0 preferred, then ttyUSB0)
+[private]
+detect-port:
     #!/usr/bin/env bash
     set -euo pipefail
-    DEVICE_FLAG=""
-    if [ -n "{{device}}" ]; then
-        DEVICE_FLAG="--port {{device}}"
-    fi
-    meshtastic $DEVICE_FLAG --export-config > configs/devices/export-$(date +%Y%m%d-%H%M%S).yaml
+    for p in /dev/ttyACM0 /dev/ttyACM1 /dev/ttyUSB0 /dev/ttyUSB1; do
+        if [ -c "$p" ]; then echo "$p"; exit 0; fi
+    done
+    echo "ERROR: No serial port found. Connect a device via USB." >&2
+    exit 1
+
+# List available serial ports
+ports:
+    #!/usr/bin/env bash
+    echo "Serial ports:"
+    ls -1 /dev/ttyACM* /dev/ttyUSB* 2>/dev/null || echo "  None detected"
+    echo ""
+    echo "USB devices:"
+    lsusb 2>/dev/null | grep -iE "espres|cp210|ch340|ftdi|station|meshtastic" || echo "  No recognized devices"
+
+# Show connected Meshtastic device info
+mesh-info port="":
+    #!/usr/bin/env bash
+    set -euo pipefail
+    PORT="{{port}}"
+    if [ -z "$PORT" ]; then PORT=$(just detect-port); fi
+    meshtastic --port "$PORT" --info
+
+# List nodes in the mesh
+mesh-nodes port="":
+    #!/usr/bin/env bash
+    set -euo pipefail
+    PORT="{{port}}"
+    if [ -z "$PORT" ]; then PORT=$(just detect-port); fi
+    meshtastic --port "$PORT" --nodes
+
+# Send a test message
+mesh-send message port="":
+    #!/usr/bin/env bash
+    set -euo pipefail
+    PORT="{{port}}"
+    if [ -z "$PORT" ]; then PORT=$(just detect-port); fi
+    meshtastic --port "$PORT" --sendtext "{{message}}"
+
+# Export device config to YAML
+mesh-export-config port="":
+    #!/usr/bin/env bash
+    set -euo pipefail
+    PORT="{{port}}"
+    if [ -z "$PORT" ]; then PORT=$(just detect-port); fi
+    mkdir -p configs/devices
+    meshtastic --port "$PORT" --export-config > configs/devices/export-$(date +%Y%m%d-%H%M%S).yaml
     echo "Config exported to configs/devices/"
 
 # Apply a device profile
-mesh-apply-profile profile:
-    meshtastic --configure configs/profiles/{{profile}}.yaml
+mesh-apply-profile profile port="":
+    #!/usr/bin/env bash
+    set -euo pipefail
+    PORT="{{port}}"
+    if [ -z "$PORT" ]; then PORT=$(just detect-port); fi
+    meshtastic --port "$PORT" --configure configs/profiles/{{profile}}.yaml
+
+# Set device owner name and short name
+mesh-set-owner owner short port="":
+    #!/usr/bin/env bash
+    set -euo pipefail
+    PORT="{{port}}"
+    if [ -z "$PORT" ]; then PORT=$(just detect-port); fi
+    meshtastic --port "$PORT" --set-owner "{{owner}}" --set-owner-short "{{short}}"
+    echo "Owner set: {{owner}} ({{short}})"
 
 # =============================================================================
 # Device Configuration
 # =============================================================================
 
 # Apply a device configuration profile (with auto-backup)
-configure-profile profile port="/dev/ttyUSB0":
-    ./tools/configure/apply-profile.sh {{profile}} {{port}}
+configure-profile profile port="":
+    #!/usr/bin/env bash
+    set -euo pipefail
+    PORT="{{port}}"
+    if [ -z "$PORT" ]; then PORT=$(just detect-port); fi
+    ./tools/configure/apply-profile.sh {{profile}} "$PORT"
 
 # Apply LA-Mesh channel configuration (reads PSK from env vars)
-configure-channels port="/dev/ttyUSB0":
-    ./tools/configure/apply-channels.sh {{port}}
+configure-channels port="":
+    #!/usr/bin/env bash
+    set -euo pipefail
+    PORT="{{port}}"
+    if [ -z "$PORT" ]; then PORT=$(just detect-port); fi
+    ./tools/configure/apply-channels.sh "$PORT"
+
+# Complete post-flash configuration for Station G2 (LoRa + channels + owner)
+configure-g2 owner="LA-Mesh RTR-01" short="R01" port="":
+    #!/usr/bin/env bash
+    set -euo pipefail
+    PORT="{{port}}"
+    if [ -z "$PORT" ]; then PORT=$(just detect-port); fi
+
+    echo "Station G2 Post-Flash Configuration"
+    echo "===================================="
+    echo "Port:  $PORT"
+    echo "Owner: {{owner}} ({{short}})"
+    echo ""
+
+    # Check PSK env vars
+    MISSING=()
+    [ -z "${LAMESH_PSK_PRIMARY:-}" ] && MISSING+=("LAMESH_PSK_PRIMARY")
+    [ -z "${LAMESH_PSK_ADMIN:-}" ] && MISSING+=("LAMESH_PSK_ADMIN")
+    [ -z "${LAMESH_PSK_EMERGENCY:-}" ] && MISSING+=("LAMESH_PSK_EMERGENCY")
+    if [ ${#MISSING[@]} -gt 0 ]; then
+        echo "ERROR: Missing PSK environment variables:"
+        for v in "${MISSING[@]}"; do echo "  - $v"; done
+        echo ""
+        echo "Generate with: just generate-psks"
+        echo "Then export the values and re-run."
+        exit 1
+    fi
+
+    # Wait for device to be ready (ESP32-S3 native USB drops on every reboot)
+    wait_ready() {
+        local attempt=0
+        while ! meshtastic --port "$PORT" --info &>/dev/null; do
+            attempt=$((attempt + 1))
+            if [ "$attempt" -ge 6 ]; then
+                echo "  ERROR: Device not responding after 60s."
+                echo "  Try: unplug and replug USB, then re-run."
+                exit 1
+            fi
+            echo "  Waiting for device... (attempt $attempt/6)"
+            sleep 10
+        done
+    }
+
+    # --- Step 1: LoRa radio settings ---
+    echo "[1/6] Configuring LoRa radio..."
+    wait_ready
+    meshtastic --port "$PORT" \
+        --set lora.region US \
+        --set lora.modem_preset LONG_FAST \
+        --set lora.hop_limit 5 \
+        --set lora.tx_power 30 \
+        --set lora.sx126x_rx_boosted_gain true
+    sleep 20
+
+    # --- Step 2: Device settings (NOT role -- that's last) ---
+    echo "[2/6] Configuring device settings..."
+    wait_ready
+    meshtastic --port "$PORT" \
+        --set device.serial_enabled true \
+        --set device.rebroadcast_mode ALL \
+        --set device.node_info_broadcast_secs 10800
+    sleep 20
+
+    # --- Step 3: Display, bluetooth, security ---
+    echo "[3/6] Configuring display, bluetooth, security..."
+    wait_ready
+    meshtastic --port "$PORT" \
+        --set display.screen_on_secs 31536000 \
+        --set bluetooth.enabled true \
+        --set security.serial_enabled true \
+        --set security.admin_channel_enabled true
+    sleep 20
+
+    # --- Step 4: Channels ---
+    echo "[4/6] Configuring channels..."
+    wait_ready
+    ./tools/configure/apply-channels.sh "$PORT"
+
+    # --- Step 5: Owner name ---
+    echo "[5/6] Setting owner name..."
+    wait_ready
+    meshtastic --port "$PORT" \
+        --set-owner "{{owner}}" \
+        --set-owner-short "{{short}}"
+    sleep 10
+
+    # --- Step 6: Verify ---
+    echo "[6/6] Verifying configuration..."
+    wait_ready
+    meshtastic --port "$PORT" --info 2>&1 | grep -E "(Owner|firmwareVersion|hwModel|role|Channels:|Index)" || true
+    echo ""
+    echo "============================================"
+    echo "  Configuration Complete!"
+    echo "============================================"
+    echo ""
+    echo "Owner:    {{owner}} ({{short}})"
+    echo "Role:     CLIENT (set ROUTER as final step)"
+    echo "Channels: 3 configured (LA-Mesh, LA-Admin, LA-Emergcy)"
+    echo ""
+    echo "FINAL STEP -- set ROUTER role (kills USB serial):"
+    echo "  just mesh-set-role ROUTER $PORT"
+    echo ""
+    echo "Or use ROUTER_CLIENT to keep serial access:"
+    echo "  just mesh-set-role ROUTER_CLIENT $PORT"
+
+# Set device role (WARNING: ROUTER kills USB serial on ESP32-S3 native USB)
+mesh-set-role role port="":
+    #!/usr/bin/env bash
+    set -euo pipefail
+    PORT="{{port}}"
+    if [ -z "$PORT" ]; then PORT=$(just detect-port); fi
+
+    if [ "{{role}}" = "ROUTER" ]; then
+        echo "WARNING: Setting ROUTER role on ESP32-S3 devices (Station G2)"
+        echo "will enable light sleep and KILL USB serial access."
+        echo ""
+        echo "After this, manage via:"
+        echo "  - Admin channel from another mesh node"
+        echo "  - Bluetooth (if enabled)"
+        echo "  - Re-entering bootloader mode (hold BOOT, plug in)"
+        echo ""
+        echo "Alternative: ROUTER_CLIENT keeps serial access (slightly higher power)"
+        echo ""
+        read -p "Set role to ROUTER? [y/N] " -r
+        if [[ ! "$REPLY" =~ ^[Yy]$ ]]; then
+            echo "Aborted."
+            exit 1
+        fi
+    fi
+
+    meshtastic --port "$PORT" --set device.role "{{role}}"
+    echo "Role set to {{role}}."
 
 # Backup device config to configs/backups/
-configure-backup port="/dev/ttyUSB0":
-    ./tools/configure/backup-config.sh {{port}}
+configure-backup port="":
+    #!/usr/bin/env bash
+    set -euo pipefail
+    PORT="{{port}}"
+    if [ -z "$PORT" ]; then PORT=$(just detect-port); fi
+    mkdir -p configs/backups
+    BACKUP="configs/backups/backup-$(date +%Y%m%d-%H%M%S).yaml"
+    meshtastic --port "$PORT" --export-config > "$BACKUP"
+    echo "Config backed up to: $BACKUP"
 
 # Factory reset a device (interactive confirmation)
-configure-reset port="/dev/ttyUSB0":
-    ./tools/configure/factory-reset.sh {{port}}
+configure-reset port="":
+    #!/usr/bin/env bash
+    set -euo pipefail
+    PORT="{{port}}"
+    if [ -z "$PORT" ]; then PORT=$(just detect-port); fi
+    echo "WARNING: This will factory reset the device!"
+    read -p "Are you sure? [y/N] " -r
+    if [[ ! "$REPLY" =~ ^[Yy]$ ]]; then
+        echo "Aborted."
+        exit 1
+    fi
+    meshtastic --port "$PORT" --factory-reset
+    echo "Device factory reset. It will reboot."
+
+# Generate new PSKs for all 3 channels (prints values for KeePassXC storage)
+generate-psks:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    P=$(openssl rand -base64 32)
+    A=$(openssl rand -base64 32)
+    E=$(openssl rand -base64 32)
+    echo "=== LA-Mesh PSKs ==="
+    echo "Save these to KeePassXC under the LA-Mesh group."
+    echo ""
+    echo "  export LAMESH_PSK_PRIMARY=\"$P\""
+    echo "  export LAMESH_PSK_ADMIN=\"$A\""
+    echo "  export LAMESH_PSK_EMERGENCY=\"$E\""
+    echo ""
+    echo "Copy the export lines above into your shell before running:"
+    echo "  just provision <device> [port]"
+    echo ""
+    echo "Or save to KeePassXC:"
+    echo "  Entry: PSK-Primary   / Username: LAMESH_PSK_PRIMARY   / Password: $P"
+    echo "  Entry: PSK-Admin     / Username: LAMESH_PSK_ADMIN     / Password: $A"
+    echo "  Entry: PSK-Emergency / Username: LAMESH_PSK_EMERGENCY / Password: $E"
 
 # =============================================================================
 # Firmware
 # =============================================================================
 
 # Download and verify firmware for a device (or all devices)
-fetch-firmware device="all" version="" *FLAGS="":
-    ./tools/flash/fetch-firmware.sh --device {{device}} {{FLAGS}} \
+fetch-firmware device="all" version="" source="auto" *FLAGS="":
+    ./tools/flash/fetch-firmware.sh --device {{device}} --source {{source}} {{FLAGS}} \
         $([ -n "{{version}}" ] && echo "--version {{version}}" || true)
 
 # One-command device provisioning: fetch + flash + configure + channels
-provision device port="/dev/ttyUSB0" *FLAGS="":
-    ./tools/flash/provision-device.sh {{device}} {{port}} {{FLAGS}}
+provision device port="" *FLAGS="":
+    #!/usr/bin/env bash
+    set -euo pipefail
+    PORT="{{port}}"
+    if [ -z "$PORT" ]; then PORT=$(just detect-port); fi
+    ./tools/flash/provision-device.sh {{device}} "$PORT" {{FLAGS}}
 
-# Flash Meshtastic firmware (manual)
-flash-meshtastic firmware_file port="/dev/ttyUSB0" *FLAGS="":
-    ./tools/flash/flash-meshtastic.sh {{firmware_file}} {{port}} {{FLAGS}}
+# Flash Meshtastic firmware (manual -- handles erase + 3-partition write)
+flash-meshtastic firmware_file port="" *FLAGS="":
+    #!/usr/bin/env bash
+    set -euo pipefail
+    PORT="{{port}}"
+    if [ -z "$PORT" ]; then PORT=$(just detect-port); fi
+    ./tools/flash/flash-meshtastic.sh {{firmware_file}} "$PORT" {{FLAGS}}
 
 # Flash MeshCore firmware (manual)
-flash-meshcore firmware_file port="/dev/ttyUSB0":
-    ./tools/flash/flash-meshcore.sh {{firmware_file}} {{port}}
+flash-meshcore firmware_file port="":
+    #!/usr/bin/env bash
+    set -euo pipefail
+    PORT="{{port}}"
+    if [ -z "$PORT" ]; then PORT=$(just detect-port); fi
+    ./tools/flash/flash-meshcore.sh {{firmware_file}} "$PORT"
 
-# Erase ESP32 flash (chip-level factory reset)
-flash-erase port="/dev/ttyUSB0":
-    esptool.py --chip auto --port {{port}} erase_flash
+# Erase ESP32 flash completely (chip-level factory reset, device must be in bootloader)
+flash-erase port="":
+    #!/usr/bin/env bash
+    set -euo pipefail
+    PORT="{{port}}"
+    if [ -z "$PORT" ]; then PORT=$(just detect-port); fi
+    ESPTOOL=$(command -v esptool || command -v esptool.py || { echo "esptool not found"; exit 1; })
+    echo "Erasing flash on $PORT..."
+    echo "Device must be in bootloader mode (Station G2: hold 'loop' button near USB-C while plugging in)"
+    $ESPTOOL --chip auto --port "$PORT" erase_flash
 
-# Check connected ESP32 device
-flash-info port="/dev/ttyUSB0":
-    esptool.py --chip auto --port {{port}} chip_id
+# Check connected ESP32 device (must be in bootloader mode for native USB)
+flash-info port="":
+    #!/usr/bin/env bash
+    set -euo pipefail
+    PORT="{{port}}"
+    if [ -z "$PORT" ]; then PORT=$(just detect-port); fi
+    ESPTOOL=$(command -v esptool || command -v esptool.py || { echo "esptool not found"; exit 1; })
+    $ESPTOOL --chip auto --port "$PORT" chip_id
+
+# Full Station G2 flash procedure (interactive, step-by-step)
+flash-g2 port="/dev/ttyACM0":
+    #!/usr/bin/env bash
+    set -euo pipefail
+    MANIFEST="firmware/manifest.json"
+    CACHE_DIR="${FIRMWARE_CACHE_DIR:-firmware/.cache}"
+    PORT="{{port}}"
+    ESPTOOL=$(command -v esptool || command -v esptool.py || { echo "esptool not found"; exit 1; })
+
+    VERSION_FULL=$(jq -r '.meshtastic.version_full' "$MANIFEST")
+    FW="$CACHE_DIR/firmware-station-g2-${VERSION_FULL}.bin"
+    BLEOTA="$CACHE_DIR/bleota-s3.bin"
+    LITTLEFS="$CACHE_DIR/littlefs-station-g2-${VERSION_FULL}.bin"
+
+    echo "Station G2 Flash Procedure"
+    echo "=========================="
+    echo "Firmware:  v${VERSION_FULL}"
+    echo "Port:      $PORT"
+    echo ""
+
+    # Check files exist
+    MISSING=0
+    for f in "$FW" "$BLEOTA" "$LITTLEFS"; do
+        if [ ! -f "$f" ]; then
+            echo "MISSING: $f"
+            MISSING=1
+        fi
+    done
+    if [ "$MISSING" -eq 1 ]; then
+        echo ""
+        echo "Run 'just fetch-firmware --device station-g2' first."
+        exit 1
+    fi
+
+    echo "Files ready:"
+    echo "  Firmware: $(du -h "$FW" | cut -f1)  $FW"
+    echo "  BLE OTA:  $(du -h "$BLEOTA" | cut -f1)  $BLEOTA"
+    echo "  LittleFS: $(du -h "$LITTLEFS" | cut -f1)  $LITTLEFS"
+    echo ""
+    echo "IMPORTANT: Device must be in bootloader mode!"
+    echo "  1. Unplug USB"
+    echo "  2. Hold the 'loop' button (nearest USB-C port)"
+    echo "  3. Plug in USB while holding button"
+    echo "  4. Hold for 2 more seconds, then release"
+    echo ""
+    read -p "Device in bootloader mode? [y/N] " -r
+    if [[ ! "$REPLY" =~ ^[Yy]$ ]]; then
+        echo "Aborted."
+        exit 1
+    fi
+
+    echo ""
+    echo "[1/4] Erasing flash..."
+    $ESPTOOL --chip esp32s3 --port "$PORT" --baud 921600 erase_flash
+
+    echo ""
+    echo "[2/4] Writing firmware at 0x0..."
+    $ESPTOOL --chip esp32s3 --port "$PORT" --baud 921600 --before no_reset \
+        write_flash 0x0 "$FW"
+
+    echo ""
+    echo "[3/4] Writing BLE OTA at 0x650000..."
+    $ESPTOOL --chip esp32s3 --port "$PORT" --baud 921600 --before no_reset \
+        write_flash 0x650000 "$BLEOTA"
+
+    echo ""
+    echo "[4/4] Writing LittleFS at 0xc90000..."
+    $ESPTOOL --chip esp32s3 --port "$PORT" --baud 921600 --before no_reset \
+        write_flash 0xc90000 "$LITTLEFS"
+
+    echo ""
+    echo "Flash complete! Unplug and replug the device (without holding any buttons)."
+    echo ""
+    echo "After reboot (~15s), verify with:"
+    echo "  just mesh-info $PORT"
+    echo ""
+    echo "Then configure (one command does LoRa + channels + owner):"
+    echo "  just configure-g2 'LA-Mesh RTR-01' 'R01' $PORT"
+    echo ""
+    echo "Finally, set ROUTER role (kills USB serial):"
+    echo "  just mesh-set-role ROUTER $PORT"
+
+# Regenerate the Maine state silhouette XBM logo
+generate-logo:
+    python3 tools/assets/generate-maine-xbm.py
+
+# Build custom LA-Mesh firmware locally (requires PlatformIO)
+build-firmware device="station-g2" version="":
+    #!/usr/bin/env bash
+    set -euo pipefail
+    MANIFEST="firmware/manifest.json"
+    VER="{{version}}"
+    if [ -z "$VER" ]; then
+        VER=$(jq -r '.meshtastic.version_full' "$MANIFEST")
+    fi
+    PIO_ENV=$(jq -r ".meshtastic.devices[\"{{device}}\"].pio_env // empty" "$MANIFEST")
+    if [ -z "$PIO_ENV" ]; then
+        echo "ERROR: No pio_env in manifest for device '{{device}}'"
+        echo "Available devices:"
+        jq -r '.meshtastic.devices | to_entries[] | select(.value.pio_env) | .key' "$MANIFEST"
+        exit 1
+    fi
+
+    echo "Building LA-Mesh firmware for {{device}} (env: $PIO_ENV)"
+    echo "Meshtastic version: v$VER"
+    echo ""
+
+    if ! command -v pio &>/dev/null; then
+        echo "ERROR: PlatformIO CLI not found."
+        echo "Install: pip install -U platformio"
+        exit 1
+    fi
+
+    BUILD_DIR=".pio-build/firmware"
+    if [ -d "$BUILD_DIR/.git" ]; then
+        echo "Using existing firmware checkout..."
+        cd "$BUILD_DIR"
+        git fetch origin "v$VER" --depth 1
+        git checkout "v$VER"
+        git submodule update --init --recursive
+        cd ../..
+    else
+        echo "Cloning meshtastic/firmware v$VER..."
+        rm -rf "$BUILD_DIR"
+        mkdir -p .pio-build
+        git clone --depth 1 --branch "v$VER" --recurse-submodules \
+            https://github.com/meshtastic/firmware.git "$BUILD_DIR"
+    fi
+
+    # Inject userPrefs
+    cp firmware/meshtastic/userPrefs.jsonc "$BUILD_DIR/userPrefs.jsonc"
+    echo "Injected userPrefs.jsonc"
+
+    # Build
+    cd "$BUILD_DIR"
+    pio run -e "$PIO_ENV"
+    cd ../..
+
+    # Find and copy output
+    FACTORY=$(find "$BUILD_DIR/.pio/build/$PIO_ENV/" -name "*.factory.bin" 2>/dev/null | head -1)
+    if [ -z "$FACTORY" ]; then
+        FACTORY=$(find "$BUILD_DIR/release/" -name "firmware-*-${VER}*.bin" 2>/dev/null | head -1)
+    fi
+    if [ -z "$FACTORY" ]; then
+        echo "ERROR: Build output not found"
+        echo "Check: $BUILD_DIR/.pio/build/$PIO_ENV/"
+        exit 1
+    fi
+
+    DEST="firmware/.cache/firmware-{{device}}-${VER}-lamesh.bin"
+    mkdir -p firmware/.cache
+    cp "$FACTORY" "$DEST"
+    SHA=$(sha256sum "$DEST" | cut -d' ' -f1)
+    SIZE=$(du -h "$DEST" | cut -f1)
+    echo ""
+    echo "Build complete!"
+    echo "  Binary: $DEST ($SIZE)"
+    echo "  SHA256: $SHA"
+    echo ""
+    echo "Flash with:"
+    echo "  just flash-meshtastic $DEST /dev/ttyACM0"
 
 # Show pinned firmware versions from manifest
 firmware-versions:

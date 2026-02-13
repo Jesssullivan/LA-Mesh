@@ -44,6 +44,31 @@ Generate one unique PSK for each channel (primary, admin, emergency).
   - Cloud note apps
   - Shared documents
 
+#### KeePassXC Entry Structure
+
+Organize entries under a dedicated **LA-Mesh** group:
+
+| Entry Title | Username Field | Password Field | Notes |
+|------------|---------------|----------------|-------|
+| `PSK-Primary` | `LAMESH_PSK_PRIMARY` | base64 PSK value | Channel 0, rotation date |
+| `PSK-Admin` | `LAMESH_PSK_ADMIN` | base64 PSK value | Channel 1, rotation date |
+| `PSK-Emergency` | `LAMESH_PSK_EMERGENCY` | base64 PSK value | Channel 2, rotation date |
+
+The Username field stores the environment variable name so operators can export
+directly:
+
+```bash
+# Export from KeePassXC CLI
+export LAMESH_PSK_PRIMARY=$(keepassxc-cli show -sa password /path/to/db.kdbx "LA-Mesh/PSK-Primary")
+export LAMESH_PSK_ADMIN=$(keepassxc-cli show -sa password /path/to/db.kdbx "LA-Mesh/PSK-Admin")
+export LAMESH_PSK_EMERGENCY=$(keepassxc-cli show -sa password /path/to/db.kdbx "LA-Mesh/PSK-Emergency")
+```
+
+Include in each entry's Notes field:
+- Device serial numbers provisioned with this key
+- Last rotation date
+- Channel index number
+
 ### Distribute
 
 PSKs are distributed exclusively in-person:

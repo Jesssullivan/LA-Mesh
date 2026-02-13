@@ -1,6 +1,12 @@
 # LA-Mesh: Station G2 - Fixed Router/Relay Profile
 # Apply: meshtastic --configure configs/profiles/station-g2-router.yaml
 # Role: Rooftop/tower relay node providing backbone coverage
+#
+# IMPORTANT: This profile does NOT set device.role to ROUTER.
+# ROUTER mode on ESP32-S3 native USB triggers light sleep that kills
+# serial access (GitHub meshtastic/firmware#4206). Set role LAST:
+#   meshtastic --port /dev/ttyACM0 --set device.role ROUTER
+# Or use: just mesh-set-role ROUTER /dev/ttyACM0
 
 owner: "LA-Mesh"
 owner_short: "LAM"
@@ -11,12 +17,13 @@ lora:
   hop_limit: 5
   tx_enabled: true
   tx_power: 30            # Max conducted power (dBm) - adjust for antenna gain
+  sx126x_rx_boosted_gain: true
   # FCC EIRP budget: 30 dBm TX - 1 dB cable + antenna gain <= 36 dBm EIRP
   # With 6 dBi antenna: 30 - 1 + 6 = 35 dBm EIRP (OK)
   # With 9 dBi antenna: reduce tx_power to 28 dBm
 
 device:
-  role: ROUTER            # Always rebroadcasts with highest priority
+  # role: ROUTER          # Set LAST -- kills USB serial on ESP32-S3
   rebroadcast_mode: ALL
   node_info_broadcast_secs: 10800  # 3 hours
   serial_enabled: true
@@ -25,7 +32,7 @@ device:
 position:
   fixed_position: true
   # Set lat/lon per deployment site
-  # latitude: 44.1003    # Example: Bates College
+  # latitude: 44.1003    # Example: Central L-A
   # longitude: -70.2148
   gps_enabled: false      # Fixed nodes don't need GPS
   position_broadcast_secs: 43200   # 12 hours
@@ -37,10 +44,13 @@ power:
   is_power_saving: false
 
 display:
-  screen_on_secs: 0       # Display off (headless)
+  screen_on_secs: 31536000  # Always on during provisioning (1 year)
 
 bluetooth:
-  enabled: false          # Disable BT on router nodes
+  enabled: true           # Keep enabled for provisioning; disable after if needed
+
+security:
+  admin_channel_enabled: true
 
 network:
   wifi_enabled: false     # Disable WiFi unless MQTT needed

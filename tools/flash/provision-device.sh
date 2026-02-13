@@ -131,7 +131,7 @@ if [ "$SKIP_CHANNELS" != "true" ]; then
         done
         echo ""
         echo "These PSK values are shared in-person at community meetups."
-        echo "Set them in your .env file or export them before running."
+        echo "Export them from your encrypted keystore before running."
         echo ""
         echo "To skip channel config: $0 $DEVICE $PORT --skip-channels"
         exit 1
@@ -197,22 +197,66 @@ echo ""
 CHIP=$(jq -r ".meshtastic.devices[\"$DEVICE\"].chip" "$MANIFEST")
 BAUD=$(jq -r ".meshtastic.devices[\"$DEVICE\"].baud" "$MANIFEST")
 
-if [ "$FLASH_MODE" = "full" ]; then
-    OFFSET=$(jq -r ".meshtastic.devices[\"$DEVICE\"].flash_offset_full" "$MANIFEST")
+# Determine esptool command (prefer esptool over esptool.py)
+if command -v esptool &>/dev/null; then
+    ESPTOOL_CMD="esptool"
+elif command -v esptool.py &>/dev/null; then
+    ESPTOOL_CMD="esptool.py"
 else
-    OFFSET=$(jq -r ".meshtastic.devices[\"$DEVICE\"].flash_offset_app" "$MANIFEST")
+    echo "ERROR: esptool not found. Enter the Nix dev shell: nix develop"
+    exit 1
 fi
 
-esptool.py \
-    --chip "$CHIP" \
-    --port "$PORT" \
-    --baud "$BAUD" \
-    write-flash \
-    "$OFFSET" "$FIRMWARE_PATH"
+ESPTOOL_BASE="$ESPTOOL_CMD --chip $CHIP --port $PORT --baud $BAUD"
+
+if [ "$FLASH_MODE" = "full" ]; then
+    OFFSET=$(jq -r ".meshtastic.devices[\"$DEVICE\"].flash_offset_full" "$MANIFEST")
+
+    # Full flash: erase + write firmware + bleota + littlefs (3-step)
+    echo "  [3a] Erasing flash..."
+    $ESPTOOL_BASE erase_flash
+
+    echo ""
+    echo "  [3b] Writing firmware at $OFFSET..."
+    $ESPTOOL_BASE --before no_reset write_flash "$OFFSET" "$FIRMWARE_PATH"
+
+    # Flash BLE OTA partition if defined
+    BLEOTA=$(jq -r ".meshtastic.devices[\"$DEVICE\"].bleota // empty" "$MANIFEST")
+    BLEOTA_PATH="$CACHE_DIR/$BLEOTA"
+    APP_OFFSET=$(jq -r ".meshtastic.devices[\"$DEVICE\"].flash_offset_app" "$MANIFEST")
+    if [ -n "$BLEOTA" ] && [ -f "$BLEOTA_PATH" ]; then
+        echo ""
+        echo "  [3c] Writing BLE OTA at $APP_OFFSET..."
+        $ESPTOOL_BASE --before no_reset write_flash "$APP_OFFSET" "$BLEOTA_PATH"
+    fi
+
+    # Flash LittleFS partition if defined
+    LITTLEFS_NAME=$(jq -r ".meshtastic.devices[\"$DEVICE\"].littlefs // empty" "$MANIFEST")
+    LITTLEFS_PATH="$CACHE_DIR/$LITTLEFS_NAME"
+    LITTLEFS_OFFSET=$(jq -r ".meshtastic.devices[\"$DEVICE\"].flash_offset_littlefs // empty" "$MANIFEST")
+    if [ -n "$LITTLEFS_NAME" ] && [ -f "$LITTLEFS_PATH" ] && [ -n "$LITTLEFS_OFFSET" ]; then
+        echo ""
+        echo "  [3d] Writing LittleFS at $LITTLEFS_OFFSET..."
+        $ESPTOOL_BASE --before no_reset write_flash "$LITTLEFS_OFFSET" "$LITTLEFS_PATH"
+    fi
+else
+    # Update-only: just write the update binary to app offset
+    OFFSET=$(jq -r ".meshtastic.devices[\"$DEVICE\"].flash_offset_app" "$MANIFEST")
+    UPDATE_BIN="${FIRMWARE_PATH%.bin}-update.bin"
+    if [ -f "$UPDATE_BIN" ]; then
+        echo "  Writing update binary at $OFFSET..."
+        $ESPTOOL_BASE write_flash "$OFFSET" "$UPDATE_BIN"
+    else
+        echo "  Update binary not found: $UPDATE_BIN"
+        echo "  Falling back to full binary at $OFFSET..."
+        $ESPTOOL_BASE write_flash "$OFFSET" "$FIRMWARE_PATH"
+    fi
+fi
 
 echo ""
 echo "  Flash complete. Waiting for device reboot..."
-sleep 5
+echo "  NOTE: ESP32-S3 native USB (ttyACM) will disconnect briefly on reboot."
+sleep 15
 echo ""
 
 # --- Step 4: Apply profile ---

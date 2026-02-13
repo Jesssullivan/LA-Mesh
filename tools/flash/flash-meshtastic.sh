@@ -111,13 +111,37 @@ if [ "$VERIFY_SHA" = "true" ]; then
     fi
 fi
 
+# --- Determine esptool command ---
+if command -v esptool &>/dev/null; then
+    ESPTOOL_CMD="esptool"
+elif command -v esptool.py &>/dev/null; then
+    ESPTOOL_CMD="esptool.py"
+else
+    echo "ERROR: esptool not found. Enter the Nix dev shell: nix develop"
+    exit 1
+fi
+
 # --- Flash offset ---
+# Look up correct offset from manifest if possible
+BASENAME=$(basename "$FIRMWARE")
+DEVICE_KEY=""
+if [ -f "$MANIFEST" ]; then
+    DEVICE_KEY=$(jq -r \
+        ".meshtastic.devices | to_entries[] | select(.value.binary == \"$BASENAME\") | .key" \
+        "$MANIFEST" 2>/dev/null || true)
+fi
+
 if [ "$FULL_FLASH" = "true" ]; then
     FLASH_OFFSET="0x0"
     echo "Flash mode: FULL (offset 0x0)"
 else
-    FLASH_OFFSET="0x260000"
-    echo "Flash mode: UPDATE ONLY (offset 0x260000, app partition)"
+    if [ -n "$DEVICE_KEY" ]; then
+        FLASH_OFFSET=$(jq -r ".meshtastic.devices[\"$DEVICE_KEY\"].flash_offset_app" "$MANIFEST")
+        echo "Flash mode: UPDATE ONLY (offset $FLASH_OFFSET from manifest)"
+    else
+        FLASH_OFFSET="0x260000"
+        echo "Flash mode: UPDATE ONLY (offset 0x260000, default app partition)"
+    fi
 fi
 
 echo ""
@@ -130,9 +154,12 @@ echo ""
 
 # Detect chip type
 echo "Detecting chip..."
-CHIP_INFO=$(esptool.py --port "$PORT" chip_id 2>&1) || {
+CHIP_INFO=$($ESPTOOL_CMD --port "$PORT" chip_id 2>&1) || {
     echo "ERROR: Could not detect chip. Is the device in bootloader mode?"
-    echo "  ESP32-S3: Hold BOOT button, press RESET, release BOOT"
+    echo ""
+    echo "  Station G2:  Unplug, hold BOOT ('loop') button near USB-C, plug in, hold 2s"
+    echo "  T-Deck:      Hold BOOT button, press RESET, release BOOT"
+    echo "  Other ESP32: Hold BOOT button, press RESET, release BOOT"
     exit 1
 }
 
@@ -147,21 +174,58 @@ else
     CHIP="auto"
 fi
 
+ESPTOOL_BASE="$ESPTOOL_CMD --chip $CHIP --port $PORT --baud 921600"
+
 echo "Detected: $CHIP"
 echo ""
 echo "Flashing firmware..."
 echo "DO NOT disconnect the device during this process!"
 echo ""
 
-esptool.py \
-    --chip "$CHIP" \
-    --port "$PORT" \
-    --baud 921600 \
-    write-flash \
-    "$FLASH_OFFSET" "$FIRMWARE"
+if [ "$FULL_FLASH" = "true" ]; then
+    echo "[1/4] Erasing flash..."
+    $ESPTOOL_BASE erase_flash
+
+    echo ""
+    echo "[2/4] Writing firmware at $FLASH_OFFSET..."
+    $ESPTOOL_BASE --before no_reset write_flash "$FLASH_OFFSET" "$FIRMWARE"
+
+    # Flash BLE OTA and LittleFS if identified from manifest
+    CACHE_DIR=$(dirname "$FIRMWARE")
+    if [ -n "$DEVICE_KEY" ] && [ -f "$MANIFEST" ]; then
+        BLEOTA=$(jq -r ".meshtastic.devices[\"$DEVICE_KEY\"].bleota // empty" "$MANIFEST")
+        APP_OFFSET=$(jq -r ".meshtastic.devices[\"$DEVICE_KEY\"].flash_offset_app // empty" "$MANIFEST")
+        BLEOTA_PATH="$CACHE_DIR/$BLEOTA"
+        if [ -n "$BLEOTA" ] && [ -f "$BLEOTA_PATH" ] && [ -n "$APP_OFFSET" ]; then
+            echo ""
+            echo "[3/4] Writing BLE OTA at $APP_OFFSET..."
+            $ESPTOOL_BASE --before no_reset write_flash "$APP_OFFSET" "$BLEOTA_PATH"
+        else
+            echo "[3/4] BLE OTA: skipped (not found in cache)"
+        fi
+
+        LITTLEFS=$(jq -r ".meshtastic.devices[\"$DEVICE_KEY\"].littlefs // empty" "$MANIFEST")
+        LITTLEFS_OFFSET=$(jq -r ".meshtastic.devices[\"$DEVICE_KEY\"].flash_offset_littlefs // empty" "$MANIFEST")
+        LITTLEFS_PATH="$CACHE_DIR/$LITTLEFS"
+        if [ -n "$LITTLEFS" ] && [ -f "$LITTLEFS_PATH" ] && [ -n "$LITTLEFS_OFFSET" ]; then
+            echo ""
+            echo "[4/4] Writing LittleFS at $LITTLEFS_OFFSET..."
+            $ESPTOOL_BASE --before no_reset write_flash "$LITTLEFS_OFFSET" "$LITTLEFS_PATH"
+        else
+            echo "[4/4] LittleFS: skipped (not found in cache)"
+        fi
+    else
+        echo "[3/4] BLE OTA: skipped (device not in manifest)"
+        echo "[4/4] LittleFS: skipped (device not in manifest)"
+    fi
+else
+    # Update-only: single write to app partition
+    $ESPTOOL_BASE write_flash "$FLASH_OFFSET" "$FIRMWARE"
+fi
 
 echo ""
 echo "Flash complete! Device will reboot."
+echo "NOTE: ESP32-S3 native USB (ttyACM) disconnects briefly on reboot."
 echo ""
 echo "Next steps:"
 echo "  1. Apply config profile: just configure-profile <profile> $PORT"

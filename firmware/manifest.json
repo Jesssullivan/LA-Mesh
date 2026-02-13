@@ -1,36 +1,84 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "last_updated": "2026-02-12",
   "meshtastic": {
     "version": "2.7.15",
+    "version_full": "2.7.15.567b8ea",
     "min_version": "2.7.15",
-    "release_url": "https://github.com/meshtastic/firmware/releases/download/v2.7.15/firmware-2.7.15.zip",
-    "release_notes": "https://github.com/meshtastic/firmware/releases/tag/v2.7.15",
+    "release_notes": "https://github.com/meshtastic/firmware/releases/tag/v2.7.15.567b8ea",
     "cve_notes": "v2.7.15 required: fixes CVE-2025-52464 (duplicate crypto keys), CVE-2025-24797, CVE-2025-55293, CVE-2025-55292, CVE-2025-53627. PKI-only DMs enforced (legacy DMs disabled).",
+    "build": {
+      "source": "custom",
+      "userPrefs": "firmware/meshtastic/userPrefs.jsonc",
+      "ci_workflow": ".github/workflows/build-firmware.yml",
+      "release_prefix": "la-mesh-v",
+      "last_build": null,
+      "last_build_url": null
+    },
     "devices": {
       "station-g2": {
-        "binary": "firmware-station-g2-2.7.15.bin",
-        "littlefs": "littlefs-station-g2-2.7.15.bin",
-        "sha256": "UPDATE_WITH_ACTUAL_HASH_AFTER_DOWNLOAD",
+        "binary": "firmware-station-g2-2.7.15.567b8ea.bin",
+        "littlefs": "littlefs-station-g2-2.7.15.567b8ea.bin",
+        "bleota": "bleota-s3.bin",
+        "sha256": "2174ca80ef0e8caf49dd4a8097868a7c0a4fd1f0a06f9f6178fd3fbca04d2f19",
         "chip": "esp32s3",
+        "chip_family_zip": "esp32s3",
+        "flash_size": "16MB",
         "flash_offset_full": "0x0",
-        "flash_offset_app": "0x260000",
-        "flash_size": "detect",
+        "flash_offset_app": "0x650000",
+        "flash_offset_littlefs": "0xc90000",
         "baud": 921600,
-        "description": "Station G2 base station / router",
-        "profile": "station-g2-router"
+        "bootloader_note": "Hold BOOT button (labeled 'loop', nearest USB-C) while plugging in USB. Release after 2 seconds. Native USB CDC -- no auto-reset via DTR/RTS.",
+        "description": "Station G2 base station / router (B&Q Consulting, 16MB flash)",
+        "profile": "station-g2-router",
+        "pio_env": "station-g2",
+        "custom": {
+          "binary": null,
+          "sha256": null,
+          "release_url": null
+        }
       },
       "t-deck": {
-        "binary": "firmware-t-deck-2.7.15.bin",
-        "littlefs": "littlefs-t-deck-2.7.15.bin",
+        "binary": "firmware-t-deck-2.7.15.567b8ea.bin",
+        "littlefs": "littlefs-t-deck-2.7.15.567b8ea.bin",
+        "bleota": "bleota-s3.bin",
         "sha256": "UPDATE_WITH_ACTUAL_HASH_AFTER_DOWNLOAD",
         "chip": "esp32s3",
+        "chip_family_zip": "esp32s3",
+        "flash_size": "16MB",
         "flash_offset_full": "0x0",
-        "flash_offset_app": "0x260000",
-        "flash_size": "detect",
+        "flash_offset_app": "0x650000",
+        "flash_offset_littlefs": "0xc90000",
         "baud": 921600,
-        "description": "LilyGo T-Deck / T-Deck Plus client",
-        "profile": "tdeck-plus-client"
+        "description": "LilyGo T-Deck / T-Deck Plus client (16MB flash)",
+        "profile": "tdeck-plus-client",
+        "pio_env": "t-deck",
+        "custom": {
+          "binary": null,
+          "sha256": null,
+          "release_url": null
+        }
+      },
+      "t-deck-pro": {
+        "binary": "firmware-t-deck-pro-2.7.15.567b8ea.bin",
+        "littlefs": "littlefs-t-deck-pro-2.7.15.567b8ea.bin",
+        "bleota": "bleota-s3.bin",
+        "sha256": "UPDATE_WITH_ACTUAL_HASH_AFTER_DOWNLOAD",
+        "chip": "esp32s3",
+        "chip_family_zip": "esp32s3",
+        "flash_size": "16MB",
+        "flash_offset_full": "0x0",
+        "flash_offset_app": "0x650000",
+        "flash_offset_littlefs": "0xc90000",
+        "baud": 921600,
+        "description": "LilyGo T-Deck Pro (E-Ink) low-power client (16MB flash)",
+        "profile": "tdeck-pro-eink-client",
+        "pio_env": "t-deck-pro",
+        "custom": {
+          "binary": null,
+          "sha256": null,
+          "release_url": null
+        }
       }
     }
   },
