@@ -17,7 +17,7 @@
 set -euo pipefail
 
 PORT="${1:-/dev/ttyUSB0}"
-REBOOT_WAIT="${LAMESH_REBOOT_WAIT:-15}"
+REBOOT_WAIT="${LAMESH_REBOOT_WAIT:-20}"
 
 echo "LA-Mesh Channel Configuration"
 echo "=============================="
@@ -45,12 +45,12 @@ wait_for_device() {
     local retries=0
     while ! meshtastic --port "$PORT" --info &>/dev/null; do
         retries=$((retries + 1))
-        if [ "$retries" -ge 4 ]; then
+        if [ "$retries" -ge 6 ]; then
             echo "  WARNING: Device not responding. It may need manual reconnection."
             return 1
         fi
-        echo "  Waiting for device... (attempt $retries/4)"
-        sleep 5
+        echo "  Waiting for device... (attempt $retries/6)"
+        sleep 10
     done
 }
 
