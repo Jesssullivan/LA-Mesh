@@ -36,8 +36,6 @@ jobs:
 
       - name: Build site
         run: pnpm --filter la-mesh-site build
-        env:
-          DOCS_BASE_PATH: /LA-Mesh
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3

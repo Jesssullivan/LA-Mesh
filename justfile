@@ -68,7 +68,7 @@ dev-open:
 
 # Build docs site for production
 build:
-    cd site && DOCS_BASE_PATH=/LA-Mesh pnpm build
+    cd site && pnpm build
 
 # Preview production build
 preview: build
