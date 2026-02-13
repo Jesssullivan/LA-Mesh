@@ -2,7 +2,7 @@
 
 LoRa mesh network infrastructure for Southern Maine.
 
-Community-driven encrypted mesh communications covering the Lewiston-Auburn area and Bates College campus, supporting Meshtastic, MeshCore, and LoRa radio education.
+Community-driven encrypted mesh communications covering the Lewiston-Auburn area, supporting Meshtastic, MeshCore, and LoRa radio education.
 
 ## What is LA-Mesh?
 
@@ -39,6 +39,31 @@ just dev
 # Show environment info
 just info
 ```
+
+## Device Provisioning
+
+Three commands to go from a blank device to a deployed mesh node:
+
+```bash
+# 1. Flash firmware (interactive — prompts for bootloader mode)
+just flash-g2
+
+# 2. Configure everything: LoRa, channels, owner name
+just configure-g2 "LA-Mesh RTR-01" "R01"
+
+# 3. Set ROUTER role (final step — kills USB serial on ESP32-S3)
+just mesh-set-role ROUTER
+```
+
+Step 2 reads PSK values from `.env` (auto-sourced by justfile). Generate
+fresh keys with `just generate-psks` and store them in KeePassXC.
+
+Port is auto-detected (`/dev/ttyACM0` > `ttyUSB0`). Pass explicitly if
+needed: `just flash-g2 /dev/ttyACM1`.
+
+See [Node Deployment Guide](docs/guides/node-deployment.md) for full
+details including Station G2 hardware notes, bootloader procedure, and
+the 16MB flash partition layout.
 
 ## Project Structure
 
