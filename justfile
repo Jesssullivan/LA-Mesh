@@ -489,6 +489,10 @@ flash-g2 port="/dev/ttyACM0":
     echo "Finally, set ROUTER role (kills USB serial):"
     echo "  just mesh-set-role ROUTER $PORT"
 
+# Regenerate the Maine state silhouette XBM logo
+generate-logo:
+    python3 tools/assets/generate-maine-xbm.py
+
 # Show pinned firmware versions from manifest
 firmware-versions:
     @echo "LA-Mesh Firmware Versions"
