@@ -1,6 +1,6 @@
 # Custom Boot Splash Screen
 
-**Status**: Research complete, implementation pending
+**Status**: Implemented (CI builds via GitHub Actions)
 **Applies to**: All ESP32-based devices (Station G2, T-Deck)
 
 ---
@@ -129,12 +129,51 @@ custom-built binary instead of the upstream release.
 
 ## CI/CD: GitHub Actions Auto-Build
 
-Maintain a thin fork that only modifies `userPrefs.jsonc`. Use the official
-`meshtastic/gh-action-firmware` GitHub Action to auto-build when upstream
-releases new versions.
+The `.github/workflows/build-firmware.yml` workflow builds custom firmware
+for all three device targets automatically.
 
-See `firmware/meshtastic/build-workflow-example.yml` for a complete workflow
-template (to be created when this feature is implemented).
+### How it works
+
+1. Workflow triggers on push to `main` (when `userPrefs.jsonc` or `manifest.json`
+   changes) or via manual dispatch
+2. Reads the pinned Meshtastic version from `firmware/manifest.json`
+3. Clones `meshtastic/firmware` at that version tag
+4. Copies our `firmware/meshtastic/userPrefs.jsonc` into the firmware repo root
+5. Builds for each device in parallel using `meshtastic/gh-action-firmware` (official Docker action)
+6. Creates a GitHub Release (`la-mesh-v{version}`) with binaries + `SHA256SUMS.txt`
+7. Auto-updates `firmware/manifest.json` and `README.md` with checksums and download links
+
+### Build targets
+
+| Device | PlatformIO Environment |
+|--------|----------------------|
+| Station G2 | `station-g2` |
+| T-Deck Plus | `t-deck` |
+| T-Deck Pro (E-Ink) | `t-deck-pro` |
+
+### Trigger a build manually
+
+Go to **Actions > Build Custom Firmware > Run workflow** in the GitHub UI.
+Optionally override the Meshtastic version.
+
+### Local builds
+
+```bash
+# Requires PlatformIO CLI
+just build-firmware station-g2
+just build-firmware t-deck
+just build-firmware t-deck-pro
+```
+
+### Fetch pre-built custom firmware
+
+```bash
+# Download LA-Mesh builds (default: auto-detects custom vs upstream)
+just fetch-firmware --source custom
+
+# Verify
+cd firmware/.cache && sha256sum -c SHA256SUMS.txt
+```
 
 ---
 
@@ -157,9 +196,11 @@ template (to be created when this feature is implemented).
 
 ---
 
-## Next Steps
+## Current Status
 
-1. Design a Maine silhouette logo at 50x28 or 68x58 pixels
-2. Convert to XBM and test with `userPrefs.jsonc`
-3. Set up GitHub Actions build pipeline
-4. Integrate custom firmware into `just provision` workflow
+- Maine state silhouette logo (60x50 pixels) designed and committed
+  (`firmware/meshtastic/assets/maine-logo.xbm`)
+- `userPrefs.jsonc` configured with OEM boot splash data
+- GitHub Actions CI pipeline builds for Station G2, T-Deck, T-Deck Pro
+- `just fetch-firmware --source custom` downloads pre-built LA-Mesh binaries
+- `just build-firmware` supports local PlatformIO builds

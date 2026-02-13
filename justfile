@@ -374,8 +374,8 @@ generate-psks:
 # =============================================================================
 
 # Download and verify firmware for a device (or all devices)
-fetch-firmware device="all" version="" *FLAGS="":
-    ./tools/flash/fetch-firmware.sh --device {{device}} {{FLAGS}} \
+fetch-firmware device="all" version="" source="auto" *FLAGS="":
+    ./tools/flash/fetch-firmware.sh --device {{device}} --source {{source}} {{FLAGS}} \
         $([ -n "{{version}}" ] && echo "--version {{version}}" || true)
 
 # One-command device provisioning: fetch + flash + configure + channels
@@ -507,6 +507,82 @@ flash-g2 port="/dev/ttyACM0":
 # Regenerate the Maine state silhouette XBM logo
 generate-logo:
     python3 tools/assets/generate-maine-xbm.py
+
+# Build custom LA-Mesh firmware locally (requires PlatformIO)
+build-firmware device="station-g2" version="":
+    #!/usr/bin/env bash
+    set -euo pipefail
+    MANIFEST="firmware/manifest.json"
+    VER="{{version}}"
+    if [ -z "$VER" ]; then
+        VER=$(jq -r '.meshtastic.version_full' "$MANIFEST")
+    fi
+    PIO_ENV=$(jq -r ".meshtastic.devices[\"{{device}}\"].pio_env // empty" "$MANIFEST")
+    if [ -z "$PIO_ENV" ]; then
+        echo "ERROR: No pio_env in manifest for device '{{device}}'"
+        echo "Available devices:"
+        jq -r '.meshtastic.devices | to_entries[] | select(.value.pio_env) | .key' "$MANIFEST"
+        exit 1
+    fi
+
+    echo "Building LA-Mesh firmware for {{device}} (env: $PIO_ENV)"
+    echo "Meshtastic version: v$VER"
+    echo ""
+
+    if ! command -v pio &>/dev/null; then
+        echo "ERROR: PlatformIO CLI not found."
+        echo "Install: pip install -U platformio"
+        exit 1
+    fi
+
+    BUILD_DIR=".pio-build/firmware"
+    if [ -d "$BUILD_DIR/.git" ]; then
+        echo "Using existing firmware checkout..."
+        cd "$BUILD_DIR"
+        git fetch origin "v$VER" --depth 1
+        git checkout "v$VER"
+        git submodule update --init --recursive
+        cd ../..
+    else
+        echo "Cloning meshtastic/firmware v$VER..."
+        rm -rf "$BUILD_DIR"
+        mkdir -p .pio-build
+        git clone --depth 1 --branch "v$VER" --recurse-submodules \
+            https://github.com/meshtastic/firmware.git "$BUILD_DIR"
+    fi
+
+    # Inject userPrefs
+    cp firmware/meshtastic/userPrefs.jsonc "$BUILD_DIR/userPrefs.jsonc"
+    echo "Injected userPrefs.jsonc"
+
+    # Build
+    cd "$BUILD_DIR"
+    pio run -e "$PIO_ENV"
+    cd ../..
+
+    # Find and copy output
+    FACTORY=$(find "$BUILD_DIR/.pio/build/$PIO_ENV/" -name "*.factory.bin" 2>/dev/null | head -1)
+    if [ -z "$FACTORY" ]; then
+        FACTORY=$(find "$BUILD_DIR/release/" -name "firmware-*-${VER}*.bin" 2>/dev/null | head -1)
+    fi
+    if [ -z "$FACTORY" ]; then
+        echo "ERROR: Build output not found"
+        echo "Check: $BUILD_DIR/.pio/build/$PIO_ENV/"
+        exit 1
+    fi
+
+    DEST="firmware/.cache/firmware-{{device}}-${VER}-lamesh.bin"
+    mkdir -p firmware/.cache
+    cp "$FACTORY" "$DEST"
+    SHA=$(sha256sum "$DEST" | cut -d' ' -f1)
+    SIZE=$(du -h "$DEST" | cut -f1)
+    echo ""
+    echo "Build complete!"
+    echo "  Binary: $DEST ($SIZE)"
+    echo "  SHA256: $SHA"
+    echo ""
+    echo "Flash with:"
+    echo "  just flash-meshtastic $DEST /dev/ttyACM0"
 
 # Show pinned firmware versions from manifest
 firmware-versions:

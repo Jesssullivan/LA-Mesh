@@ -1,0 +1,328 @@
+name: Build Custom Firmware
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'firmware/meshtastic/userPrefs.jsonc'
+      - 'firmware/manifest.json'
+      - '.github/workflows/build-firmware.yml'
+  workflow_dispatch:
+    inputs:
+      meshtastic_version:
+        description: 'Meshtastic version tag (e.g., 2.7.15.567b8ea). Leave blank to use manifest.'
+        required: false
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: firmware-build
+  cancel-in-progress: true
+
+jobs:
+  # ── Job 1: Read manifest and resolve version ──────────────────────────
+  setup:
+    name: Setup
+    runs-on: ubuntu-latest
+    outputs:
+      version_full: ${{ steps.version.outputs.version_full }}
+      version_short: ${{ steps.version.outputs.version_short }}
+      matrix: ${{ steps.matrix.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Resolve firmware version
+        id: version
+        run: |
+          if [ -n "${{ inputs.meshtastic_version }}" ]; then
+            VERSION_FULL="${{ inputs.meshtastic_version }}"
+          else
+            VERSION_FULL=$(jq -r '.meshtastic.version_full' firmware/manifest.json)
+          fi
+          VERSION_SHORT=$(echo "$VERSION_FULL" | cut -d. -f1-3)
+          echo "version_full=${VERSION_FULL}" >> "$GITHUB_OUTPUT"
+          echo "version_short=${VERSION_SHORT}" >> "$GITHUB_OUTPUT"
+          echo "Building Meshtastic v${VERSION_FULL}"
+
+      - name: Build device matrix from manifest
+        id: matrix
+        run: |
+          # Read devices that have a pio_env field from manifest
+          MATRIX=$(jq -c '{include: [.meshtastic.devices | to_entries[] | select(.value.pio_env) | {device: .key, pio_env: .value.pio_env, chip: .value.chip}]}' firmware/manifest.json)
+          echo "matrix=${MATRIX}" >> "$GITHUB_OUTPUT"
+          echo "Device matrix: ${MATRIX}"
+
+  # ── Job 2: Build firmware for each device target ──────────────────────
+  build:
+    name: Build ${{ matrix.device }}
+    needs: setup
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.setup.outputs.matrix) }}
+    steps:
+      - name: Checkout meshtastic/firmware
+        uses: actions/checkout@v4
+        with:
+          repository: meshtastic/firmware
+          ref: v${{ needs.setup.outputs.version_full }}
+          submodules: recursive
+
+      - name: Checkout LA-Mesh
+        uses: actions/checkout@v4
+        with:
+          path: _la-mesh
+
+      - name: Inject LA-Mesh userPrefs.jsonc
+        run: |
+          cp _la-mesh/firmware/meshtastic/userPrefs.jsonc ./userPrefs.jsonc
+          echo "=== Injected userPrefs.jsonc ==="
+          cat userPrefs.jsonc
+
+      - name: Build ${{ matrix.device }} firmware
+        uses: meshtastic/gh-action-firmware@main
+        with:
+          pio_platform: ${{ matrix.chip }}
+          pio_env: ${{ matrix.pio_env }}
+          pio_target: build
+
+      - name: Prepare release artifacts
+        id: artifacts
+        env:
+          VERSION: ${{ needs.setup.outputs.version_full }}
+          DEVICE: ${{ matrix.device }}
+        run: |
+          mkdir -p artifacts
+
+          # Find the factory binary (full-flash, offset 0x0)
+          FACTORY=$(find release/ -name "firmware-${DEVICE}-${VERSION}*.factory.bin" -o -name "firmware-${DEVICE}-${VERSION}*.bin" | head -1)
+          if [ -z "$FACTORY" ]; then
+            echo "Available release files:"
+            ls -la release/ || echo "(empty)"
+            echo "Available build files:"
+            find .pio/build/${DEVICE}/ -name "*.bin" 2>/dev/null || echo "(none)"
+            echo "ERROR: Could not find firmware binary for ${DEVICE}"
+            exit 1
+          fi
+
+          # Rename with -lamesh suffix
+          CUSTOM_BIN="firmware-${DEVICE}-${VERSION}-lamesh.bin"
+          cp "$FACTORY" "artifacts/${CUSTOM_BIN}"
+
+          # Compute SHA256
+          SHA=$(sha256sum "artifacts/${CUSTOM_BIN}" | cut -d' ' -f1)
+          echo "sha256=${SHA}" >> "$GITHUB_OUTPUT"
+          echo "binary=${CUSTOM_BIN}" >> "$GITHUB_OUTPUT"
+
+          # Per-file checksum
+          echo "${SHA}  ${CUSTOM_BIN}" > "artifacts/${CUSTOM_BIN}.sha256"
+
+          echo "Built: ${CUSTOM_BIN}"
+          echo "SHA256: ${SHA}"
+          echo "Size: $(du -h "artifacts/${CUSTOM_BIN}" | cut -f1)"
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: firmware-${{ matrix.device }}
+          path: artifacts/
+          retention-days: 90
+
+  # ── Job 3: Create release, update manifest + README ───────────────────
+  release:
+    name: Release
+    needs: [setup, build]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Download all build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: release-artifacts
+          pattern: firmware-*
+          merge-multiple: true
+
+      - name: Generate combined checksums
+        run: |
+          cd release-artifacts
+          sha256sum firmware-*-lamesh.bin > SHA256SUMS.txt
+          echo "=== SHA256SUMS.txt ==="
+          cat SHA256SUMS.txt
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ needs.setup.outputs.version_full }}
+          VERSION_SHORT: ${{ needs.setup.outputs.version_short }}
+        run: |
+          TAG="la-mesh-v${VERSION}"
+
+          # Delete existing release if re-building same version
+          gh release delete "$TAG" --yes 2>/dev/null || true
+          git push origin --delete "$TAG" 2>/dev/null || true
+
+          # Build device list for release notes
+          DEVICE_TABLE=""
+          for f in release-artifacts/firmware-*-lamesh.bin; do
+            NAME=$(basename "$f")
+            SHA=$(sha256sum "$f" | cut -d' ' -f1)
+            DEVICE_TABLE="${DEVICE_TABLE}| ${NAME} | \`${SHA}\` |
+          "
+          done
+
+          gh release create "$TAG" \
+            --title "LA-Mesh Firmware v${VERSION}" \
+            --notes "$(cat <<EOF
+          ## LA-Mesh Custom Firmware v${VERSION}
+
+          Custom Meshtastic firmware with LA-Mesh boot splash and network defaults.
+          Based on [Meshtastic v${VERSION}](https://github.com/meshtastic/firmware/releases/tag/v${VERSION}).
+
+          ### Changes from Stock Firmware
+          - Custom boot splash: Maine state silhouette + "LA-Mesh" text (5s after default splash)
+          - Default LoRa region: US
+          - Default owner: LA-Mesh / LAM
+
+          ### Downloads
+
+          | Binary | SHA256 |
+          |--------|--------|
+          ${DEVICE_TABLE}
+
+          ### Verify Downloads
+
+          \`\`\`bash
+          # Download checksums file
+          curl -fSLO https://github.com/${{ github.repository }}/releases/download/${TAG}/SHA256SUMS.txt
+
+          # Verify all binaries
+          sha256sum -c SHA256SUMS.txt
+          \`\`\`
+
+          ### Flash
+
+          \`\`\`bash
+          just fetch-firmware --source custom
+          just flash-g2
+          \`\`\`
+
+          BLE OTA and LittleFS partitions use stock Meshtastic binaries (unchanged).
+          Only the main firmware binary includes LA-Mesh customizations.
+          EOF
+          )" \
+            release-artifacts/firmware-*-lamesh.bin \
+            release-artifacts/SHA256SUMS.txt
+
+          echo "Release created: ${TAG}"
+
+      - name: Update manifest with custom build hashes
+        env:
+          VERSION: ${{ needs.setup.outputs.version_full }}
+        run: |
+          MANIFEST="firmware/manifest.json"
+
+          for f in release-artifacts/firmware-*-lamesh.bin; do
+            NAME=$(basename "$f")
+            # Extract device name: firmware-{device}-{version}-lamesh.bin
+            DEVICE=$(echo "$NAME" | sed "s/firmware-//" | sed "s/-${VERSION}-lamesh.bin//")
+            SHA=$(sha256sum "$f" | cut -d' ' -f1)
+            TAG="la-mesh-v${VERSION}"
+            RELEASE_URL="https://github.com/${{ github.repository }}/releases/download/${TAG}/${NAME}"
+
+            echo "Updating ${DEVICE}: ${SHA}"
+
+            jq --arg dev "$DEVICE" \
+               --arg bin "$NAME" \
+               --arg sha "$SHA" \
+               --arg url "$RELEASE_URL" \
+              '.meshtastic.devices[$dev].custom.binary = $bin
+               | .meshtastic.devices[$dev].custom.sha256 = $sha
+               | .meshtastic.devices[$dev].custom.release_url = $url' \
+              "$MANIFEST" > "${MANIFEST}.tmp"
+            mv "${MANIFEST}.tmp" "$MANIFEST"
+          done
+
+          # Update build metadata
+          jq --arg ts "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+             --arg url "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
+            '.meshtastic.build.last_build = $ts
+             | .meshtastic.build.last_build_url = $url' \
+            "$MANIFEST" > "${MANIFEST}.tmp"
+          mv "${MANIFEST}.tmp" "$MANIFEST"
+
+          echo "=== Updated manifest ==="
+          jq '.meshtastic.devices | to_entries[] | {device: .key, custom: .value.custom}' "$MANIFEST"
+
+      - name: Update README firmware section
+        env:
+          VERSION: ${{ needs.setup.outputs.version_full }}
+          REPO: ${{ github.repository }}
+        run: |
+          TAG="la-mesh-v${VERSION}"
+          DOWNLOAD_BASE="https://github.com/${REPO}/releases/download/${TAG}"
+          RELEASE_URL="https://github.com/${REPO}/releases/tag/${TAG}"
+
+          # Build the replacement section
+          {
+            echo '<!-- BEGIN_FIRMWARE_SECTION -->'
+            echo '## Custom Firmware Downloads'
+            echo ''
+            echo "LA-Mesh branded Meshtastic firmware with custom boot splash (Maine silhouette + \"LA-Mesh\" text)."
+            echo ''
+            echo '| Device | Binary | SHA256 |'
+            echo '|--------|--------|--------|'
+
+            for f in release-artifacts/firmware-*-lamesh.bin; do
+              NAME=$(basename "$f")
+              SHA=$(sha256sum "$f" | cut -d' ' -f1)
+              echo "| ${NAME%-*-lamesh.bin} | [${NAME}](${DOWNLOAD_BASE}/${NAME}) | \`${SHA:0:16}...\` |"
+            done
+
+            echo ''
+            echo "**Version**: [v${VERSION}](${RELEASE_URL}) (based on [Meshtastic v${VERSION}](https://github.com/meshtastic/firmware/releases/tag/v${VERSION}))"
+            echo ''
+            echo '**Verify downloads**:'
+            echo '```bash'
+            echo "curl -fSLO ${DOWNLOAD_BASE}/SHA256SUMS.txt"
+            echo 'sha256sum -c SHA256SUMS.txt'
+            echo '```'
+            echo '<!-- END_FIRMWARE_SECTION -->'
+          } > /tmp/firmware-section.md
+
+          # Replace section between markers (or insert if markers don't exist)
+          python3 -c "
+          import re
+          readme = open('README.md').read()
+          section = open('/tmp/firmware-section.md').read()
+          pattern = r'<!-- BEGIN_FIRMWARE_SECTION -->.*?<!-- END_FIRMWARE_SECTION -->'
+          if re.search(pattern, readme, re.DOTALL):
+              readme = re.sub(pattern, section.strip(), readme, flags=re.DOTALL)
+          else:
+              readme = readme.replace('## Project Structure', section.strip() + '\n\n## Project Structure')
+          open('README.md', 'w').write(readme)
+          "
+
+          echo "=== Updated README firmware section ==="
+          sed -n '/BEGIN_FIRMWARE_SECTION/,/END_FIRMWARE_SECTION/p' README.md
+
+      - name: Commit manifest and README updates
+        env:
+          VERSION: ${{ needs.setup.outputs.version_full }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add firmware/manifest.json README.md
+
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "firmware: update custom build hashes for v${VERSION} [skip ci]"
+            git push
+          fi
