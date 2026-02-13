@@ -8,7 +8,8 @@
 		{ href: `${base}/`, label: 'Home' },
 		{ href: `${base}/devices`, label: 'Devices' },
 		{ href: `${base}/architecture`, label: 'Architecture' },
-		{ href: 'https://meshmap.net/', label: 'Mesh Map', external: true }
+		{ href: 'https://meshmap.net/', label: 'Mesh Map', external: true },
+		{ href: 'https://flasher.meshtastic.org/', label: 'Flash Firmware', external: true, bold: true }
 	];
 
 	/** @type {{ href: string, label: string }[]} */
@@ -27,7 +28,7 @@
 			<a href="{base}/" class="text-2xl font-bold font-mono text-primary-400 no-underline">LA-Mesh</a>
 			<ul class="flex list-none m-0 p-0 gap-6 flex-wrap">
 				{#each nav as item}
-					<li><a href={item.href} class="text-surface-400 no-underline text-sm hover:text-primary-400 transition-colors" target={item.external ? '_blank' : undefined} rel={item.external ? 'noopener noreferrer' : undefined}>{item.label}</a></li>
+					<li><a href={item.href} class="no-underline text-sm hover:text-primary-400 transition-colors {item.bold ? 'font-bold text-primary-400' : 'text-surface-400'}" target={item.external ? '_blank' : undefined} rel={item.external ? 'noopener noreferrer' : undefined}>{item.label}</a></li>
 				{/each}
 				<li class="relative group">
 					<span class="text-surface-400 text-sm cursor-pointer hover:text-primary-400 transition-colors">Resources</span>
