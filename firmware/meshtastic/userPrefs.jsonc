@@ -23,5 +23,9 @@
     // --- LA-Mesh Network Defaults ---
     "USERPREFS_CONFIG_LORA_REGION": "meshtastic_Config_LoRaConfig_RegionCode_US",
     "USERPREFS_OWNER_LONG_NAME": "LA-Mesh",
-    "USERPREFS_OWNER_SHORT_NAME": "LAM"
+    "USERPREFS_OWNER_SHORT_NAME": "LAM",
+
+    // --- Timezone (POSIX TZ format, required by v2.7.15+) ---
+    // US Eastern: EST5EDT with standard DST rules
+    "USERPREFS_TZ_STRING": "EST5EDT,M3.2.0,M11.1.0"
 }
