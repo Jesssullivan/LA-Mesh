@@ -2,10 +2,13 @@
 	import { base } from '$app/paths';
 	import { onMount } from 'svelte';
 
+	/** @type {HTMLDivElement} */
 	let topologyEl;
+	/** @type {HTMLDivElement} */
 	let bridgeEl;
 
 	onMount(async () => {
+		// @ts-ignore — CDN import has no type declarations
 		const { default: mermaid } = await import('https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs');
 		mermaid.initialize({
 			startOnLoad: false,
