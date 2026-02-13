@@ -131,7 +131,7 @@ if [ "$SKIP_CHANNELS" != "true" ]; then
         done
         echo ""
         echo "These PSK values are shared in-person at community meetups."
-        echo "Set them in your .env file or export them before running."
+        echo "Export them from your encrypted keystore before running."
         echo ""
         echo "To skip channel config: $0 $DEVICE $PORT --skip-channels"
         exit 1
@@ -207,7 +207,7 @@ esptool.py \
     --chip "$CHIP" \
     --port "$PORT" \
     --baud "$BAUD" \
-    write-flash \
+    write_flash \
     "$OFFSET" "$FIRMWARE_PATH"
 
 echo ""

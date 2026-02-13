@@ -86,7 +86,7 @@ A: At community meetups, or by following the guide in `docs/guides/firmware-flas
 
 ## Community Meetups
 
-- **Location**: TBD (Bates College campus area)
+- **Location**: TBD (Lewiston-Auburn area)
 - **Frequency**: Monthly (more often during setup phase)
 - **Purpose**: New member onboarding, PSK rotation, firmware updates, coverage reports, planning
 

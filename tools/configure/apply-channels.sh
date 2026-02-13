@@ -8,7 +8,7 @@
 #   LAMESH_PSK_EMERGENCY - Emergency channel PSK (base64)
 #
 # SECURITY: PSK values should NEVER be hardcoded or committed.
-# Set them in your shell session or .env file (gitignored).
+# Set them in your shell session from your encrypted keystore.
 
 set -euo pipefail
 
@@ -28,8 +28,7 @@ if [ -z "${LAMESH_PSK_PRIMARY:-}" ]; then
     echo "  export LAMESH_PSK_ADMIN=\$(openssl rand -base64 32)"
     echo "  export LAMESH_PSK_EMERGENCY=\$(openssl rand -base64 32)"
     echo ""
-    echo "Or source from your .env file:"
-    echo "  source .env"
+    echo "Or export from your keystore (e.g. KeePassXC CLI)."
     exit 1
 fi
 

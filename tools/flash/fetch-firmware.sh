@@ -74,51 +74,62 @@ fi
 if [ -z "$VERSION" ]; then
     VERSION=$(jq -r '.meshtastic.version' "$MANIFEST")
 fi
-echo "Firmware version: v$VERSION"
-
-# Construct download URL
-# If version overridden, construct URL dynamically; otherwise use manifest
-if [ -n "$VERSION" ]; then
-    RELEASE_URL="https://github.com/meshtastic/firmware/releases/download/v${VERSION}/firmware-${VERSION}.zip"
-else
-    RELEASE_URL=$(jq -r '.meshtastic.release_url' "$MANIFEST")
+VERSION_FULL=$(jq -r '.meshtastic.version_full // empty' "$MANIFEST")
+if [ -z "$VERSION_FULL" ]; then
+    VERSION_FULL="$VERSION"
 fi
+echo "Firmware version: v$VERSION_FULL"
 
 # Create cache directory
 mkdir -p "$CACHE_DIR"
 
-ZIP_FILE="$CACHE_DIR/firmware-${VERSION}.zip"
-EXTRACT_DIR="$CACHE_DIR/firmware-${VERSION}"
-
-# Download firmware zip if not cached
-if [ -f "$ZIP_FILE" ] && [ "$FORCE" != "true" ]; then
-    echo "Using cached download: $ZIP_FILE"
+# Determine which chip family zips to download based on requested device(s)
+if [ "$DEVICE" = "all" ]; then
+    CHIP_FAMILIES=$(jq -r '.meshtastic.devices[].chip_family_zip // empty' "$MANIFEST" | sort -u)
 else
-    echo "Downloading firmware from GitHub..."
-    echo "  URL: $RELEASE_URL"
-    echo ""
+    CHIP_FAMILIES=$(jq -r ".meshtastic.devices[\"$DEVICE\"].chip_family_zip // empty" "$MANIFEST")
+fi
 
-    if ! curl -fSL --progress-bar -o "$ZIP_FILE" "$RELEASE_URL"; then
+if [ -z "$CHIP_FAMILIES" ]; then
+    # Fallback: download all esp32s3 (most common)
+    CHIP_FAMILIES="esp32s3"
+fi
+
+for CHIP_FAMILY in $CHIP_FAMILIES; do
+    RELEASE_URL="https://github.com/meshtastic/firmware/releases/download/v${VERSION_FULL}/firmware-${CHIP_FAMILY}-${VERSION_FULL}.zip"
+    ZIP_FILE="$CACHE_DIR/firmware-${CHIP_FAMILY}-${VERSION_FULL}.zip"
+    EXTRACT_DIR="$CACHE_DIR/firmware-${CHIP_FAMILY}-${VERSION_FULL}"
+
+    # Download firmware zip if not cached
+    if [ -f "$ZIP_FILE" ] && [ "$FORCE" != "true" ]; then
+        echo "Using cached download: $ZIP_FILE"
+    else
+        echo "Downloading firmware from GitHub..."
+        echo "  URL: $RELEASE_URL"
         echo ""
-        echo "ERROR: Download failed."
-        echo "Check that version v$VERSION exists at:"
-        echo "  https://github.com/meshtastic/firmware/releases"
-        rm -f "$ZIP_FILE"
-        exit 1
-    fi
-    echo "Download complete: $(du -h "$ZIP_FILE" | cut -f1)"
-fi
 
-# Extract firmware zip
-if [ -d "$EXTRACT_DIR" ] && [ "$FORCE" != "true" ]; then
-    echo "Using cached extraction: $EXTRACT_DIR"
-else
-    echo "Extracting firmware..."
-    rm -rf "$EXTRACT_DIR"
-    mkdir -p "$EXTRACT_DIR"
-    unzip -q -o "$ZIP_FILE" -d "$EXTRACT_DIR"
-    echo "Extracted to: $EXTRACT_DIR"
-fi
+        if ! curl -fSL --progress-bar -o "$ZIP_FILE" "$RELEASE_URL"; then
+            echo ""
+            echo "ERROR: Download failed."
+            echo "Check that version v$VERSION_FULL exists at:"
+            echo "  https://github.com/meshtastic/firmware/releases"
+            rm -f "$ZIP_FILE"
+            exit 1
+        fi
+        echo "Download complete: $(du -h "$ZIP_FILE" | cut -f1)"
+    fi
+
+    # Extract firmware zip
+    if [ -d "$EXTRACT_DIR" ] && [ "$FORCE" != "true" ]; then
+        echo "Using cached extraction: $EXTRACT_DIR"
+    else
+        echo "Extracting firmware..."
+        rm -rf "$EXTRACT_DIR"
+        mkdir -p "$EXTRACT_DIR"
+        unzip -q -o "$ZIP_FILE" -d "$EXTRACT_DIR"
+        echo "Extracted to: $EXTRACT_DIR"
+    fi
+done
 
 # Get list of devices to process
 if [ "$DEVICE" = "all" ]; then
@@ -143,19 +154,18 @@ for dev in $DEVICES; do
     BINARY_NAME=$(jq -r ".meshtastic.devices[\"$dev\"].binary" "$MANIFEST")
     EXPECTED_SHA=$(jq -r ".meshtastic.devices[\"$dev\"].sha256" "$MANIFEST")
 
-    # Find the binary in extracted files (may be in subdirectories)
-    BINARY_PATH=$(find "$EXTRACT_DIR" -name "$BINARY_NAME" -type f 2>/dev/null | head -1)
+    # Find the binary in any extracted chip-family directory
+    BINARY_PATH=$(find "$CACHE_DIR" -path "*/firmware-*-${VERSION_FULL}/$BINARY_NAME" -type f 2>/dev/null | head -1)
 
     if [ -z "$BINARY_PATH" ]; then
-        # Try with version substituted (manifest may have different version)
-        ALT_NAME=$(echo "$BINARY_NAME" | sed "s/[0-9]\+\.[0-9]\+\.[0-9]\+/$VERSION/g")
-        BINARY_PATH=$(find "$EXTRACT_DIR" -name "$ALT_NAME" -type f 2>/dev/null | head -1)
+        # Also search directly in cache dir (may have been extracted flat)
+        BINARY_PATH=$(find "$CACHE_DIR" -maxdepth 1 -name "$BINARY_NAME" -type f 2>/dev/null | head -1)
     fi
 
     if [ -z "$BINARY_PATH" ]; then
         echo "  WARNING: Binary not found for $dev: $BINARY_NAME"
         echo "  Available binaries:"
-        find "$EXTRACT_DIR" -name "*.bin" -type f | sed 's/^/    /' | head -20
+        find "$CACHE_DIR" -name "*.bin" -type f | sed 's/^/    /' | head -20
         ERRORS=$((ERRORS + 1))
         continue
     fi

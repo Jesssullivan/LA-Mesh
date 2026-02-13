@@ -3,16 +3,17 @@
   "last_updated": "2026-02-12",
   "meshtastic": {
     "version": "2.7.15",
+    "version_full": "2.7.15.567b8ea",
     "min_version": "2.7.15",
-    "release_url": "https://github.com/meshtastic/firmware/releases/download/v2.7.15/firmware-2.7.15.zip",
-    "release_notes": "https://github.com/meshtastic/firmware/releases/tag/v2.7.15",
+    "release_notes": "https://github.com/meshtastic/firmware/releases/tag/v2.7.15.567b8ea",
     "cve_notes": "v2.7.15 required: fixes CVE-2025-52464 (duplicate crypto keys), CVE-2025-24797, CVE-2025-55293, CVE-2025-55292, CVE-2025-53627. PKI-only DMs enforced (legacy DMs disabled).",
     "devices": {
       "station-g2": {
-        "binary": "firmware-station-g2-2.7.15.bin",
-        "littlefs": "littlefs-station-g2-2.7.15.bin",
-        "sha256": "UPDATE_WITH_ACTUAL_HASH_AFTER_DOWNLOAD",
+        "binary": "firmware-station-g2-2.7.15.567b8ea.bin",
+        "littlefs": "littlefs-station-g2-2.7.15.567b8ea.bin",
+        "sha256": "2174ca80ef0e8caf49dd4a8097868a7c0a4fd1f0a06f9f6178fd3fbca04d2f19",
         "chip": "esp32s3",
+        "chip_family_zip": "esp32s3",
         "flash_offset_full": "0x0",
         "flash_offset_app": "0x260000",
         "flash_size": "detect",
@@ -21,10 +22,11 @@
         "profile": "station-g2-router"
       },
       "t-deck": {
-        "binary": "firmware-t-deck-2.7.15.bin",
-        "littlefs": "littlefs-t-deck-2.7.15.bin",
+        "binary": "firmware-t-deck-2.7.15.567b8ea.bin",
+        "littlefs": "littlefs-t-deck-2.7.15.567b8ea.bin",
         "sha256": "UPDATE_WITH_ACTUAL_HASH_AFTER_DOWNLOAD",
         "chip": "esp32s3",
+        "chip_family_zip": "esp32s3",
         "flash_offset_full": "0x0",
         "flash_offset_app": "0x260000",
         "flash_size": "detect",

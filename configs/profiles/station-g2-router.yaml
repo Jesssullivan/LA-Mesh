@@ -25,7 +25,7 @@ device:
 position:
   fixed_position: true
   # Set lat/lon per deployment site
-  # latitude: 44.1003    # Example: Bates College
+  # latitude: 44.1003    # Example: Central L-A
   # longitude: -70.2148
   gps_enabled: false      # Fixed nodes don't need GPS
   position_broadcast_secs: 43200   # 12 hours
