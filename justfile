@@ -189,13 +189,133 @@ configure-channels port="":
     if [ -z "$PORT" ]; then PORT=$(just detect-port); fi
     ./tools/configure/apply-channels.sh "$PORT"
 
+# Complete post-flash configuration for Station G2 (LoRa + channels + owner)
+configure-g2 owner="LA-Mesh RTR-01" short="R01" port="":
+    #!/usr/bin/env bash
+    set -euo pipefail
+    PORT="{{port}}"
+    if [ -z "$PORT" ]; then PORT=$(just detect-port); fi
+
+    WAIT=15  # seconds to wait after reboot-triggering commands
+
+    echo "Station G2 Post-Flash Configuration"
+    echo "===================================="
+    echo "Port:  $PORT"
+    echo "Owner: {{owner}} ({{short}})"
+    echo ""
+
+    # Check PSK env vars
+    MISSING=()
+    [ -z "${LAMESH_PSK_PRIMARY:-}" ] && MISSING+=("LAMESH_PSK_PRIMARY")
+    [ -z "${LAMESH_PSK_ADMIN:-}" ] && MISSING+=("LAMESH_PSK_ADMIN")
+    [ -z "${LAMESH_PSK_EMERGENCY:-}" ] && MISSING+=("LAMESH_PSK_EMERGENCY")
+    if [ ${#MISSING[@]} -gt 0 ]; then
+        echo "ERROR: Missing PSK environment variables:"
+        for v in "${MISSING[@]}"; do echo "  - $v"; done
+        echo ""
+        echo "Generate with: just generate-psks"
+        echo "Then export the values and re-run."
+        exit 1
+    fi
+
+    # --- Step 1: LoRa radio settings ---
+    echo "[1/6] Configuring LoRa radio..."
+    meshtastic --port "$PORT" \
+        --set lora.region US \
+        --set lora.modem_preset LONG_FAST \
+        --set lora.hop_limit 5 \
+        --set lora.tx_power 30 \
+        --set lora.sx126x_rx_boosted_gain true
+    echo "  Waiting ${WAIT}s for reboot..."
+    sleep "$WAIT"
+
+    # --- Step 2: Device settings (NOT role -- that's last) ---
+    echo "[2/6] Configuring device settings..."
+    meshtastic --port "$PORT" \
+        --set device.serial_enabled true \
+        --set device.rebroadcast_mode ALL \
+        --set device.node_info_broadcast_secs 10800
+    echo "  Waiting ${WAIT}s for reboot..."
+    sleep "$WAIT"
+
+    # --- Step 3: Display, bluetooth, security ---
+    echo "[3/6] Configuring display, bluetooth, security..."
+    meshtastic --port "$PORT" \
+        --set display.screen_on_secs 31536000 \
+        --set bluetooth.enabled true \
+        --set security.serial_enabled true \
+        --set security.admin_channel_enabled true
+    echo "  Waiting ${WAIT}s for reboot..."
+    sleep "$WAIT"
+
+    # --- Step 4: Channels ---
+    echo "[4/6] Configuring channels..."
+    ./tools/configure/apply-channels.sh "$PORT"
+
+    # --- Step 5: Owner name ---
+    echo "[5/6] Setting owner name..."
+    meshtastic --port "$PORT" \
+        --set-owner "{{owner}}" \
+        --set-owner-short "{{short}}"
+    sleep 5
+
+    # --- Step 6: Verify ---
+    echo "[6/6] Verifying configuration..."
+    echo ""
+    meshtastic --port "$PORT" --info 2>&1 | grep -E "(Owner|firmwareVersion|hwModel|role|Channels:|Index)" || true
+    echo ""
+    echo "============================================"
+    echo "  Configuration Complete!"
+    echo "============================================"
+    echo ""
+    echo "Owner:    {{owner}} ({{short}})"
+    echo "Role:     CLIENT (set ROUTER as final step)"
+    echo "Channels: 3 configured (LA-Mesh, LA-Admin, LA-Emergcy)"
+    echo ""
+    echo "FINAL STEP -- set ROUTER role (kills USB serial):"
+    echo "  just mesh-set-role ROUTER $PORT"
+    echo ""
+    echo "Or use ROUTER_CLIENT to keep serial access:"
+    echo "  just mesh-set-role ROUTER_CLIENT $PORT"
+
+# Set device role (WARNING: ROUTER kills USB serial on ESP32-S3 native USB)
+mesh-set-role role port="":
+    #!/usr/bin/env bash
+    set -euo pipefail
+    PORT="{{port}}"
+    if [ -z "$PORT" ]; then PORT=$(just detect-port); fi
+
+    if [ "{{role}}" = "ROUTER" ]; then
+        echo "WARNING: Setting ROUTER role on ESP32-S3 devices (Station G2)"
+        echo "will enable light sleep and KILL USB serial access."
+        echo ""
+        echo "After this, manage via:"
+        echo "  - Admin channel from another mesh node"
+        echo "  - Bluetooth (if enabled)"
+        echo "  - Re-entering bootloader mode (hold BOOT, plug in)"
+        echo ""
+        echo "Alternative: ROUTER_CLIENT keeps serial access (slightly higher power)"
+        echo ""
+        read -p "Set role to ROUTER? [y/N] " -r
+        if [[ ! "$REPLY" =~ ^[Yy]$ ]]; then
+            echo "Aborted."
+            exit 1
+        fi
+    fi
+
+    meshtastic --port "$PORT" --set device.role "{{role}}"
+    echo "Role set to {{role}}."
+
 # Backup device config to configs/backups/
 configure-backup port="":
     #!/usr/bin/env bash
     set -euo pipefail
     PORT="{{port}}"
     if [ -z "$PORT" ]; then PORT=$(just detect-port); fi
-    ./tools/configure/backup-config.sh "$PORT"
+    mkdir -p configs/backups
+    BACKUP="configs/backups/backup-$(date +%Y%m%d-%H%M%S).yaml"
+    meshtastic --port "$PORT" --export-config > "$BACKUP"
+    echo "Config backed up to: $BACKUP"
 
 # Factory reset a device (interactive confirmation)
 configure-reset port="":
@@ -203,7 +323,14 @@ configure-reset port="":
     set -euo pipefail
     PORT="{{port}}"
     if [ -z "$PORT" ]; then PORT=$(just detect-port); fi
-    ./tools/configure/factory-reset.sh "$PORT"
+    echo "WARNING: This will factory reset the device!"
+    read -p "Are you sure? [y/N] " -r
+    if [[ ! "$REPLY" =~ ^[Yy]$ ]]; then
+        echo "Aborted."
+        exit 1
+    fi
+    meshtastic --port "$PORT" --factory-reset
+    echo "Device factory reset. It will reboot."
 
 # Generate new PSKs for all 3 channels (prints values for KeePassXC storage)
 generate-psks:
@@ -353,13 +480,14 @@ flash-g2 port="/dev/ttyACM0":
     echo ""
     echo "Flash complete! Unplug and replug the device (without holding any buttons)."
     echo ""
-    echo "After reboot, verify with:"
+    echo "After reboot (~15s), verify with:"
     echo "  just mesh-info $PORT"
     echo ""
-    echo "Then configure:"
-    echo "  just configure-profile station-g2-router $PORT"
-    echo "  just configure-channels $PORT"
-    echo "  just mesh-set-owner 'LA-Mesh RTR-01' 'R01' $PORT"
+    echo "Then configure (one command does LoRa + channels + owner):"
+    echo "  just configure-g2 'LA-Mesh RTR-01' 'R01' $PORT"
+    echo ""
+    echo "Finally, set ROUTER role (kills USB serial):"
+    echo "  just mesh-set-role ROUTER $PORT"
 
 # Show pinned firmware versions from manifest
 firmware-versions:
