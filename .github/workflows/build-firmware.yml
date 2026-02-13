@@ -92,36 +92,79 @@ jobs:
         id: artifacts
         env:
           VERSION: ${{ needs.setup.outputs.version_full }}
+          VERSION_SHORT: ${{ needs.setup.outputs.version_short }}
           DEVICE: ${{ matrix.device }}
+          PIO_ENV: ${{ matrix.pio_env }}
         run: |
           mkdir -p artifacts
 
-          # Find the factory binary (full-flash, offset 0x0)
-          FACTORY=$(find release/ -name "firmware-${DEVICE}-${VERSION}*.factory.bin" -o -name "firmware-${DEVICE}-${VERSION}*.bin" | head -1)
+          echo "=== Available release files ==="
+          ls -la release/ || echo "(empty)"
+
+          # The meshtastic build action generates its own version hash from git state,
+          # which may differ from the tag hash in our manifest. Match by device name
+          # and short version instead of full version string.
+          FACTORY=$(find release/ -name "firmware-${DEVICE}-${VERSION_SHORT}*.bin" \
+            ! -name "*-update.bin" ! -name "*.elf" | head -1)
+
+          # Fallback: try the PlatformIO build output directly
           if [ -z "$FACTORY" ]; then
-            echo "Available release files:"
-            ls -la release/ || echo "(empty)"
+            FACTORY=$(find .pio/build/${PIO_ENV}/ -name "firmware.factory.bin" 2>/dev/null | head -1)
+          fi
+          if [ -z "$FACTORY" ]; then
+            FACTORY=$(find .pio/build/${PIO_ENV}/ -name "firmware.bin" 2>/dev/null | head -1)
+          fi
+
+          if [ -z "$FACTORY" ]; then
             echo "Available build files:"
-            find .pio/build/${DEVICE}/ -name "*.bin" 2>/dev/null || echo "(none)"
+            find .pio/build/${PIO_ENV}/ -name "*.bin" 2>/dev/null || echo "(none)"
             echo "ERROR: Could not find firmware binary for ${DEVICE}"
             exit 1
           fi
 
-          # Rename with -lamesh suffix
+          echo "Found firmware: ${FACTORY}"
+
+          # Extract the actual build version from the filename if available
+          BUILD_VERSION=$(basename "$FACTORY" | sed -n "s/firmware-${DEVICE}-\(.*\)\.bin/\1/p")
+          if [ -z "$BUILD_VERSION" ]; then
+            BUILD_VERSION="${VERSION}"
+          fi
+
+          # Rename with -lamesh suffix using manifest version for consistency
           CUSTOM_BIN="firmware-${DEVICE}-${VERSION}-lamesh.bin"
           cp "$FACTORY" "artifacts/${CUSTOM_BIN}"
+
+          # Also produce a web-flasher-compatible zip (contains firmware.bin at root)
+          ZIP_NAME="firmware-${DEVICE}-${VERSION}-lamesh.zip"
+          (cd artifacts && cp "${CUSTOM_BIN}" firmware.bin && zip "${ZIP_NAME}" firmware.bin && rm firmware.bin)
 
           # Compute SHA256
           SHA=$(sha256sum "artifacts/${CUSTOM_BIN}" | cut -d' ' -f1)
           echo "sha256=${SHA}" >> "$GITHUB_OUTPUT"
           echo "binary=${CUSTOM_BIN}" >> "$GITHUB_OUTPUT"
+          echo "build_version=${BUILD_VERSION}" >> "$GITHUB_OUTPUT"
 
           # Per-file checksum
           echo "${SHA}  ${CUSTOM_BIN}" > "artifacts/${CUSTOM_BIN}.sha256"
 
-          echo "Built: ${CUSTOM_BIN}"
+          echo "Built: ${CUSTOM_BIN} (from build ${BUILD_VERSION})"
           echo "SHA256: ${SHA}"
           echo "Size: $(du -h "artifacts/${CUSTOM_BIN}" | cut -f1)"
+          echo "Zip: ${ZIP_NAME} ($(du -h "artifacts/${ZIP_NAME}" | cut -f1))"
+
+      - name: Collect partition binaries for web-serial flashing
+        env:
+          DEVICE: ${{ matrix.device }}
+          PIO_ENV: ${{ matrix.pio_env }}
+          VERSION: ${{ needs.setup.outputs.version_full }}
+        run: |
+          # Include bleota and littlefs from the release dir for complete flash packages
+          for f in release/bleota*.bin release/littlefs-${DEVICE}-*.bin; do
+            [ -f "$f" ] && cp "$f" artifacts/
+          done
+
+          echo "=== Final artifacts ==="
+          ls -lh artifacts/
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
@@ -151,7 +194,7 @@ jobs:
       - name: Generate combined checksums
         run: |
           cd release-artifacts
-          sha256sum firmware-*-lamesh.bin > SHA256SUMS.txt
+          sha256sum firmware-*-lamesh.bin firmware-*-lamesh.zip > SHA256SUMS.txt
           echo "=== SHA256SUMS.txt ==="
           cat SHA256SUMS.txt
 
@@ -217,6 +260,9 @@ jobs:
           EOF
           )" \
             release-artifacts/firmware-*-lamesh.bin \
+            release-artifacts/firmware-*-lamesh.zip \
+            release-artifacts/bleota*.bin \
+            release-artifacts/littlefs-*.bin \
             release-artifacts/SHA256SUMS.txt
 
           echo "Release created: ${TAG}"
