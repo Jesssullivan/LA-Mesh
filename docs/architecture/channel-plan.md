@@ -8,10 +8,11 @@
 
 | Index | Name | Role | Access | Purpose |
 |-------|------|------|--------|---------|
-| 0 | **LA-Mesh** | PRIMARY | All members | Community messaging, position sharing |
+| 0 | **LA-Mesh** | PRIMARY | All members | Private community messaging, position sharing |
 | 1 | **LA-Admin** | SECONDARY | Operators only | Network management, diagnostics |
 | 2 | **LA-Emergency** | SECONDARY | All members | Emergency broadcast (high priority) |
-| 3-7 | Reserved | -- | -- | Available for events, classes, experiments |
+| 3 | **LongFast** | SECONDARY | Public | Default Meshtastic channel (well-known PSK `AQ==`) |
+| 4-7 | Reserved | -- | -- | Available for events, classes, experiments |
 
 ---
 
@@ -40,6 +41,15 @@
 - **Who has access**: All LA-Mesh members
 - **Message types**: Emergency alerts, shelter locations, resource coordination
 - **Policy**: Only for genuine emergencies. False alarms undermine trust.
+
+## Channel 3: LongFast (Public Default)
+
+- **Purpose**: Interoperability with the broader Meshtastic network
+- **Encryption**: AES-256-CTR with default PSK (`AQ==` / key=1)
+- **Uplink/Downlink**: Disabled
+- **Who has access**: Anyone with a Meshtastic device on the default key
+- **Message types**: General public chat, position sharing
+- **Note**: This key is publicly known. Do not send sensitive traffic on this channel.
 
 ---
 

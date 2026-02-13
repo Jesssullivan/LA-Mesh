@@ -8,7 +8,7 @@ Community-driven encrypted mesh communications covering the Lewiston-Auburn area
 
 LA-Mesh deploys a resilient, encrypted mesh network using LoRa radio technology. Our goals:
 
-- **Encrypted communications** for community members via Meshtastic mesh devices; We specify 3 encrypted backbone PSKs for our area. 
+- **Encrypted communications** for community members via Meshtastic mesh devices; 3 private encrypted channels plus the default public Meshtastic channel (LongFast) so LA-Mesh nodes also participate in the broader Meshtastic network.
 - **Infrastructure relay nodes** We aspire to distribute, establish and help maintain high quality router nodes on rooftops and towers for wide coverage!  
 - **Education** We aspire to meet fortnightly in the LA area
 - **Bridges, eventually** Jess wants to connect SMS, email, and internet to the mesh network
@@ -22,7 +22,7 @@ LA-Mesh deploys a resilient, encrypted mesh network using LoRa radio technology.
 | **Station G2** | Base station / relay | High-power (up to 4.46W), rooftop/tower deployment (want one?  have a roof, pole or sunny spot?  We'll giev you one) |
 | **T-Deck Pro** | Mobile client | Full keyboard, GPS, portable encrypted comms; turn key (want one and in the LA area?  We'll give you one) |
 | **T-Deck Pro (E-Ink)** | Low-power client | Battery-optimized, sunlight-readable |
-| **MeshAdv-Mini** | Pi HAT gateway | SMS/email bridge, runs meshtasticd on Linux (WIP; origianlly the "FireElmo-SDR" project of Jess's |
+| **FireElmo-SDR** | Custom PCB + Pi HAT gateway | SMS/email bridge, runs meshtasticd on Linux (custom PCB/software project) |
 | **HackRF H4M** | SDR spectrum analysis for teaching |  Jess has curricula for basic TEMPEST attacks, packet capture, interference and range testing. |
 
 

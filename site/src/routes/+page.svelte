@@ -156,7 +156,7 @@ just mesh-set-role</code></pre>
 		</div>
 		<div class="flex justify-between p-3 bg-surface-800 rounded-lg border-l-3 border-primary-500">
 			<span class="font-semibold text-surface-400 text-sm">Channels</span>
-			<span class="font-mono text-surface-200 text-sm">LA-Mesh / LA-Admin / LA-Emergcy</span>
+			<span class="font-mono text-surface-200 text-sm">LA-Mesh / LA-Admin / LA-Emergcy / LongFast</span>
 		</div>
 		<div class="flex justify-between p-3 bg-surface-800 rounded-lg border-l-3 border-primary-500">
 			<span class="font-semibold text-surface-400 text-sm">Encryption</span>
@@ -167,5 +167,5 @@ just mesh-set-role</code></pre>
 			<span class="font-mono text-surface-200 text-sm">v{fwMinVersion}+</span>
 		</div>
 	</div>
-	<p class="text-sm text-surface-500 mt-4">LA-Mesh channels use unique PSKs shared in-person — this is a private mesh, separate from the public Meshtastic default channel. You can manually add the default channel alongside LA-Mesh channels if you also want to participate in the broader public Meshtastic network.</p>
+	<p class="text-sm text-surface-500 mt-4">Channels 0-2 are private (unique PSKs, shared in-person). Channel 3 (LongFast) is the public Meshtastic default — LA-Mesh nodes can talk to any Meshtastic device on the default key. Do not send sensitive traffic on channel 3.</p>
 </section>

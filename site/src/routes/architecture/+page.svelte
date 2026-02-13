@@ -98,13 +98,14 @@
 				</tr>
 			</thead>
 			<tbody>
-				<tr class="border-b border-surface-700"><td class="p-3 text-surface-200">0</td><td class="p-3 text-surface-200 font-mono">LA-Mesh</td><td class="p-3 text-surface-200">Primary community channel</td><td class="p-3 text-surface-200">Unique 256-bit (shared in-person)</td></tr>
+				<tr class="border-b border-surface-700"><td class="p-3 text-surface-200">0</td><td class="p-3 text-surface-200 font-mono">LA-Mesh</td><td class="p-3 text-surface-200">Primary private channel</td><td class="p-3 text-surface-200">Unique 256-bit (shared in-person)</td></tr>
 				<tr class="border-b border-surface-700"><td class="p-3 text-surface-200">1</td><td class="p-3 text-surface-200 font-mono">LA-Admin</td><td class="p-3 text-surface-200">Operator coordination</td><td class="p-3 text-surface-200">Separate unique 256-bit</td></tr>
-				<tr><td class="p-3 text-surface-200">2</td><td class="p-3 text-surface-200 font-mono">LA-Emergcy</td><td class="p-3 text-surface-200">Emergency use only</td><td class="p-3 text-surface-200">Separate unique 256-bit</td></tr>
+				<tr class="border-b border-surface-700"><td class="p-3 text-surface-200">2</td><td class="p-3 text-surface-200 font-mono">LA-Emergcy</td><td class="p-3 text-surface-200">Emergency use only</td><td class="p-3 text-surface-200">Separate unique 256-bit</td></tr>
+				<tr><td class="p-3 text-surface-200">3</td><td class="p-3 text-surface-200 font-mono">LongFast</td><td class="p-3 text-surface-200">Public Meshtastic default</td><td class="p-3 text-surface-200">AQ== (well-known default)</td></tr>
 			</tbody>
 		</table>
 	</div>
-	<p class="text-sm text-surface-500 mt-2">All channels use unique PSKs — LA-Mesh is a private mesh, separate from the public Meshtastic default channel. PSKs are shared face-to-face and rotated quarterly. You can add the default public channel alongside LA-Mesh channels if you also want to reach the broader Meshtastic network.</p>
+	<p class="text-sm text-surface-500 mt-2">Channels 0-2 use unique PSKs shared face-to-face and rotated quarterly. Channel 3 is the default public Meshtastic channel — LA-Mesh nodes can talk to any Meshtastic device on the default key. Do not send sensitive traffic on channel 3.</p>
 </section>
 
 <style>

@@ -33,9 +33,19 @@ channels:
     uplink_enabled: false
     downlink_enabled: false
 
+  - index: 3
+    name: "LongFast"
+    role: SECONDARY
+    psk: "AQ=="
+    # Default public Meshtastic channel — allows LA-Mesh nodes to
+    # also communicate with any Meshtastic device on the default key.
+    uplink_enabled: false
+    downlink_enabled: false
+
 # SECURITY NOTES:
-# - Default PSK (AQ==) is publicly known and NOT SECURE
-# - All LA-Mesh devices MUST use custom 32-byte PSK
+# - The default PSK (AQ==) on channel 3 is publicly known and NOT SECURE.
+#   Do not send sensitive traffic on that channel.
+# - All LA-Mesh private channels (0-2) use custom 32-byte PSKs
 # - PSK values are distributed at community meetups only
 # - Rotate PSK quarterly or on suspected compromise
 # - Enable PKC (Public Key Cryptography) for direct messages

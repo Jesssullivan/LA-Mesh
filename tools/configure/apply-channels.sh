@@ -55,7 +55,7 @@ wait_for_device() {
 }
 
 # --- Channel 0: LA-Mesh (Primary) ---
-echo "[1/3] Configuring Channel 0: LA-Mesh (Primary)..."
+echo "[1/4] Configuring Channel 0: LA-Mesh (Primary)..."
 meshtastic --port "$PORT" \
     --ch-index 0 \
     --ch-set name "LA-Mesh" \
@@ -64,7 +64,7 @@ wait_for_device
 
 # --- Channel 1: LA-Admin (Secondary -- must --ch-add on fresh device) ---
 if [ -n "${LAMESH_PSK_ADMIN:-}" ]; then
-    echo "[2/3] Adding Channel 1: LA-Admin..."
+    echo "[2/4] Adding Channel 1: LA-Admin..."
     meshtastic --port "$PORT" --ch-add "LA-Admin"
     sleep 5
     meshtastic --port "$PORT" \
@@ -72,12 +72,12 @@ if [ -n "${LAMESH_PSK_ADMIN:-}" ]; then
         --ch-set psk "base64:${LAMESH_PSK_ADMIN}"
     wait_for_device
 else
-    echo "[2/3] LAMESH_PSK_ADMIN not set, skipping admin channel"
+    echo "[2/4] LAMESH_PSK_ADMIN not set, skipping admin channel"
 fi
 
 # --- Channel 2: LA-Emergcy (11 char limit -- "LA-Emergency" is 12) ---
 if [ -n "${LAMESH_PSK_EMERGENCY:-}" ]; then
-    echo "[3/3] Adding Channel 2: LA-Emergcy..."
+    echo "[3/4] Adding Channel 2: LA-Emergcy..."
     meshtastic --port "$PORT" --ch-add "LA-Emergcy"
     sleep 5
     meshtastic --port "$PORT" \
@@ -85,8 +85,17 @@ if [ -n "${LAMESH_PSK_EMERGENCY:-}" ]; then
         --ch-set psk "base64:${LAMESH_PSK_EMERGENCY}"
     wait_for_device
 else
-    echo "[3/3] LAMESH_PSK_EMERGENCY not set, skipping emergency channel"
+    echo "[3/4] LAMESH_PSK_EMERGENCY not set, skipping emergency channel"
 fi
+
+# --- Channel 3: LongFast (default public Meshtastic channel) ---
+echo "[4/4] Adding Channel 3: LongFast (public default)..."
+meshtastic --port "$PORT" --ch-add "LongFast"
+sleep 5
+meshtastic --port "$PORT" \
+    --ch-index 3 \
+    --ch-set psk "base64:AQ=="
+wait_for_device
 
 echo ""
 echo "Channel configuration complete."
