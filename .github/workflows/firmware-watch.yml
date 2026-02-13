@@ -2,9 +2,13 @@ name: Firmware Watch
 
 on:
   schedule:
-    # Check daily at 08:00 UTC
-    - cron: '0 8 * * *'
+    # Check weekly on Monday at 08:00 UTC
+    - cron: '0 8 * * 1'
   workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
 
 jobs:
   check-meshtastic:
@@ -17,83 +21,187 @@ jobs:
         id: pinned
         run: |
           VERSION=$(jq -r '.meshtastic.version' firmware/manifest.json)
+          VERSION_FULL=$(jq -r '.meshtastic.version_full' firmware/manifest.json)
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "version_full=$VERSION_FULL" >> "$GITHUB_OUTPUT"
 
       - name: Get latest release
         id: latest
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          LATEST=$(gh api repos/meshtastic/firmware/releases/latest --jq '.tag_name' | sed 's/^v//')
-          echo "version=$LATEST" >> "$GITHUB_OUTPUT"
+          TAG=$(gh api repos/meshtastic/firmware/releases/latest --jq '.tag_name')
+          FULL="${TAG#v}"
+          SHORT=$(echo "$FULL" | grep -oP '^\d+\.\d+\.\d+')
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "version=$SHORT" >> "$GITHUB_OUTPUT"
+          echo "version_full=$FULL" >> "$GITHUB_OUTPUT"
 
           NOTES=$(gh api repos/meshtastic/firmware/releases/latest --jq '.body' | head -50)
-          # Write notes to file to avoid shell escaping issues
           echo "$NOTES" > /tmp/release-notes.txt
 
       - name: Compare versions
-        if: steps.pinned.outputs.version != steps.latest.outputs.version
+        id: compare
+        run: |
+          if [ "${{ steps.pinned.outputs.version }}" != "${{ steps.latest.outputs.version }}" ]; then
+            echo "update=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "update=false" >> "$GITHUB_OUTPUT"
+            echo "Firmware is up to date (v${{ steps.pinned.outputs.version }})"
+          fi
+
+      - name: Create version-bump PR
+        if: steps.compare.outputs.update == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PINNED: ${{ steps.pinned.outputs.version }}
+          PINNED_FULL: ${{ steps.pinned.outputs.version_full }}
+          LATEST: ${{ steps.latest.outputs.version }}
+          LATEST_FULL: ${{ steps.latest.outputs.version_full }}
+          LATEST_TAG: ${{ steps.latest.outputs.tag }}
+        run: |
+          BRANCH="firmware-update/v${LATEST}"
+
+          # Check if PR already exists for this version
+          EXISTING_PR=$(gh pr list --search "firmware: update Meshtastic v${LATEST}" --json number --jq '.[0].number' 2>/dev/null || true)
+          if [ -n "$EXISTING_PR" ] && [ "$EXISTING_PR" != "null" ]; then
+            echo "PR #$EXISTING_PR already exists for v${LATEST}, skipping."
+            exit 0
+          fi
+
+          # Configure git identity
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          # Create branch
+          git checkout -b "$BRANCH"
+
+          # Update manifest.json with jq
+          MANIFEST="firmware/manifest.json"
+
+          # Read device keys from manifest
+          DEVICES=$(jq -r '.meshtastic.devices | keys[]' "$MANIFEST")
+
+          # Build jq update expression for version fields
+          jq --arg ver "$LATEST" \
+             --arg ver_full "$LATEST_FULL" \
+             --arg tag "$LATEST_TAG" \
+             --arg date "$(date -u +%Y-%m-%d)" \
+             '
+             .last_updated = $date |
+             .meshtastic.version = $ver |
+             .meshtastic.version_full = $ver_full |
+             .meshtastic.min_version = $ver |
+             .meshtastic.release_notes = "https://github.com/meshtastic/firmware/releases/tag/\($tag)"
+             ' "$MANIFEST" > "${MANIFEST}.tmp"
+          mv "${MANIFEST}.tmp" "$MANIFEST"
+
+          # Update binary/littlefs filenames per device
+          for DEVICE in $DEVICES; do
+            jq --arg dev "$DEVICE" \
+               --arg ver_full "$LATEST_FULL" \
+               '
+               .meshtastic.devices[$dev].binary = "firmware-\($dev)-\($ver_full).bin" |
+               .meshtastic.devices[$dev].littlefs = "littlefs-\($dev)-\($ver_full).bin" |
+               .meshtastic.devices[$dev].sha256 = "UPDATE_AFTER_DOWNLOAD"
+               ' "$MANIFEST" > "${MANIFEST}.tmp"
+            mv "${MANIFEST}.tmp" "$MANIFEST"
+          done
+
+          git add "$MANIFEST"
+          git commit -m "firmware: bump Meshtastic v${PINNED} -> v${LATEST}"
+          git push origin "$BRANCH"
+
+          NOTES=$(cat /tmp/release-notes.txt)
+
+          # Create PR
+          gh pr create \
+            --title "firmware: update Meshtastic v${PINNED} -> v${LATEST}" \
+            --label "firmware,upstream" \
+            --body "$(cat <<EOF
+          ## Meshtastic Firmware Update: v${PINNED} -> v${LATEST}
+
+          Automated version bump detected by firmware-watch workflow.
+
+          | | Version |
+          |---|---------|
+          | **Current (pinned)** | v${PINNED} (\`${PINNED_FULL}\`) |
+          | **Latest upstream** | v${LATEST} (\`${LATEST_FULL}\`) |
+
+          ### Release Notes (excerpt)
+
+          ${NOTES}
+
+          ### Links
+
+          - [Release page](https://github.com/meshtastic/firmware/releases/tag/${LATEST_TAG})
+          - [Full changelog](https://github.com/meshtastic/firmware/compare/v${PINNED_FULL}...${LATEST_TAG})
+
+          ### Review Checklist
+
+          - [ ] Review release notes for breaking changes
+          - [ ] Check for security advisories / CVEs
+          - [ ] Verify manifest.json version bump is correct
+          - [ ] Download and test on evaluation device
+          - [ ] Update SHA256 hashes after download
+
+          ### Post-Merge
+
+          On merge to \`main\`, the [build-firmware](.github/workflows/build-firmware.yml) workflow will automatically build custom LA-Mesh firmware for all devices.
+
+          \`\`\`bash
+          # Download new firmware after merge
+          just fetch-firmware
+
+          # Or test upstream before merge
+          just fetch-firmware --source upstream
+          \`\`\`
+          EOF
+          )"
+
+          echo "PR created for firmware update v${PINNED} -> v${LATEST}"
+
+      - name: Fallback to issue
+        if: steps.compare.outputs.update == 'true' && failure()
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PINNED: ${{ steps.pinned.outputs.version }}
           LATEST: ${{ steps.latest.outputs.version }}
         run: |
-          echo "Update available: v$PINNED -> v$LATEST"
-
-          # Check if issue already exists
+          # If PR creation fails, fall back to creating an issue
           EXISTING=$(gh issue list --search "Firmware update: v$LATEST" --json number --jq '.[].number' || true)
           if [ -n "$EXISTING" ]; then
-            echo "Issue #$EXISTING already exists, skipping."
+            echo "Issue #$EXISTING already exists, skipping fallback."
             exit 0
           fi
 
-          # Create issue
           NOTES=$(cat /tmp/release-notes.txt)
           gh issue create \
-            --title "Firmware update: v$PINNED -> v$LATEST" \
+            --title "Firmware update: v${PINNED} -> v${LATEST} (auto-PR failed)" \
             --label "firmware,upstream" \
             --body "$(cat <<EOF
           ## Meshtastic Firmware Update Available
 
+          Automated PR creation failed. Manual version bump required.
+
           | | Version |
           |---|---------|
-          | **Current (pinned)** | v$PINNED |
-          | **Latest upstream** | v$LATEST |
+          | **Current (pinned)** | v${PINNED} |
+          | **Latest upstream** | v${LATEST} |
 
           ### Release Notes (excerpt)
 
-          $NOTES
+          ${NOTES}
 
           ### Links
 
-          - [Release page](https://github.com/meshtastic/firmware/releases/tag/v$LATEST)
-          - [Full changelog](https://github.com/meshtastic/firmware/compare/v$PINNED...v$LATEST)
+          - [Release page](https://github.com/meshtastic/firmware/releases/tag/v${LATEST})
+          - [Full changelog](https://github.com/meshtastic/firmware/compare/v${PINNED}...v${LATEST})
 
           ### Action Items
 
           - [ ] Review release notes for breaking changes
-          - [ ] Check for security advisories / CVEs
-          - [ ] Download and test on evaluation device
           - [ ] Update \`firmware/manifest.json\` version and SHA256 hashes
-          - [ ] Update \`firmware/meshtastic/update-checklist.md\` if needed
-          - [ ] Flash infrastructure nodes (routers, gateway)
-          - [ ] Flash client devices at next meetup
-
-          ### Commands
-
-          \`\`\`bash
-          # Download new firmware
-          just fetch-firmware --version $LATEST
-
-          # Update manifest hashes
-          just firmware-update-hashes
-
-          # Check a device
-          just provision station-g2 /dev/ttyUSB0
-          \`\`\`
+          - [ ] Merge to main to trigger CI firmware build
           EOF
           )"
-
-      - name: Up to date
-        if: steps.pinned.outputs.version == steps.latest.outputs.version
-        run: echo "Firmware is up to date (v${{ steps.pinned.outputs.version }})"

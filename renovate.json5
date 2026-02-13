@@ -3,9 +3,11 @@
   "extends": [
     "config:recommended",
     ":semanticCommits",
-    "group:recommended"
+    "group:recommended",
+    ":automergePatch"
   ],
   "labels": ["dependencies"],
+  "schedule": ["before 6am on monday"],
   "packageRules": [
     {
       "groupName": "GitHub Actions",
@@ -17,6 +19,21 @@
       "groupName": "Nix flake inputs",
       "matchManagers": ["nix"],
       "schedule": ["before 6am on monday"]
+    },
+    {
+      "groupName": "SvelteKit ecosystem",
+      "matchPackagePatterns": ["^@sveltejs/", "^svelte", "^mdsvex"],
+      "schedule": ["before 6am on monday"]
+    },
+    {
+      "groupName": "Linting and formatting",
+      "matchPackagePatterns": ["prettier", "eslint", "markdownlint"],
+      "automerge": true,
+      "automergeType": "pr"
     }
-  ]
+  ],
+  "vulnerabilityAlerts": {
+    "enabled": true,
+    "labels": ["security", "dependencies"]
+  }
 }
