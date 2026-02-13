@@ -48,10 +48,6 @@ managment system, not `.env`.
 Port is auto-detected (`/dev/ttyACM0` > `ttyUSB0`). Pass explicitly if
 needed: `just flash-g2 /dev/ttyACM1`.
 
-See [Node Deployment Guide](docs/guides/node-deployment.md) for full
-details including Station G2 hardware notes, bootloader procedure, and
-the 16MB flash partition layout.
-
 
 ## Development
 
