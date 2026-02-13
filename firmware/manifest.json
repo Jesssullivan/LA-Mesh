@@ -12,8 +12,8 @@
       "userPrefs": "firmware/meshtastic/userPrefs.jsonc",
       "ci_workflow": ".github/workflows/build-firmware.yml",
       "release_prefix": "la-mesh-v",
-      "last_build": null,
-      "last_build_url": null
+      "last_build": "2026-02-13T05:53:38Z",
+      "last_build_url": "https://github.com/Jesssullivan/LA-Mesh/actions/runs/21976241649"
     },
     "devices": {
       "station-g2": {
@@ -33,9 +33,9 @@
         "profile": "station-g2-router",
         "pio_env": "station-g2",
         "custom": {
-          "binary": null,
-          "sha256": null,
-          "release_url": null
+          "binary": "firmware-station-g2-2.7.15.567b8ea-lamesh.bin",
+          "sha256": "d49ec0afb3adfd475c4b7b25e0e280cab4b218e5cdfeef53af5beb010aecdb06",
+          "release_url": "https://github.com/Jesssullivan/LA-Mesh/releases/download/la-mesh-v2.7.15.567b8ea/firmware-station-g2-2.7.15.567b8ea-lamesh.bin"
         }
       },
       "t-deck": {
@@ -54,9 +54,9 @@
         "profile": "tdeck-plus-client",
         "pio_env": "t-deck",
         "custom": {
-          "binary": null,
-          "sha256": null,
-          "release_url": null
+          "binary": "firmware-t-deck-2.7.15.567b8ea-lamesh.bin",
+          "sha256": "7af26345fb24eedf2a9f578d5c011854f7b513cd7fe0c3d110bf00ff74259cc0",
+          "release_url": "https://github.com/Jesssullivan/LA-Mesh/releases/download/la-mesh-v2.7.15.567b8ea/firmware-t-deck-2.7.15.567b8ea-lamesh.bin"
         }
       },
       "t-deck-pro": {
@@ -75,9 +75,9 @@
         "profile": "tdeck-pro-eink-client",
         "pio_env": "t-deck-pro",
         "custom": {
-          "binary": null,
-          "sha256": null,
-          "release_url": null
+          "binary": "firmware-t-deck-pro-2.7.15.567b8ea-lamesh.bin",
+          "sha256": "0c4d06bf16bb0b9403c58fcdd6cf4c8cca08469842fef6cdfd91c320e713aa30",
+          "release_url": "https://github.com/Jesssullivan/LA-Mesh/releases/download/la-mesh-v2.7.15.567b8ea/firmware-t-deck-pro-2.7.15.567b8ea-lamesh.bin"
         }
       }
     }
