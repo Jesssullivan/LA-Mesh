@@ -58,7 +58,7 @@ export LAMESH_PSK_EMERGENCY="<base64-psk>"
 meshtastic --port /dev/ttyUSB0 --setlat 44.1003 --setlon -70.2148 --setalt 60
 
 # Set node name
-meshtastic --port /dev/ttyUSB0 --set-owner "RTR-01-Bates"
+meshtastic --port /dev/ttyUSB0 --set-owner "LA-Mesh RTR-01"
 meshtastic --port /dev/ttyUSB0 --set-owner-short "R01"
 
 # Verify
@@ -164,3 +164,33 @@ If a node goes offline:
 3. Attempt remote admin reset: `meshtastic --dest '!<node-id>' --reboot`
 4. If unresponsive, schedule site visit
 5. Bring replacement device and full installation toolkit
+
+---
+
+## Node Naming Convention
+
+Each device on the LA-Mesh network uses a consistent owner name so nodes are
+easily identifiable in node lists, message headers, and on-screen displays.
+
+| Role | Owner Name Pattern | Short Name | Example |
+|------|-------------------|------------|---------|
+| Router (fixed relay) | `LA-Mesh RTR-NN` | `RNN` | `LA-Mesh RTR-01` / `R01` |
+| Client (T-Deck) | `LA-Mesh USR-NN` | `UNN` | `LA-Mesh USR-01` / `U01` |
+| Gateway (MeshAdv) | `LA-Mesh GW-NN` | `GNN` | `LA-Mesh GW-01` / `G01` |
+
+Set the owner name after provisioning:
+
+```bash
+meshtastic --port /dev/ttyACM0 --set-owner "LA-Mesh RTR-01" --set-owner-short "R01"
+```
+
+The base profile sets `owner: "LA-Mesh"` and `owner_short: "LAM"` as defaults.
+Individual node identity is applied per the table above after flashing.
+
+### Boot Logo Note
+
+Custom boot logos in Meshtastic v2.7.x are compiled into the firmware binary
+(`icon.xbm` referenced from `Screen.cpp`). Changing the logo requires building
+custom firmware, which is out of scope for standard deployments. The
+`--set-owner` name is the primary visible branding mechanism -- it appears on
+all node lists, message headers, and the device's own screen after boot.

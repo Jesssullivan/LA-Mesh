@@ -133,7 +133,7 @@ key. DM keys cannot be rotated retroactively (no forward secrecy).
 
 - Spectrum monitoring during community events
 - Verifying antenna performance and signal quality
-- Teaching RF fundamentals in curriculum Level 4
+- Teaching RF fundamentals in the SDR / RF workshop
 - Detecting interference or unauthorized transmissions
 
 ### Restrictions
@@ -162,7 +162,7 @@ key. DM keys cannot be rotated retroactively (no forward secrecy).
 2. Update all infrastructure nodes first (routers, gateway)
 3. Update client devices at meetup
 4. Devices not updated at meetup will lose connectivity (by design)
-5. Update `.env` files on all operator machines
+5. Update encrypted keystores on all operator machines
 
 ---
 
