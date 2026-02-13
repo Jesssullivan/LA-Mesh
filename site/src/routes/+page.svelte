@@ -1,6 +1,5 @@
 <script>
 	import { base } from '$app/paths';
-	import StatusBadge from '$lib/components/StatusBadge.svelte';
 
 	// Injected from firmware/manifest.json at build time via vite.config.ts
 	const fwVersion = __FW_VERSION__;
@@ -30,27 +29,18 @@
 <!-- Nav Cards -->
 <section class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
 	<a href="{base}/guides/community-onboarding" class="p-6 border border-surface-700 rounded-lg bg-surface-800 no-underline text-inherit hover:border-primary-500 transition-colors">
-		<div class="flex items-center justify-between mb-2">
-			<h2 class="text-lg font-bold text-surface-50 m-0">Join the Mesh</h2>
-			<StatusBadge status="working" />
-		</div>
-		<p class="text-surface-400 text-sm m-0">Get a device, learn the basics, start communicating</p>
+		<h2 class="text-lg font-bold text-surface-50 m-0 mb-2">Join the Mesh</h2>
+		<p class="text-surface-400 text-sm m-0">Get a device, get the PSK, start talking</p>
 	</a>
 
 	<a href="{base}/devices" class="p-6 border border-surface-700 rounded-lg bg-surface-800 no-underline text-inherit hover:border-primary-500 transition-colors">
-		<div class="flex items-center justify-between mb-2">
-			<h2 class="text-lg font-bold text-surface-50 m-0">Devices</h2>
-			<StatusBadge status="working" />
-		</div>
+		<h2 class="text-lg font-bold text-surface-50 m-0 mb-2">Devices</h2>
 		<p class="text-surface-400 text-sm m-0">Station G2, T-Deck Plus/Pro, FireElmo-SDR, HackRF</p>
 	</a>
 
 	<a href="{base}/architecture" class="p-6 border border-surface-700 rounded-lg bg-surface-800 no-underline text-inherit hover:border-primary-500 transition-colors">
-		<div class="flex items-center justify-between mb-2">
-			<h2 class="text-lg font-bold text-surface-50 m-0">Architecture</h2>
-			<StatusBadge status="working" />
-		</div>
-		<p class="text-surface-400 text-sm m-0">Network topology, ADRs, protocol comparison, bridge design</p>
+		<h2 class="text-lg font-bold text-surface-50 m-0 mb-2">Architecture</h2>
+		<p class="text-surface-400 text-sm m-0">Topology, channels, link budgets</p>
 	</a>
 </section>
 
@@ -116,39 +106,32 @@ just mesh-set-role</code></pre>
 				<tr>
 					<th class="bg-surface-800 text-surface-300 p-3 text-left text-xs uppercase tracking-wider">Command</th>
 					<th class="bg-surface-800 text-surface-300 p-3 text-left text-xs uppercase tracking-wider">Description</th>
-					<th class="bg-surface-800 text-surface-300 p-3 text-left text-xs uppercase tracking-wider">Status</th>
 				</tr>
 			</thead>
 			<tbody>
 				<tr class="border-b border-surface-700">
 					<td class="p-3 font-mono text-primary-400 text-sm">just setup</td>
 					<td class="p-3 text-surface-200 text-sm">Install tools and verify environment</td>
-					<td class="p-3"><StatusBadge status="working" /></td>
 				</tr>
 				<tr class="border-b border-surface-700">
 					<td class="p-3 font-mono text-primary-400 text-sm">just fetch-firmware</td>
 					<td class="p-3 text-surface-200 text-sm">Download and verify firmware binaries</td>
-					<td class="p-3"><StatusBadge status="working" /></td>
 				</tr>
 				<tr class="border-b border-surface-700">
 					<td class="p-3 font-mono text-primary-400 text-sm">just flash-g2</td>
 					<td class="p-3 text-surface-200 text-sm">Flash Station G2 (erase + 3-partition write)</td>
-					<td class="p-3"><StatusBadge status="working" /></td>
 				</tr>
 				<tr class="border-b border-surface-700">
 					<td class="p-3 font-mono text-primary-400 text-sm">just configure-g2</td>
 					<td class="p-3 text-surface-200 text-sm">Apply profile + channels to Station G2</td>
-					<td class="p-3"><StatusBadge status="working" /></td>
 				</tr>
 				<tr class="border-b border-surface-700">
 					<td class="p-3 font-mono text-primary-400 text-sm">just mesh-set-role</td>
 					<td class="p-3 text-surface-200 text-sm">Set ROUTER role (do last -- kills USB)</td>
-					<td class="p-3"><StatusBadge status="working" /></td>
 				</tr>
 				<tr>
 					<td class="p-3 font-mono text-primary-400 text-sm">just build-firmware</td>
 					<td class="p-3 text-surface-200 text-sm">Build custom firmware from source</td>
-					<td class="p-3"><StatusBadge status="working" /></td>
 				</tr>
 			</tbody>
 		</table>
@@ -184,4 +167,5 @@ just mesh-set-role</code></pre>
 			<span class="font-mono text-surface-200 text-sm">v{fwMinVersion}+</span>
 		</div>
 	</div>
+	<p class="text-sm text-surface-500 mt-4">LA-Mesh channels use unique PSKs shared in-person — this is a private mesh, separate from the public Meshtastic default channel. You can manually add the default channel alongside LA-Mesh channels if you also want to participate in the broader public Meshtastic network.</p>
 </section>

@@ -38,11 +38,11 @@
 </svelte:head>
 
 <h1 class="text-3xl font-bold text-surface-50 mb-2">Architecture</h1>
-<p class="text-surface-400 mb-8">Technical decisions and network design for LA-Mesh.</p>
+<p class="text-surface-400 mb-8">Network topology, channels, and link budgets.</p>
 
 <section class="mb-12">
 	<h2 class="text-2xl font-bold text-surface-50 mb-4">Network Topology</h2>
-	<p class="text-surface-300 mb-4">Fully meshed topology with managed flood routing. Every node can relay for every other node. High-power Station G2 routers on elevated sites extend coverage, T-Deck clients participate as both endpoints and relays, and the FireElmo-SDR Pi HAT handles bridge/gateway duties to external networks.</p>
+	<p class="text-surface-300 mb-4">Meshtastic flood routing — every node relays for every other node. Station G2s on elevated sites provide backbone coverage, T-Deck clients relay opportunistically, and FireElmo-SDR bridges to external networks.</p>
 
 	<div class="overflow-x-auto my-6" bind:this={topologyEl}
 		data-graph={`graph TD
@@ -80,7 +80,7 @@
 		</div>
 		<div class="p-4 bg-surface-800 rounded-lg border-l-3 border-primary-500">
 			<h4 class="text-surface-50 font-semibold m-0 mb-2">Hop Limit</h4>
-			<p class="text-surface-400 text-sm m-0">Set to 5 (optimized for LA-Mesh coverage area). Higher than default 3 to ensure full L-A area reach.</p>
+			<p class="text-surface-400 text-sm m-0">Set to 5 (default is 3). Higher to cover the full L-A area.</p>
 		</div>
 	</div>
 </section>
@@ -104,7 +104,7 @@
 			</tbody>
 		</table>
 	</div>
-	<p class="text-sm text-surface-500 italic mt-2">PSKs are never transmitted digitally. Shared face-to-face at community meetups and rotated quarterly.</p>
+	<p class="text-sm text-surface-500 mt-2">All channels use unique PSKs — LA-Mesh is a private mesh, separate from the public Meshtastic default channel. PSKs are shared face-to-face and rotated quarterly. You can add the default public channel alongside LA-Mesh channels if you also want to reach the broader Meshtastic network.</p>
 </section>
 
 <style>
