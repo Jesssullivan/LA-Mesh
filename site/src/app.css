@@ -1,0 +1,84 @@
+@import 'tailwindcss';
+@import '@skeletonlabs/skeleton';
+@import '@skeletonlabs/skeleton-svelte';
+@import '@skeletonlabs/skeleton/themes/terminus';
+
+/* Enable Selector Strategy for dark mode toggle */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Required for light-dark() function to work with color pairings */
+@layer base {
+	html {
+		color-scheme: light;
+	}
+	html.dark {
+		color-scheme: dark;
+	}
+}
+
+/* Shiki code block styling */
+pre.shiki {
+	padding: 1rem 1.25rem;
+	border-radius: 0.5rem;
+	overflow-x: auto;
+	font-size: 0.875rem;
+	line-height: 1.7;
+	border: 1px solid light-dark(var(--color-surface-300), var(--color-surface-700));
+}
+
+/* MDsveX content prose defaults */
+.prose h1,
+.prose h2,
+.prose h3,
+.prose h4 {
+	color: light-dark(var(--color-surface-950), var(--color-surface-50));
+}
+
+.prose a {
+	color: light-dark(var(--color-primary-700), var(--color-primary-400));
+	text-decoration: underline;
+	text-underline-offset: 2px;
+}
+
+.prose a:hover {
+	color: light-dark(var(--color-primary-500), var(--color-primary-300));
+}
+
+.prose code:not(pre code) {
+	font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, monospace;
+	color: light-dark(var(--color-primary-700), var(--color-primary-400));
+	background: light-dark(var(--color-surface-200), var(--color-surface-800));
+	padding: 0.125rem 0.375rem;
+	border-radius: 0.25rem;
+	font-size: 0.875em;
+}
+
+.prose table {
+	width: 100%;
+	border-collapse: collapse;
+}
+
+.prose th {
+	background: light-dark(var(--color-surface-200), var(--color-surface-800));
+	color: light-dark(var(--color-surface-700), var(--color-surface-300));
+	padding: 0.75rem 1rem;
+	text-align: left;
+	font-size: 0.85rem;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+}
+
+.prose td {
+	color: light-dark(var(--color-surface-900), var(--color-surface-200));
+	padding: 0.75rem 1rem;
+	border-bottom: 1px solid light-dark(var(--color-surface-200), var(--color-surface-700));
+}
+
+.prose blockquote {
+	border-left: 3px solid light-dark(var(--color-primary-500), var(--color-primary-500));
+	padding: 0.75rem 1rem;
+	margin: 1rem 0;
+	background: light-dark(var(--color-surface-100), var(--color-surface-800));
+	border-radius: 0 0.25rem 0.25rem 0;
+}

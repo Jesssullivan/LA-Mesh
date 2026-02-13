@@ -27,5 +27,9 @@
 
     // --- Timezone (POSIX TZ format, required by v2.7.15+) ---
     // US Eastern: EST5EDT with standard DST rules
-    "USERPREFS_TZ_STRING": "EST5EDT,M3.2.0,M11.1.0"
+    "USERPREFS_TZ_STRING": "EST5EDT,M3.2.0,M11.1.0",
+
+    // --- Notification Ringtone (RTTTL format) ---
+    // Required by ExternalNotificationModule.cpp (no #ifdef guard)
+    "USERPREFS_RINGTONE_RTTTL": "24:d=32,o=5,b=565:f6,p,f6,p,f6,p,f6,p,p,p,p,p,f6,p,f6,p,f6,p,f6"
 }

@@ -1,204 +1,183 @@
 <script>
 	import { base } from '$app/paths';
+	import StatusBadge from '$lib/components/StatusBadge.svelte';
 </script>
 
 <svelte:head>
 	<title>LA-Mesh - Community LoRa Mesh Network</title>
 </svelte:head>
 
-<section class="hero">
-	<h1>LA-Mesh</h1>
-	<p class="tagline">Community LoRa mesh network for Southern Maine</p>
-	<p>
+<!-- Hero -->
+<section class="text-center py-12 border-b border-surface-700 mb-8">
+	<h1 class="text-5xl font-bold font-mono text-primary-400 m-0">LA-Mesh</h1>
+	<p class="text-xl text-surface-400 mt-2 mb-4">Community LoRa mesh network for Southern Maine</p>
+	<p class="text-surface-300">
 		Encrypted mesh communications for the Lewiston-Auburn area.
 		Infrastructure-independent, resilient, community-owned.
 	</p>
-	<p class="workshops">Free fortnightly workshops in the L-A area -- from mesh basics to TEMPEST and TAILS.</p>
+	<div class="flex justify-center gap-3 mt-6 flex-wrap">
+		<img src="https://github.com/Jesssullivan/LA-Mesh/actions/workflows/build-firmware.yml/badge.svg" alt="Build Firmware" class="h-5" />
+		<img src="https://github.com/Jesssullivan/LA-Mesh/actions/workflows/deploy-pages.yml/badge.svg" alt="Deploy Pages" class="h-5" />
+		<img src="https://github.com/Jesssullivan/LA-Mesh/actions/workflows/ci.yml/badge.svg" alt="CI" class="h-5" />
+	</div>
 </section>
 
-<section class="cards">
-	<a href="{base}/guides/community-onboarding" class="card">
-		<h2>Join the Mesh</h2>
-		<p>Get a device, learn the basics, start communicating</p>
+<!-- Nav Cards -->
+<section class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+	<a href="{base}/guides/community-onboarding" class="p-6 border border-surface-700 rounded-lg bg-surface-800 no-underline text-inherit hover:border-primary-500 transition-colors">
+		<div class="flex items-center justify-between mb-2">
+			<h2 class="text-lg font-bold text-surface-50 m-0">Join the Mesh</h2>
+			<StatusBadge status="working" />
+		</div>
+		<p class="text-surface-400 text-sm m-0">Get a device, learn the basics, start communicating</p>
 	</a>
 
-	<a href="{base}/devices" class="card">
-		<h2>Devices</h2>
-		<p>Station G2, T-Deck Plus/Pro, MeshAdv-Mini, HackRF</p>
+	<a href="{base}/devices" class="p-6 border border-surface-700 rounded-lg bg-surface-800 no-underline text-inherit hover:border-primary-500 transition-colors">
+		<div class="flex items-center justify-between mb-2">
+			<h2 class="text-lg font-bold text-surface-50 m-0">Devices</h2>
+			<StatusBadge status="working" />
+		</div>
+		<p class="text-surface-400 text-sm m-0">Station G2, T-Deck Plus/Pro, MeshAdv-Mini, HackRF</p>
 	</a>
 
-	<a href="{base}/curriculum" class="card">
-		<h2>Learn</h2>
-		<p>Workshops: mesh basics, encryption, SDR, TEMPEST, TAILS</p>
-	</a>
-
-	<a href="{base}/architecture" class="card">
-		<h2>Architecture</h2>
-		<p>Network topology, ADRs, protocol comparison, bridge design</p>
+	<a href="{base}/architecture" class="p-6 border border-surface-700 rounded-lg bg-surface-800 no-underline text-inherit hover:border-primary-500 transition-colors">
+		<div class="flex items-center justify-between mb-2">
+			<h2 class="text-lg font-bold text-surface-50 m-0">Architecture</h2>
+			<StatusBadge status="working" />
+		</div>
+		<p class="text-surface-400 text-sm m-0">Network topology, ADRs, protocol comparison, bridge design</p>
 	</a>
 </section>
 
-<section class="features">
-	<h2>What We Build</h2>
-	<div class="feature-grid">
-		<div>
-			<h3>Encrypted Mesh</h3>
-			<p>AES-256-CTR channel encryption + X25519 PKC for direct messages. No internet, no cell towers, no central authority. PSKs shared face-to-face only.</p>
+<!-- Firmware Status -->
+<section class="mb-12">
+	<h2 class="text-center text-surface-50 mb-6">Firmware Status</h2>
+	<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+		<div class="p-4 bg-surface-800 border border-surface-700 rounded-lg">
+			<span class="text-xs text-surface-500 uppercase tracking-wider">Version</span>
+			<p class="font-mono text-primary-400 text-lg m-0 mt-1">v2.7.15</p>
 		</div>
-		<div>
-			<h3>Relay Infrastructure</h3>
-			<p>Station G2 nodes (30 dBm, 36 dBm EIRP) on rooftops and towers. Hub-and-spoke topology with mesh fallback. Solar-powered for year-round operation.</p>
+		<div class="p-4 bg-surface-800 border border-surface-700 rounded-lg">
+			<span class="text-xs text-surface-500 uppercase tracking-wider">Min Required</span>
+			<p class="font-mono text-primary-400 text-lg m-0 mt-1">v2.7.15+</p>
 		</div>
-		<div>
-			<h3>SMS/Email Bridge</h3>
-			<p>MeshAdv-Mini Pi HAT running meshtasticd, Mosquitto MQTT, SMS/email gateway (in development), and GPG-signed email bridge. Mesh-to-internet gateway.</p>
+		<div class="p-4 bg-surface-800 border border-surface-700 rounded-lg">
+			<span class="text-xs text-surface-500 uppercase tracking-wider">Build Source</span>
+			<p class="font-mono text-primary-400 text-lg m-0 mt-1">Custom (LA-Mesh)</p>
 		</div>
-		<div>
-			<h3>RF Education</h3>
-			<p>Hands-on workshops: mesh basics, security, SDR with HackRF H4M, TEMPEST, TAILS integration. FCC Part 15 compliance, link budget calculations, protocol analysis.</p>
+		<div class="p-4 bg-surface-800 border border-surface-700 rounded-lg">
+			<span class="text-xs text-surface-500 uppercase tracking-wider">Target</span>
+			<p class="font-mono text-primary-400 text-lg m-0 mt-1">station-g2</p>
 		</div>
 	</div>
 </section>
 
-<section class="network-status">
-	<h2>Network Configuration</h2>
-	<div class="config-grid">
-		<div class="config-item">
-			<span class="label">Region</span>
-			<span class="value">US (915 MHz ISM)</span>
-		</div>
-		<div class="config-item">
-			<span class="label">Modem Preset</span>
-			<span class="value">LONG_FAST</span>
-		</div>
-		<div class="config-item">
-			<span class="label">Hop Limit</span>
-			<span class="value">5</span>
-		</div>
-		<div class="config-item">
-			<span class="label">Channels</span>
-			<span class="value">LA-Mesh / LA-Admin / LA-Emergency</span>
-		</div>
-		<div class="config-item">
-			<span class="label">Encryption</span>
-			<span class="value">AES-256-CTR (channel) + PKC (DMs)</span>
-		</div>
-		<div class="config-item">
-			<span class="label">Min Firmware</span>
-			<span class="value">v2.7.15+ (CVE-2025-52464, CVE-2025-24797 fixes)</span>
-		</div>
+<!-- Clone to Flash -->
+<section class="mb-12">
+	<h2 class="text-center text-surface-50 mb-6">Clone to Flash</h2>
+	<div class="p-6 bg-surface-800 border border-surface-700 rounded-lg overflow-x-auto">
+		<pre class="font-mono text-sm text-surface-200 leading-relaxed m-0"><code><span class="text-surface-500"># Clone and enter the repo</span>
+git clone https://github.com/Jesssullivan/LA-Mesh.git && cd LA-Mesh
+
+<span class="text-surface-500"># Enter nix devshell (provides meshtastic, esptool, jq)</span>
+nix develop
+
+<span class="text-surface-500"># Setup and fetch firmware</span>
+just setup
+just fetch-firmware
+
+<span class="text-surface-500"># Flash and configure a Station G2</span>
+just flash-g2
+just configure-g2
+just mesh-set-role</code></pre>
 	</div>
 </section>
 
-<style>
-	.hero {
-		text-align: center;
-		padding: 3rem 0;
-		border-bottom: 1px solid #eee;
-		margin-bottom: 2rem;
-	}
+<!-- Justfile Quick Reference -->
+<section class="mb-12">
+	<h2 class="text-center text-surface-50 mb-6">Justfile Quick Reference</h2>
+	<div class="overflow-x-auto">
+		<table class="w-full border-collapse">
+			<thead>
+				<tr>
+					<th class="bg-surface-800 text-surface-300 p-3 text-left text-xs uppercase tracking-wider">Command</th>
+					<th class="bg-surface-800 text-surface-300 p-3 text-left text-xs uppercase tracking-wider">Description</th>
+					<th class="bg-surface-800 text-surface-300 p-3 text-left text-xs uppercase tracking-wider">Status</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr class="border-b border-surface-700">
+					<td class="p-3 font-mono text-primary-400 text-sm">just setup</td>
+					<td class="p-3 text-surface-200 text-sm">Install tools and verify environment</td>
+					<td class="p-3"><StatusBadge status="working" /></td>
+				</tr>
+				<tr class="border-b border-surface-700">
+					<td class="p-3 font-mono text-primary-400 text-sm">just fetch-firmware</td>
+					<td class="p-3 text-surface-200 text-sm">Download and verify firmware binaries</td>
+					<td class="p-3"><StatusBadge status="working" /></td>
+				</tr>
+				<tr class="border-b border-surface-700">
+					<td class="p-3 font-mono text-primary-400 text-sm">just flash-g2</td>
+					<td class="p-3 text-surface-200 text-sm">Flash Station G2 (erase + 3-partition write)</td>
+					<td class="p-3"><StatusBadge status="working" /></td>
+				</tr>
+				<tr class="border-b border-surface-700">
+					<td class="p-3 font-mono text-primary-400 text-sm">just configure-g2</td>
+					<td class="p-3 text-surface-200 text-sm">Apply profile + channels to Station G2</td>
+					<td class="p-3"><StatusBadge status="working" /></td>
+				</tr>
+				<tr class="border-b border-surface-700">
+					<td class="p-3 font-mono text-primary-400 text-sm">just mesh-set-role</td>
+					<td class="p-3 text-surface-200 text-sm">Set ROUTER role (do last -- kills USB)</td>
+					<td class="p-3"><StatusBadge status="working" /></td>
+				</tr>
+				<tr class="border-b border-surface-700">
+					<td class="p-3 font-mono text-primary-400 text-sm">just flash-tdeck</td>
+					<td class="p-3 text-surface-200 text-sm">Flash T-Deck Plus client</td>
+					<td class="p-3"><StatusBadge status="planned" /></td>
+				</tr>
+				<tr class="border-b border-surface-700">
+					<td class="p-3 font-mono text-primary-400 text-sm">just build-firmware</td>
+					<td class="p-3 text-surface-200 text-sm">Build custom firmware from source</td>
+					<td class="p-3"><StatusBadge status="working" /></td>
+				</tr>
+				<tr>
+					<td class="p-3 font-mono text-primary-400 text-sm">just bridge-setup</td>
+					<td class="p-3 text-surface-200 text-sm">Configure SMS/Email bridge on Pi</td>
+					<td class="p-3"><StatusBadge status="planned" /></td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+</section>
 
-	h1 {
-		font-size: 3rem;
-		margin: 0;
-		color: #1a1a2e;
-	}
-
-	.tagline {
-		font-size: 1.3rem;
-		color: #666;
-		margin: 0.5rem 0 1rem;
-	}
-
-	.workshops {
-		font-size: 1rem;
-		color: #00d4aa;
-		font-weight: 600;
-		margin-top: 0.5rem;
-	}
-
-	.cards {
-		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-		gap: 1.5rem;
-		margin-bottom: 3rem;
-	}
-
-	.card {
-		padding: 1.5rem;
-		border: 1px solid #ddd;
-		border-radius: 8px;
-		text-decoration: none;
-		color: inherit;
-		transition: border-color 0.2s, box-shadow 0.2s;
-	}
-
-	.card:hover {
-		border-color: #00d4aa;
-		box-shadow: 0 2px 8px rgba(0, 212, 170, 0.15);
-	}
-
-	.card h2 {
-		margin: 0 0 0.5rem;
-		color: #1a1a2e;
-	}
-
-	.card p {
-		margin: 0;
-		color: #666;
-	}
-
-	.features h2 {
-		text-align: center;
-		margin-bottom: 2rem;
-	}
-
-	.feature-grid {
-		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-		gap: 2rem;
-		margin-bottom: 3rem;
-	}
-
-	.feature-grid h3 {
-		color: #00d4aa;
-		margin-bottom: 0.5rem;
-	}
-
-	.feature-grid p {
-		color: #555;
-		line-height: 1.6;
-	}
-
-	.network-status h2 {
-		text-align: center;
-		margin-bottom: 1.5rem;
-	}
-
-	.config-grid {
-		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-		gap: 0.75rem;
-	}
-
-	.config-item {
-		display: flex;
-		justify-content: space-between;
-		padding: 0.75rem 1rem;
-		background: #f9f9f9;
-		border-radius: 6px;
-		border-left: 3px solid #00d4aa;
-	}
-
-	.label {
-		font-weight: 600;
-		color: #555;
-		font-size: 0.9rem;
-	}
-
-	.value {
-		color: #1a1a2e;
-		font-family: monospace;
-		font-size: 0.9rem;
-	}
-</style>
+<!-- Network Configuration -->
+<section class="mb-8">
+	<h2 class="text-center text-surface-50 mb-6">Network Configuration</h2>
+	<div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+		<div class="flex justify-between p-3 bg-surface-800 rounded-lg border-l-3 border-primary-500">
+			<span class="font-semibold text-surface-400 text-sm">Region</span>
+			<span class="font-mono text-surface-200 text-sm">US (915 MHz ISM)</span>
+		</div>
+		<div class="flex justify-between p-3 bg-surface-800 rounded-lg border-l-3 border-primary-500">
+			<span class="font-semibold text-surface-400 text-sm">Modem Preset</span>
+			<span class="font-mono text-surface-200 text-sm">LONG_FAST</span>
+		</div>
+		<div class="flex justify-between p-3 bg-surface-800 rounded-lg border-l-3 border-primary-500">
+			<span class="font-semibold text-surface-400 text-sm">Hop Limit</span>
+			<span class="font-mono text-surface-200 text-sm">5</span>
+		</div>
+		<div class="flex justify-between p-3 bg-surface-800 rounded-lg border-l-3 border-primary-500">
+			<span class="font-semibold text-surface-400 text-sm">Channels</span>
+			<span class="font-mono text-surface-200 text-sm">LA-Mesh / LA-Admin / LA-Emergcy</span>
+		</div>
+		<div class="flex justify-between p-3 bg-surface-800 rounded-lg border-l-3 border-primary-500">
+			<span class="font-semibold text-surface-400 text-sm">Encryption</span>
+			<span class="font-mono text-surface-200 text-sm">AES-256-CTR + PKC (DMs)</span>
+		</div>
+		<div class="flex justify-between p-3 bg-surface-800 rounded-lg border-l-3 border-primary-500">
+			<span class="font-semibold text-surface-400 text-sm">Min Firmware</span>
+			<span class="font-mono text-surface-200 text-sm">v2.7.15+</span>
+		</div>
+	</div>
+</section>
