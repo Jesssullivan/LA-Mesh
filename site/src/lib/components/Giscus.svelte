@@ -1,6 +1,5 @@
 <script>
 	import { onMount } from 'svelte';
-	import { page } from '$app/stores';
 
 	onMount(() => {
 		const script = document.createElement('script');
@@ -14,7 +13,7 @@
 		script.setAttribute('data-reactions-enabled', '1');
 		script.setAttribute('data-emit-metadata', '0');
 		script.setAttribute('data-input-position', 'top');
-		script.setAttribute('data-theme', 'dark_dimmed');
+		script.setAttribute('data-theme', 'noborder_dark');
 		script.setAttribute('data-lang', 'en');
 		script.setAttribute('crossorigin', 'anonymous');
 		script.async = true;
@@ -24,14 +23,6 @@
 	});
 </script>
 
-<section class="giscus-wrapper">
+<section class="mt-12 pt-8 border-t border-surface-700">
 	<div id="giscus-container"></div>
 </section>
-
-<style>
-	.giscus-wrapper {
-		margin-top: 3rem;
-		padding-top: 2rem;
-		border-top: 1px solid rgba(255, 255, 255, 0.1);
-	}
-</style>

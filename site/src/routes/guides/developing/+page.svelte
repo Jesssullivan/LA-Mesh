@@ -6,26 +6,26 @@
 	<title>Developer Guide - LA-Mesh</title>
 </svelte:head>
 
-<nav class="breadcrumb">
-	<a href="{base}/guides">Guides</a> / Developer Guide
+<nav class="text-sm text-surface-500 mb-4">
+	<a href="{base}/guides" class="text-primary-400 no-underline">Guides</a> / Developer Guide
 </nav>
 
 <h1>Developer Guide</h1>
-<p class="intro">Set up the LA-Mesh development environment, build the site, flash devices, and contribute.</p>
+<p class="text-lg text-surface-400 mb-8">Set up the LA-Mesh development environment, build the site, flash devices, and contribute.</p>
 
-<section>
-	<h2>Quick Start (Nix + direnv)</h2>
-	<pre class="code">{`git clone https://github.com/Jesssullivan/LA-Mesh.git
+<section class="mb-12">
+	<h2 class="text-2xl font-bold text-surface-50 mb-4">Quick Start (Nix + direnv)</h2>
+	<pre class="bg-surface-800 text-primary-400 p-5 rounded-lg overflow-x-auto text-sm leading-relaxed font-mono">{`git clone https://github.com/Jesssullivan/LA-Mesh.git
 cd LA-Mesh
 direnv allow        # auto-enters Nix dev shell on cd
 just info           # verify all tools are available`}</pre>
-	<p>The Nix dev shell provides: meshtastic CLI, esptool.py, hackrf tools, bazelisk, just, nodejs, pnpm, git-cliff, shellcheck, ruff.</p>
-	<p>Without Nix: <code>pip install meshtastic esptool ruff</code>, <code>npm install -g pnpm</code>, <code>cargo install just git-cliff</code>.</p>
+	<p class="text-surface-300 mb-4">The Nix dev shell provides: meshtastic CLI, esptool.py, hackrf tools, bazelisk, just, nodejs, pnpm, git-cliff, shellcheck, ruff.</p>
+	<p class="text-surface-300 mb-4">Without Nix: <code class="font-mono text-primary-400 bg-surface-800 px-1.5 py-0.5 rounded text-sm">pip install meshtastic esptool ruff</code>, <code class="font-mono text-primary-400 bg-surface-800 px-1.5 py-0.5 rounded text-sm">npm install -g pnpm</code>, <code class="font-mono text-primary-400 bg-surface-800 px-1.5 py-0.5 rounded text-sm">cargo install just git-cliff</code>.</p>
 </section>
 
-<section>
-	<h2>Repository Structure</h2>
-	<pre class="code">{`LA-Mesh/
+<section class="mb-12">
+	<h2 class="text-2xl font-bold text-surface-50 mb-4">Repository Structure</h2>
+	<pre class="bg-surface-800 text-primary-400 p-5 rounded-lg overflow-x-auto text-sm leading-relaxed font-mono">{`LA-Mesh/
 ├── site/              # SvelteKit documentation site
 ├── docs/              # Markdown documentation
 ├── configs/           # Device profiles and channel templates
@@ -37,83 +37,71 @@ just info           # verify all tools are available`}</pre>
 └── captures/          # SDR capture storage (gitignored)`}</pre>
 </section>
 
-<section>
-	<h2>Common Just Recipes</h2>
-	<table>
-		<thead><tr><th>Command</th><th>Purpose</th></tr></thead>
+<section class="mb-12">
+	<h2 class="text-2xl font-bold text-surface-50 mb-4">Common Just Recipes</h2>
+	<table class="w-full border-collapse mt-4">
+		<thead><tr><th class="bg-surface-800 text-surface-300 p-3 text-left text-xs uppercase tracking-wider">Command</th><th class="bg-surface-800 text-surface-300 p-3 text-left text-xs uppercase tracking-wider">Purpose</th></tr></thead>
 		<tbody>
-			<tr><td><code>just dev</code></td><td>Start docs site dev server (hot reload)</td></tr>
-			<tr><td><code>just build</code></td><td>Build site for production</td></tr>
-			<tr><td><code>just check</code></td><td>Run all validations (format + type check)</td></tr>
-			<tr><td><code>just ci</code></td><td>Full CI simulation (check + build)</td></tr>
-			<tr><td><code>just provision &lt;device&gt; &lt;port&gt;</code></td><td>One-command device provisioning</td></tr>
-			<tr><td><code>just fetch-firmware</code></td><td>Download and verify firmware</td></tr>
-			<tr><td><code>just firmware-versions</code></td><td>Show pinned firmware versions</td></tr>
-			<tr><td><code>just firmware-check</code></td><td>Check for upstream updates</td></tr>
-			<tr><td><code>just mesh-info</code></td><td>Show connected device info</td></tr>
-			<tr><td><code>just mesh-nodes</code></td><td>List visible mesh nodes</td></tr>
-			<tr><td><code>just configure-profile &lt;profile&gt;</code></td><td>Apply device configuration profile</td></tr>
-			<tr><td><code>just configure-channels</code></td><td>Apply LA-Mesh channel config</td></tr>
+			<tr><td class="p-3 text-surface-200 border-b border-surface-700"><code class="font-mono text-primary-400 bg-surface-800 px-1.5 py-0.5 rounded text-sm">just dev</code></td><td class="p-3 text-surface-200 border-b border-surface-700">Start docs site dev server (hot reload)</td></tr>
+			<tr><td class="p-3 text-surface-200 border-b border-surface-700"><code class="font-mono text-primary-400 bg-surface-800 px-1.5 py-0.5 rounded text-sm">just build</code></td><td class="p-3 text-surface-200 border-b border-surface-700">Build site for production</td></tr>
+			<tr><td class="p-3 text-surface-200 border-b border-surface-700"><code class="font-mono text-primary-400 bg-surface-800 px-1.5 py-0.5 rounded text-sm">just check</code></td><td class="p-3 text-surface-200 border-b border-surface-700">Run all validations (format + type check)</td></tr>
+			<tr><td class="p-3 text-surface-200 border-b border-surface-700"><code class="font-mono text-primary-400 bg-surface-800 px-1.5 py-0.5 rounded text-sm">just ci</code></td><td class="p-3 text-surface-200 border-b border-surface-700">Full CI simulation (check + build)</td></tr>
+			<tr><td class="p-3 text-surface-200 border-b border-surface-700"><code class="font-mono text-primary-400 bg-surface-800 px-1.5 py-0.5 rounded text-sm">just provision &lt;device&gt; &lt;port&gt;</code></td><td class="p-3 text-surface-200 border-b border-surface-700">One-command device provisioning</td></tr>
+			<tr><td class="p-3 text-surface-200 border-b border-surface-700"><code class="font-mono text-primary-400 bg-surface-800 px-1.5 py-0.5 rounded text-sm">just fetch-firmware</code></td><td class="p-3 text-surface-200 border-b border-surface-700">Download and verify firmware</td></tr>
+			<tr><td class="p-3 text-surface-200 border-b border-surface-700"><code class="font-mono text-primary-400 bg-surface-800 px-1.5 py-0.5 rounded text-sm">just firmware-versions</code></td><td class="p-3 text-surface-200 border-b border-surface-700">Show pinned firmware versions</td></tr>
+			<tr><td class="p-3 text-surface-200 border-b border-surface-700"><code class="font-mono text-primary-400 bg-surface-800 px-1.5 py-0.5 rounded text-sm">just firmware-check</code></td><td class="p-3 text-surface-200 border-b border-surface-700">Check for upstream updates</td></tr>
+			<tr><td class="p-3 text-surface-200 border-b border-surface-700"><code class="font-mono text-primary-400 bg-surface-800 px-1.5 py-0.5 rounded text-sm">just mesh-info</code></td><td class="p-3 text-surface-200 border-b border-surface-700">Show connected device info</td></tr>
+			<tr><td class="p-3 text-surface-200 border-b border-surface-700"><code class="font-mono text-primary-400 bg-surface-800 px-1.5 py-0.5 rounded text-sm">just mesh-nodes</code></td><td class="p-3 text-surface-200 border-b border-surface-700">List visible mesh nodes</td></tr>
+			<tr><td class="p-3 text-surface-200 border-b border-surface-700"><code class="font-mono text-primary-400 bg-surface-800 px-1.5 py-0.5 rounded text-sm">just configure-profile &lt;profile&gt;</code></td><td class="p-3 text-surface-200 border-b border-surface-700">Apply device configuration profile</td></tr>
+			<tr><td class="p-3 text-surface-200 border-b border-surface-700"><code class="font-mono text-primary-400 bg-surface-800 px-1.5 py-0.5 rounded text-sm">just configure-channels</code></td><td class="p-3 text-surface-200 border-b border-surface-700">Apply LA-Mesh channel config</td></tr>
 		</tbody>
 	</table>
 </section>
 
-<section>
-	<h2>Branch Strategy</h2>
-	<table>
-		<thead><tr><th>Branch</th><th>Purpose</th></tr></thead>
+<section class="mb-12">
+	<h2 class="text-2xl font-bold text-surface-50 mb-4">Branch Strategy</h2>
+	<table class="w-full border-collapse mt-4">
+		<thead><tr><th class="bg-surface-800 text-surface-300 p-3 text-left text-xs uppercase tracking-wider">Branch</th><th class="bg-surface-800 text-surface-300 p-3 text-left text-xs uppercase tracking-wider">Purpose</th></tr></thead>
 		<tbody>
-			<tr><td><code>main</code></td><td>Production -- deploys to GitHub Pages</td></tr>
-			<tr><td><code>feature/*</code></td><td>Feature development</td></tr>
-			<tr><td><code>fix/*</code></td><td>Bug fixes</td></tr>
+			<tr><td class="p-3 text-surface-200 border-b border-surface-700"><code class="font-mono text-primary-400 bg-surface-800 px-1.5 py-0.5 rounded text-sm">main</code></td><td class="p-3 text-surface-200 border-b border-surface-700">Production -- deploys to GitHub Pages</td></tr>
+			<tr><td class="p-3 text-surface-200 border-b border-surface-700"><code class="font-mono text-primary-400 bg-surface-800 px-1.5 py-0.5 rounded text-sm">feature/*</code></td><td class="p-3 text-surface-200 border-b border-surface-700">Feature development</td></tr>
+			<tr><td class="p-3 text-surface-200 border-b border-surface-700"><code class="font-mono text-primary-400 bg-surface-800 px-1.5 py-0.5 rounded text-sm">fix/*</code></td><td class="p-3 text-surface-200 border-b border-surface-700">Bug fixes</td></tr>
 		</tbody>
 	</table>
-	<p>PRs target <code>main</code>. CI must pass before merge.</p>
+	<p class="text-surface-300 mb-4">PRs target <code class="font-mono text-primary-400 bg-surface-800 px-1.5 py-0.5 rounded text-sm">main</code>. CI must pass before merge.</p>
 </section>
 
-<section>
-	<h2>CI/CD Workflows</h2>
-	<table>
-		<thead><tr><th>Workflow</th><th>Trigger</th><th>Purpose</th></tr></thead>
+<section class="mb-12">
+	<h2 class="text-2xl font-bold text-surface-50 mb-4">CI/CD Workflows</h2>
+	<table class="w-full border-collapse mt-4">
+		<thead><tr><th class="bg-surface-800 text-surface-300 p-3 text-left text-xs uppercase tracking-wider">Workflow</th><th class="bg-surface-800 text-surface-300 p-3 text-left text-xs uppercase tracking-wider">Trigger</th><th class="bg-surface-800 text-surface-300 p-3 text-left text-xs uppercase tracking-wider">Purpose</th></tr></thead>
 		<tbody>
-			<tr><td><code>ci.yml</code></td><td>Push/PR to main</td><td>Lint, validate, build site</td></tr>
-			<tr><td><code>deploy-pages.yml</code></td><td>Push to main</td><td>Deploy GitHub Pages</td></tr>
-			<tr><td><code>firmware-check.yml</code></td><td>Weekly cron</td><td>Check for firmware updates</td></tr>
-			<tr><td><code>security-scan.yml</code></td><td>Push/PR to main</td><td>Gitleaks, ShellCheck, YAML lint</td></tr>
+			<tr><td class="p-3 text-surface-200 border-b border-surface-700"><code class="font-mono text-primary-400 bg-surface-800 px-1.5 py-0.5 rounded text-sm">ci.yml</code></td><td class="p-3 text-surface-200 border-b border-surface-700">Push/PR to main</td><td class="p-3 text-surface-200 border-b border-surface-700">Lint, validate, build site</td></tr>
+			<tr><td class="p-3 text-surface-200 border-b border-surface-700"><code class="font-mono text-primary-400 bg-surface-800 px-1.5 py-0.5 rounded text-sm">deploy-pages.yml</code></td><td class="p-3 text-surface-200 border-b border-surface-700">Push to main</td><td class="p-3 text-surface-200 border-b border-surface-700">Deploy GitHub Pages</td></tr>
+			<tr><td class="p-3 text-surface-200 border-b border-surface-700"><code class="font-mono text-primary-400 bg-surface-800 px-1.5 py-0.5 rounded text-sm">firmware-check.yml</code></td><td class="p-3 text-surface-200 border-b border-surface-700">Weekly cron</td><td class="p-3 text-surface-200 border-b border-surface-700">Check for firmware updates</td></tr>
+			<tr><td class="p-3 text-surface-200 border-b border-surface-700"><code class="font-mono text-primary-400 bg-surface-800 px-1.5 py-0.5 rounded text-sm">security-scan.yml</code></td><td class="p-3 text-surface-200 border-b border-surface-700">Push/PR to main</td><td class="p-3 text-surface-200 border-b border-surface-700">Gitleaks, ShellCheck, YAML lint</td></tr>
 		</tbody>
 	</table>
 </section>
 
-<section>
-	<h2>Security: Never Commit</h2>
-	<ul>
-		<li>Secrets (never committed -- use encrypted storage)</li>
-		<li>PSK values (channel encryption keys)</li>
-		<li>API keys (SMS gateway, SMTP, MQTT credentials)</li>
-		<li>Private keys (SSH, GPG, TLS)</li>
+<section class="mb-12">
+	<h2 class="text-2xl font-bold text-surface-50 mb-4">Security: Never Commit</h2>
+	<ul class="text-surface-300 pl-6 mb-4">
+		<li class="mb-1">Secrets (never committed -- use encrypted storage)</li>
+		<li class="mb-1">PSK values (channel encryption keys)</li>
+		<li class="mb-1">API keys (SMS gateway, SMTP, MQTT credentials)</li>
+		<li class="mb-1">Private keys (SSH, GPG, TLS)</li>
 	</ul>
-	<p>Enable the pre-commit hook: <code>git config core.hooksPath .githooks</code></p>
+	<p class="text-surface-300 mb-4">Enable the pre-commit hook: <code class="font-mono text-primary-400 bg-surface-800 px-1.5 py-0.5 rounded text-sm">git config core.hooksPath .githooks</code></p>
 </section>
 
-<section>
-	<h2>Recommended Operating Systems</h2>
-	<table>
-		<thead><tr><th>OS</th><th>Use Case</th></tr></thead>
+<section class="mb-12">
+	<h2 class="text-2xl font-bold text-surface-50 mb-4">Recommended Operating Systems</h2>
+	<table class="w-full border-collapse mt-4">
+		<thead><tr><th class="bg-surface-800 text-surface-300 p-3 text-left text-xs uppercase tracking-wider">OS</th><th class="bg-surface-800 text-surface-300 p-3 text-left text-xs uppercase tracking-wider">Use Case</th></tr></thead>
 		<tbody>
-			<tr><td><a href="https://linuxmint.com">Linux Mint</a></td><td>Desktop OS for mesh operators -- stable, beginner-friendly, full hardware support</td></tr>
-			<tr><td><a href="https://rockylinux.org">Rocky Linux</a></td><td>Server OS for gateway and bridge nodes -- enterprise-grade, long-term support</td></tr>
+			<tr><td class="p-3 text-surface-200 border-b border-surface-700"><a href="https://linuxmint.com" class="text-primary-400">Linux Mint</a></td><td class="p-3 text-surface-200 border-b border-surface-700">Desktop OS for mesh operators -- stable, beginner-friendly, full hardware support</td></tr>
+			<tr><td class="p-3 text-surface-200 border-b border-surface-700"><a href="https://rockylinux.org" class="text-primary-400">Rocky Linux</a></td><td class="p-3 text-surface-200 border-b border-surface-700">Server OS for gateway and bridge nodes -- enterprise-grade, long-term support</td></tr>
 		</tbody>
 	</table>
 </section>
-
-<style>
-	.breadcrumb { font-size: 0.85rem; color: #888; margin-bottom: 1rem; }
-	.breadcrumb a { color: #00d4aa; text-decoration: none; }
-	.intro { font-size: 1.1rem; color: #555; margin-bottom: 2rem; }
-	section { margin-bottom: 3rem; }
-	.code { background: #1a1a2e; color: #00d4aa; padding: 1.25rem; border-radius: 8px; overflow-x: auto; font-size: 0.85rem; line-height: 1.5; }
-	table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
-	th, td { padding: 0.75rem; border: 1px solid #ddd; text-align: left; }
-	th { background: #f5f5f5; font-weight: 600; }
-	a { color: #00d4aa; }
-</style>

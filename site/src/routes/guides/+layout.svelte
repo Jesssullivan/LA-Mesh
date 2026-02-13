@@ -1,12 +1,13 @@
 <script>
 	import Giscus from '$lib/components/Giscus.svelte';
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 
-	// Only show Giscus on individual guide pages, not the index
-	$: isGuidePage = $page.url.pathname !== '/guides' && $page.url.pathname !== '/guides/';
+	let { children } = $props();
+
+	let isGuidePage = $derived(page.url.pathname !== '/guides' && page.url.pathname !== '/guides/');
 </script>
 
-<slot />
+{@render children()}
 
 {#if isGuidePage}
 	<Giscus />
