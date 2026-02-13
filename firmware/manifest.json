@@ -11,27 +11,32 @@
       "station-g2": {
         "binary": "firmware-station-g2-2.7.15.567b8ea.bin",
         "littlefs": "littlefs-station-g2-2.7.15.567b8ea.bin",
+        "bleota": "bleota-s3.bin",
         "sha256": "2174ca80ef0e8caf49dd4a8097868a7c0a4fd1f0a06f9f6178fd3fbca04d2f19",
         "chip": "esp32s3",
         "chip_family_zip": "esp32s3",
+        "flash_size": "16MB",
         "flash_offset_full": "0x0",
-        "flash_offset_app": "0x260000",
-        "flash_size": "detect",
+        "flash_offset_app": "0x650000",
+        "flash_offset_littlefs": "0xc90000",
         "baud": 921600,
-        "description": "Station G2 base station / router",
+        "bootloader_note": "Hold BOOT button (labeled 'loop', nearest USB-C) while plugging in USB. Release after 2 seconds. Native USB CDC -- no auto-reset via DTR/RTS.",
+        "description": "Station G2 base station / router (B&Q Consulting, 16MB flash)",
         "profile": "station-g2-router"
       },
       "t-deck": {
         "binary": "firmware-t-deck-2.7.15.567b8ea.bin",
         "littlefs": "littlefs-t-deck-2.7.15.567b8ea.bin",
+        "bleota": "bleota-s3.bin",
         "sha256": "UPDATE_WITH_ACTUAL_HASH_AFTER_DOWNLOAD",
         "chip": "esp32s3",
         "chip_family_zip": "esp32s3",
+        "flash_size": "16MB",
         "flash_offset_full": "0x0",
-        "flash_offset_app": "0x260000",
-        "flash_size": "detect",
+        "flash_offset_app": "0x650000",
+        "flash_offset_littlefs": "0xc90000",
         "baud": 921600,
-        "description": "LilyGo T-Deck / T-Deck Plus client",
+        "description": "LilyGo T-Deck / T-Deck Plus client (16MB flash)",
         "profile": "tdeck-plus-client"
       }
     }
