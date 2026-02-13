@@ -48,12 +48,12 @@
 
 <section class="mb-12">
 	<h2 class="text-2xl font-bold text-surface-50 mb-4">Network Topology</h2>
-	<p class="text-surface-300 mb-4">Hub-and-spoke with mesh redundancy. High-power Station G2 routers on elevated sites provide backbone coverage, T-Deck clients form the user-facing mesh, and MeshAdv-Mini Pi HAT handles bridge/gateway duties.</p>
+	<p class="text-surface-300 mb-4">Fully meshed topology with managed flood routing. Every node can relay for every other node. High-power Station G2 routers on elevated sites extend coverage, T-Deck clients participate as both endpoints and relays, and the FireElmo-SDR Pi HAT handles bridge/gateway duties to external networks.</p>
 
 	<div class="overflow-x-auto my-6" bind:this={topologyEl}
 		data-graph={`graph TD
 		INET["INTERNET / MQTT"]
-		GW["MeshAdv-Mini Gateway\nmeshtasticd + bridges\nROUTER_CLIENT"]
+		GW["FireElmo-SDR Gateway\nmeshtasticd + bridges\nROUTER_CLIENT"]
 		R1["Station G2 #1\nROUTER 30 dBm\nCampus Relay"]
 		R2["Station G2 #2\nROUTER 30 dBm\nDowntown Relay"]
 		C1["T-Deck Plus #1\nCLIENT"]
@@ -64,11 +64,14 @@
 		INET --- GW
 		GW -- LoRa 915 MHz --- R1
 		GW -- LoRa 915 MHz --- R2
+		R1 --- R2
 		R1 --- C1
 		R1 --- C2
 		R1 --- C3
 		R2 --- C4
-		R2 --- C5`}>
+		R2 --- C5
+		C1 -.- C2
+		C3 -.- C4`}>
 		<pre class="bg-surface-800 text-primary-400 p-6 rounded-lg overflow-x-auto text-sm leading-relaxed">Loading diagram...</pre>
 	</div>
 
@@ -129,8 +132,8 @@
 
 		<div class="p-4 border border-surface-700 rounded-lg bg-surface-800">
 			<span class="font-mono text-sm text-surface-500">ADR-003</span>
-			<h3 class="text-surface-50 font-semibold mt-1 mb-2">Hub-and-Spoke with Mesh Redundancy</h3>
-			<p class="text-surface-400 text-sm m-0 mb-2">Station G2 routers on elevated sites as backbone. Hop limit 5 for full coverage. Mesh fallback when routers unreachable.</p>
+			<h3 class="text-surface-50 font-semibold mt-1 mb-2">Flood Mesh with High-Power Backbone</h3>
+			<p class="text-surface-400 text-sm m-0 mb-2">All nodes relay via managed flood routing. Station G2 routers on elevated sites extend coverage. Hop limit 5 for full L-A area reach. Every node participates in message forwarding.</p>
 			<span class="px-2 py-0.5 rounded text-xs font-medium bg-green-500/20 text-green-400">Accepted</span>
 		</div>
 
@@ -144,7 +147,7 @@
 		<div class="p-4 border border-surface-700 rounded-lg bg-surface-800">
 			<span class="font-mono text-sm text-surface-500">ADR-005</span>
 			<h3 class="text-surface-50 font-semibold mt-1 mb-2">Self-Hosted MQTT Broker</h3>
-			<p class="text-surface-400 text-sm m-0 mb-2">Mosquitto on Raspberry Pi (MeshAdv-Mini gateway). Full control, no external dependency, free, enables local-first bridge architecture.</p>
+			<p class="text-surface-400 text-sm m-0 mb-2">Mosquitto on Raspberry Pi (FireElmo-SDR gateway). Full control, no external dependency, free, enables local-first bridge architecture.</p>
 			<span class="px-2 py-0.5 rounded text-xs font-medium bg-green-500/20 text-green-400">Accepted</span>
 		</div>
 	</div>
@@ -182,7 +185,7 @@
 	<div class="overflow-x-auto my-6" bind:this={bridgeEl}
 		data-graph={`graph TD
 		MESH["Mesh Devices"]
-		GW["MeshAdv-Mini Gateway"]
+		GW["FireElmo-SDR Gateway"]
 		MSTD["meshtasticd"]
 		MQTT["Mosquitto MQTT"]
 		SMS["SMS Bridge\nPython"]
