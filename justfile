@@ -432,9 +432,17 @@ flash-g2 port="/dev/ttyACM0":
     ESPTOOL=$(command -v esptool || command -v esptool.py || { echo "esptool not found"; exit 1; })
 
     VERSION_FULL=$(jq -r '.meshtastic.version_full' "$MANIFEST")
-    FW="$CACHE_DIR/firmware-station-g2-${VERSION_FULL}.bin"
     BLEOTA="$CACHE_DIR/bleota-s3.bin"
     LITTLEFS="$CACHE_DIR/littlefs-station-g2-${VERSION_FULL}.bin"
+
+    # Prefer custom LA-Mesh build if available
+    CUSTOM_BIN=$(jq -r '.meshtastic.devices["station-g2"].custom.binary // empty' "$MANIFEST")
+    if [ -n "$CUSTOM_BIN" ] && [ -f "$CACHE_DIR/$CUSTOM_BIN" ]; then
+        FW="$CACHE_DIR/$CUSTOM_BIN"
+        echo "Using custom LA-Mesh build: $CUSTOM_BIN"
+    else
+        FW="$CACHE_DIR/firmware-station-g2-${VERSION_FULL}.bin"
+    fi
 
     echo "Station G2 Flash Procedure"
     echo "=========================="

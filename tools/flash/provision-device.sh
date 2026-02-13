@@ -151,14 +151,26 @@ fi
 
 # --- Step 1: Fetch firmware ---
 echo "[1/5] Fetching firmware..."
-BINARY_NAME=$(jq -r ".meshtastic.devices[\"$DEVICE\"].binary" "$MANIFEST")
-FIRMWARE_PATH="$CACHE_DIR/$BINARY_NAME"
 
-if [ -f "$FIRMWARE_PATH" ]; then
-    echo "  Using cached firmware: $FIRMWARE_PATH"
+# Prefer custom LA-Mesh build if available, fall back to upstream
+CUSTOM_BIN=$(jq -r ".meshtastic.devices[\"$DEVICE\"].custom.binary // empty" "$MANIFEST")
+UPSTREAM_BIN=$(jq -r ".meshtastic.devices[\"$DEVICE\"].binary" "$MANIFEST")
+
+if [ -n "$CUSTOM_BIN" ] && [ -f "$CACHE_DIR/$CUSTOM_BIN" ]; then
+    FIRMWARE_PATH="$CACHE_DIR/$CUSTOM_BIN"
+    echo "  Using cached custom build: $CUSTOM_BIN"
+elif [ -f "$CACHE_DIR/$UPSTREAM_BIN" ]; then
+    FIRMWARE_PATH="$CACHE_DIR/$UPSTREAM_BIN"
+    echo "  Using cached upstream firmware: $UPSTREAM_BIN"
 else
     echo "  Downloading firmware..."
     "$SCRIPT_DIR/fetch-firmware.sh" --device "$DEVICE"
+    # Re-check after download
+    if [ -n "$CUSTOM_BIN" ] && [ -f "$CACHE_DIR/$CUSTOM_BIN" ]; then
+        FIRMWARE_PATH="$CACHE_DIR/$CUSTOM_BIN"
+    else
+        FIRMWARE_PATH="$CACHE_DIR/$UPSTREAM_BIN"
+    fi
 fi
 
 if [ ! -f "$FIRMWARE_PATH" ]; then
@@ -169,7 +181,12 @@ echo ""
 
 # --- Step 2: Verify checksum ---
 echo "[2/5] Verifying firmware integrity..."
-EXPECTED_SHA=$(jq -r ".meshtastic.devices[\"$DEVICE\"].sha256" "$MANIFEST")
+# Use custom hash if flashing custom build, otherwise upstream hash
+if [ -n "$CUSTOM_BIN" ] && [ "$FIRMWARE_PATH" = "$CACHE_DIR/$CUSTOM_BIN" ]; then
+    EXPECTED_SHA=$(jq -r ".meshtastic.devices[\"$DEVICE\"].custom.sha256 // empty" "$MANIFEST")
+else
+    EXPECTED_SHA=$(jq -r ".meshtastic.devices[\"$DEVICE\"].sha256" "$MANIFEST")
+fi
 ACTUAL_SHA=$(sha256sum "$FIRMWARE_PATH" | cut -d' ' -f1)
 
 if [ "$EXPECTED_SHA" != "UPDATE_WITH_ACTUAL_HASH_AFTER_DOWNLOAD" ] && [ -n "$EXPECTED_SHA" ]; then
