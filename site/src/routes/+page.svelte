@@ -1,6 +1,15 @@
 <script>
 	import { base } from '$app/paths';
 	import StatusBadge from '$lib/components/StatusBadge.svelte';
+
+	// Injected from firmware/manifest.json at build time via vite.config.ts
+	const fwVersion = __FW_VERSION__;
+	const fwVersionFull = __FW_VERSION_FULL__;
+	const fwMinVersion = __FW_MIN_VERSION__;
+	const fwBuildSource = __FW_BUILD_SOURCE__;
+	const fwLastUpdated = __FW_LAST_UPDATED__;
+	const fwSha256G2 = __FW_SHA256_G2__;
+	const fwTargetG2 = __FW_TARGET_G2__;
 </script>
 
 <svelte:head>
@@ -11,10 +20,6 @@
 <section class="text-center py-12 border-b border-surface-700 mb-8">
 	<h1 class="text-5xl font-bold font-mono text-primary-400 m-0">LA-Mesh</h1>
 	<p class="text-xl text-surface-400 mt-2 mb-4">Community LoRa mesh network for Southern Maine</p>
-	<p class="text-surface-300">
-		Encrypted mesh communications for the Lewiston-Auburn area.
-		Infrastructure-independent, resilient, community-owned.
-	</p>
 	<div class="flex justify-center gap-3 mt-6 flex-wrap">
 		<img src="https://github.com/Jesssullivan/LA-Mesh/actions/workflows/build-firmware.yml/badge.svg" alt="Build Firmware" class="h-5" />
 		<img src="https://github.com/Jesssullivan/LA-Mesh/actions/workflows/deploy-pages.yml/badge.svg" alt="Deploy Pages" class="h-5" />
@@ -52,24 +57,33 @@
 <!-- Firmware Status -->
 <section class="mb-12">
 	<h2 class="text-center text-surface-50 mb-6">Firmware Status</h2>
-	<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+	<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
 		<div class="p-4 bg-surface-800 border border-surface-700 rounded-lg">
 			<span class="text-xs text-surface-500 uppercase tracking-wider">Version</span>
-			<p class="font-mono text-primary-400 text-lg m-0 mt-1">v2.7.15</p>
+			<p class="font-mono text-primary-400 text-lg m-0 mt-1">v{fwVersion}</p>
 		</div>
 		<div class="p-4 bg-surface-800 border border-surface-700 rounded-lg">
 			<span class="text-xs text-surface-500 uppercase tracking-wider">Min Required</span>
-			<p class="font-mono text-primary-400 text-lg m-0 mt-1">v2.7.15+</p>
+			<p class="font-mono text-primary-400 text-lg m-0 mt-1">v{fwMinVersion}+</p>
 		</div>
 		<div class="p-4 bg-surface-800 border border-surface-700 rounded-lg">
 			<span class="text-xs text-surface-500 uppercase tracking-wider">Build Source</span>
-			<p class="font-mono text-primary-400 text-lg m-0 mt-1">Custom (LA-Mesh)</p>
+			<p class="font-mono text-primary-400 text-lg m-0 mt-1">{fwBuildSource === 'custom' ? 'Custom (LA-Mesh)' : 'Upstream'}</p>
 		</div>
 		<div class="p-4 bg-surface-800 border border-surface-700 rounded-lg">
 			<span class="text-xs text-surface-500 uppercase tracking-wider">Target</span>
-			<p class="font-mono text-primary-400 text-lg m-0 mt-1">station-g2</p>
+			<p class="font-mono text-primary-400 text-lg m-0 mt-1">{fwTargetG2}</p>
+		</div>
+		<div class="p-4 bg-surface-800 border border-surface-700 rounded-lg">
+			<span class="text-xs text-surface-500 uppercase tracking-wider">Full Build</span>
+			<p class="font-mono text-primary-400 text-sm m-0 mt-1">{fwVersionFull}</p>
+		</div>
+		<div class="p-4 bg-surface-800 border border-surface-700 rounded-lg">
+			<span class="text-xs text-surface-500 uppercase tracking-wider">Manifest Updated</span>
+			<p class="font-mono text-primary-400 text-lg m-0 mt-1">{fwLastUpdated}</p>
 		</div>
 	</div>
+	<p class="text-xs text-surface-500 font-mono mt-3 break-all text-center">SHA256 (station-g2): {fwSha256G2}</p>
 </section>
 
 <!-- Clone to Flash -->
@@ -167,7 +181,7 @@ just mesh-set-role</code></pre>
 		</div>
 		<div class="flex justify-between p-3 bg-surface-800 rounded-lg border-l-3 border-primary-500">
 			<span class="font-semibold text-surface-400 text-sm">Min Firmware</span>
-			<span class="font-mono text-surface-200 text-sm">v2.7.15+</span>
+			<span class="font-mono text-surface-200 text-sm">v{fwMinVersion}+</span>
 		</div>
 	</div>
 </section>

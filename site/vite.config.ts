@@ -2,6 +2,10 @@ import { sveltekit } from '@sveltejs/kit/vite';
 import { defineConfig } from 'vite';
 import tailwindcss from '@tailwindcss/vite';
 import type { Plugin } from 'vite';
+// @ts-ignore — manifest import resolved by bundler
+import manifest from '../firmware/manifest.json';
+
+const fw = manifest.meshtastic;
 
 // Skeleton-Tailwind v4 compatibility plugin (established pattern from tinyland.dev/MassageIthaca)
 function skeletonTailwindV4Compat(): Plugin {
@@ -29,5 +33,14 @@ export default defineConfig({
 		skeletonTailwindV4Compat(),
 		tailwindcss(),
 		sveltekit()
-	]
+	],
+	define: {
+		__FW_VERSION__: JSON.stringify(fw.version),
+		__FW_VERSION_FULL__: JSON.stringify(fw.version_full),
+		__FW_MIN_VERSION__: JSON.stringify(fw.min_version),
+		__FW_BUILD_SOURCE__: JSON.stringify(fw.build.source),
+		__FW_LAST_UPDATED__: JSON.stringify(manifest.last_updated),
+		__FW_SHA256_G2__: JSON.stringify(fw.devices['station-g2'].sha256),
+		__FW_TARGET_G2__: JSON.stringify(fw.devices['station-g2'].pio_env)
+	}
 });

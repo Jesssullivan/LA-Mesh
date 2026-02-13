@@ -9,7 +9,9 @@
 		{ href: `${base}/devices`, label: 'Devices' },
 		{ href: `${base}/architecture`, label: 'Architecture' },
 		{ href: 'https://meshmap.net/', label: 'Mesh Map', external: true },
-		{ href: 'https://flasher.meshtastic.org/', label: 'Flash Firmware', external: true, bold: true }
+		{ href: 'https://site.meshtastic.org/', label: 'Site Planner', external: true },
+		{ href: 'https://flasher.meshtastic.org/', label: 'Flash Firmware', external: true, bold: true },
+		{ href: 'https://github.com/Jesssullivan/LA-Mesh', label: 'GitHub', external: true }
 	];
 
 	/** @type {{ href: string, label: string }[]} */
