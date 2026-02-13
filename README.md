@@ -1,30 +1,7 @@
 # LA-Mesh
 
-LoRa mesh network infrastructure for Southern Maine.
+Work in progress LoRa mesh network and encrypted communication bridge infrastructure for Southern Maine.
 
-Community-driven encrypted mesh communications covering the Lewiston-Auburn area and Bates College campus, supporting Meshtastic, MeshCore, and LoRa radio education.
-
-## What is LA-Mesh?
-
-LA-Mesh deploys a resilient, encrypted mesh network using LoRa radio technology. Our goals:
-
-- **Encrypted communications** for community members via Meshtastic mesh devices
-- **Infrastructure relay nodes** on rooftops and towers for wide coverage
-- **Education** in RF engineering, SDR analysis, and secure communications
-- **Bridges** connecting SMS, email, and internet to the mesh network
-- **Community resilience** through distributed, infrastructure-independent communications
-
-## Supported Devices
-
-| Device | Role | Description |
-|--------|------|-------------|
-| **Station G2** | Base station / relay | High-power (up to 4.46W), rooftop/tower deployment |
-| **T-Deck Pro** | Mobile client | Full keyboard, GPS, portable encrypted comms |
-| **T-Deck Pro (E-Ink)** | Low-power client | Battery-optimized, sunlight-readable |
-| **MeshAdv-Mini** | Pi HAT gateway | SMS/email bridge, runs meshtasticd on Linux |
-| **HackRF H4M** | Education tool | SDR spectrum analysis, LoRa protocol education |
-
-## Quick Start
 
 ```bash
 # Enter development environment
@@ -39,58 +16,3 @@ just dev
 # Show environment info
 just info
 ```
-
-## Project Structure
-
-```
-LA-Mesh/
-├── site/              # SvelteKit documentation site (GitHub Pages)
-├── docs/              # Documentation content
-│   ├── architecture/  # Architecture decision records
-│   ├── devices/       # Per-device setup guides
-│   ├── guides/        # User guides
-│   └── research/      # Protocol and device research
-├── firmware/          # Firmware configurations
-│   ├── meshtastic/    # Meshtastic device configs
-│   └── meshcore/      # MeshCore evaluation configs
-├── configs/           # Network and device profiles
-├── bridges/           # Gateway/bridge software
-│   ├── sms/           # SMS-to-mesh bridge
-│   ├── email/         # GPG email-to-mesh bridge
-│   └── mqtt/          # MQTT bridge configs
-├── curriculum/        # Education materials
-│   ├── sdr/           # HackRF/SDR labs
-│   ├── tails/         # TAILS and secure comms
-│   ├── mesh-basics/   # Mesh networking fundamentals
-│   └── security/      # Encryption and OPSEC
-├── hardware/          # Hardware BOMs, antenna calcs, enclosures
-├── tools/             # Flash, test, and monitoring scripts
-├── flake.nix          # Nix development environment
-├── MODULE.bazel       # Bazel build configuration
-└── justfile           # Task runner
-```
-
-## Development
-
-**Prerequisites**: Nix with flakes enabled, or manually install: Node.js 22, pnpm, just, meshtastic CLI, esptool
-
-```bash
-# Clone and enter dev shell
-git clone https://github.com/Jesssullivan/LA-Mesh.git
-cd LA-Mesh
-nix develop
-
-# First-time setup
-just setup
-
-# Build documentation site
-just build
-```
-
-## Community
-
-LA-Mesh serves the Lewiston-Auburn and Southern Maine community. If you're interested in joining the mesh network or contributing to the project, check the documentation site for getting started guides.
-
-## License
-
-[MIT](LICENSE)
